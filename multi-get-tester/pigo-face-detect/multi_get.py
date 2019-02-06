@@ -5,14 +5,15 @@ from common import cc
 from common import read_binary
 import math
 import os
+import matplotlib.pyplot as plt
 
 url = "http://192.168.99.100:18080/function/pigo-face-detector"
 image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
 
 average_execution_time = 0.26
-l = 0.1
+l = 0.95
 
-req_per_seq = 1 / (0.8*0.26)
+req_per_seq = 1 / (l*0.26)
 total_sec = 30
 
 wait_time = 1 / req_per_seq
@@ -41,6 +42,19 @@ def get_request(arg):
     output[arg] = [res.status_code, total_time]
 
 
+def plot_timings():
+    times = []
+    for arr in output:
+        if arr == None:
+            continue
+        times.append(arr[1])
+
+    plt.plot(times)
+    plt.ylabel('Response times')
+    plt.ylabel('Request number')
+    plt.show()
+
+
 if __name__ == "__main__":
     for i in range(total_req):
         thread = Thread(target=get_request, args=(i,))
@@ -67,6 +81,8 @@ if __name__ == "__main__":
           (l, average_execution_time))
     print("Total %d jobs, %d accepted and %d rejected" %
           (total_req, accepted_jobs, rejected_jobs))
-    print("%.2f%% rejected, %.2f%% accepted" % (accepted_jobs * 100 /
+    print("%.2f%% accepted, %.2f%% rejected" % (accepted_jobs * 100 /
                                                 total_req, rejected_jobs * 100/total_req))
     print("\n")
+
+    plot_timings()
