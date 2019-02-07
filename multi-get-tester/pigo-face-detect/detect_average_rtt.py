@@ -6,12 +6,13 @@ import time
 from common import cc
 from common import read_binary
 import os
+import math
 
 import matplotlib.pyplot as plt
 
 url = "http://192.168.99.100:18080/function/pigo-face-detector"
 image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
-total_req = 500
+total_req = 300
 times = []
 
 
@@ -51,7 +52,8 @@ if __name__ == "__main__":
 
     avg = total_time / total_req
 
-    print("\nAverage response time is " + str(avg) + "ms")
+    print("\nMean response time is " + str(avg) + "ms")
+    print("Max is %f and min is %f" % (max(times), min(times)))
     plot()
 
 # openfaas direct average is 0.24589629316329956
