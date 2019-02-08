@@ -8,22 +8,24 @@ import os
 import matplotlib.pyplot as plt
 import sys
 import getopt
+import uuid
 
-#url = "http://192.168.99.100:18080/function/pigo-face-detector"
-#image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
+# url = "http://192.168.99.100:18080/function/pigo-face-detector"
+# image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
 
 debug_print = False
 
 
 class FunctionTest():
-    def __init__(self, url, payload, ro, mi, k):
+    def __init__(self, url, payload, ro, mi, k, dir_name):
         self.url = url
         self.payload = payload
         self.ro = ro
         self.mi = mi
         self.k = k
-        self.dir = "_test_" + url[url.rfind("/"):]
-        self.test_name = "k" + str(k) + "_ro" + str(ro).replace(".", "_") + "_mi" + str(mi).replace(".", "_")
+        self.dir_name = dir_name
+        self.test_name = "k" + str(k) + "_ro" + str(round(ro, 3)).replace(".", "_") + \
+            "_mi" + str(round(mi, 3)).replace(".", "_")
 
         # prepare suite parameters
         self.l = self.ro*(self.k/self.mi)  # job rate
@@ -41,7 +43,8 @@ class FunctionTest():
         """ Execute test by passing ro and mi as average execution time """
 
         print("[TEST] Starting with ro = %.2f, l = %.2f, k = %d" % (self.ro, self.l, self.k))
-        print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
+        if not debug_print:
+            print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
 
         def get_request(arg):
             start_time = time.time()
@@ -91,6 +94,8 @@ class FunctionTest():
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected. pB is %.6f\n" %
               (self.total_requests, accepted_jobs, rejected_jobs, self.pb))
 
+        self.plot_timings()
+
     def plot_timings(self):
         times = []
         for arr in self.output:
@@ -99,15 +104,19 @@ class FunctionTest():
             times.append(arr[1])
 
         plt.plot(times)
-        plt.ylabel('Response times')
+        plt.ylabel('Response time')
         plt.xlabel('Request number')
-        plt.show()
+        # plt.show()
+        plt.savefig(self.dir_name + "/" + self.test_name + "_job_timings")
 
     def getPb(self):
         return self.pb
 
 
 def start_suite(url, payload, start_ro, end_ro, mi, k):
+    dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
+    os.makedirs(dir_name)
+
     print("======== Starting test suite ========")
     print("> url " + url)
     print("> payload " + payload)
@@ -117,15 +126,15 @@ def start_suite(url, payload, start_ro, end_ro, mi, k):
     print("\n")
 
     pbs = []
-    ro = start_ro
+    ro = max([start_ro, end_ro])
     # test all ros
     while True:
-        test = FunctionTest(url, payload, ro, mi, k)
+        test = FunctionTest(url, payload, ro, mi, k, dir_name)
         test.execute_test()
         pbs.append(test.getPb())
 
         ro -= 0.05
-        if ro < end_ro:
+        if ro < min([start_ro, end_ro]):
             break
 
     def print_ros():
@@ -157,7 +166,6 @@ def main(argv):
             print(usage)
             sys.exit()
         elif opt in ("-d", "--debug"):
-            debug_print = True
             debug = True
         elif opt in ("-m", "--mi"):
             mi = float(arg)
