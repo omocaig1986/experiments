@@ -6,50 +6,94 @@ from common import read_binary
 import math
 import os
 import matplotlib.pyplot as plt
+import sys
+import getopt
 
-url = "http://192.168.99.100:18080/function/pigo-face-detector"
-image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
+#url = "http://192.168.99.100:18080/function/pigo-face-detector"
+#image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
 
 debug_print = False
 
 
-def execute_test(ro):
-    mean_execution_time = 0.25294546
-    #l = 0.55
+class FunctionTest():
+    def __init__(self, url, payload, ro, mi, k):
+        self.url = url
+        self.payload = payload
+        self.ro = ro
+        self.mi = mi
+        self.k = k
+        self.dir = "_test_" + url[url.rfind("/"):]
+        self.test_name = "k" + str(k) + "_ro" + str(ro).replace(".", "_") + "_mi" + str(mi).replace(".", "_")
 
-    req_per_seq = 1 / (ro*mean_execution_time)
-    total_sec = 30
+        # prepare suite parameters
+        self.l = self.ro*(self.k/self.mi)  # job rate
+        self.sec = 30  # total running time for test, in seconds
+        self.total_requests = math.floor(self.l * self.sec)
+        self.wait_time = 1 / self.l
 
-    wait_time = 1 / req_per_seq
-    total_req = math.floor(req_per_seq * total_sec)
+        self.output = []
+        self.threads = []
+        self.output = [None] * self.total_requests
+        self.pa = 0.0
+        self.pb = 0.0
 
-    threads = []
-    output = [None] * total_req
+    def execute_test(self):
+        """ Execute test by passing ro and mi as average execution time """
 
-    def get_request(arg):
-        start_time = time.time()
+        print("[TEST] Starting with ro = %.2f, l = %.2f, k = %d" % (self.ro, self.l, self.k))
+        print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
 
-        if debug_print:
-            print("==> [GET] Number #" + str(arg))
+        def get_request(arg):
+            start_time = time.time()
 
-        res = requests.post(url, data=read_binary(image_uri))
+            if debug_print:
+                print("==> [GET] Number #" + str(arg))
 
-        end_time = time.time()
-        total_time = end_time - start_time
+            res = requests.post(self.url, data=read_binary(self.payload))
 
-        if debug_print:
-            if res.status_code == 200:
-                print(cc.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
-                      str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            if debug_print:
+                if res.status_code == 200:
+                    print(cc.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
+                          str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+                else:
+                    print(cc.FAIL + "==> [RES] Status " +
+                          str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+
+            self.output[arg] = [res.status_code, total_time]
+
+        for i in range(self.total_requests):
+            print("\r[TEST] Request %d/%d" % (i, self.total_requests), end='')
+            thread = Thread(target=get_request, args=(i,))
+            thread.start()
+            self.threads.append(thread)
+            time.sleep(self.wait_time)
+
+        for t in self.threads:
+            t.join()
+
+        rejected_jobs = 0
+        accepted_jobs = 0
+
+        for arr in self.output:
+            if arr == None:
+                continue
+            if arr[0] == 200:
+                accepted_jobs += 1
             else:
-                print(cc.FAIL + "==> [RES] Status " +
-                      str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+                rejected_jobs += 1
 
-        output[arg] = [res.status_code, total_time]
+        self.pb = rejected_jobs * 100/self.total_requests
+        self.pa = accepted_jobs * 100/self.total_requests
 
-    def plot_timings():
+        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected. pB is %.6f\n" %
+              (self.total_requests, accepted_jobs, rejected_jobs, self.pb))
+
+    def plot_timings(self):
         times = []
-        for arr in output:
+        for arr in self.output:
             if arr == None:
                 continue
             times.append(arr[1])
@@ -59,57 +103,82 @@ def execute_test(ro):
         plt.xlabel('Request number')
         plt.show()
 
-    for i in range(total_req):
-        thread = Thread(target=get_request, args=(i,))
-        thread.start()
-        threads.append(thread)
-        time.sleep(wait_time)
-
-    for t in threads:
-        output.append(t.join())
-
-    rejected_jobs = 0
-    accepted_jobs = 0
-
-    for arr in output:
-        if arr == None:
-            continue
-        if arr[0] == 200:
-            accepted_jobs += 1
-        else:
-            rejected_jobs += 1
-
-    if debug_print:
-        print("\n")
-        print("By using l=%f for an mean execution time of %f" %
-              (ro, mean_execution_time))
-        print("Requests frequency %f, request period %f\n" %
-              (req_per_seq, ro*mean_execution_time))
-        print("Total %d jobs, %d accepted and %d rejected" %
-              (total_req, accepted_jobs, rejected_jobs))
-        print("%.2f%% accepted, %.2f%% rejected" % (accepted_jobs * 100 /
-                                                    total_req, rejected_jobs * 100/total_req))
-        print("\n")
-
-    return rejected_jobs * 100/total_req
+    def getPb(self):
+        return self.pb
 
 
-if __name__ == "__main__":
+def start_suite(url, payload, start_ro, end_ro, mi, k):
+    print("======== Starting test suite ========")
+    print("> url " + url)
+    print("> payload " + payload)
+    print("> ro [%.2f,%.2f]" % (start_ro, end_ro))
+    print("> mi %.2f" % (mi))
+    print("> k %d" % (k))
+    print("\n")
+
     pbs = []
-    ro = 1
+    ro = start_ro
     # test all ros
     while True:
-        print("Executing test with ro = %.2f ..." % (ro))
-        pb = execute_test(ro)
-        pbs.append(pb)
-        print("done. pB is %f" % pb)
+        test = FunctionTest(url, payload, ro, mi, k)
+        test.execute_test()
+        pbs.append(test.getPb())
+
         ro -= 0.05
-        if ro < 0.15:
+        if ro < end_ro:
             break
 
     def print_ros():
-        print("\nResult:")
+        print("\nResults from ro = %.2f to ro = %.2f:" % (start_ro, end_ro))
         for pb in pbs:
             print(pb)
 
     print_ros()
+
+
+def main(argv):
+    url = ""
+    start_ro = -1
+    end_ro = -1
+    mi = -1
+    k = -1
+    debug = False
+    payload = ""
+
+    usage = "multi_get.py"
+    try:
+        opts, args = getopt.getopt(argv, "hdm:u:p:k:", ["url=", "start-ro=", "end-ro=", "mi=", "debug="])
+    except getopt.GetoptError:
+        print(usage)
+        sys.exit(2)
+    for opt, arg in opts:
+        # print(opt + " -> " + arg)
+        if opt == '-h':
+            print(usage)
+            sys.exit()
+        elif opt in ("-d", "--debug"):
+            debug_print = True
+            debug = True
+        elif opt in ("-m", "--mi"):
+            mi = float(arg)
+        elif opt in ("-u", "--url"):
+            url = arg
+        elif opt in ("--start-ro"):
+            start_ro = float(arg)
+        elif opt in ("--end-ro"):
+            end_ro = float(arg)
+        elif opt in ("-p", "--payload"):
+            payload = arg
+        elif opt in ("-k"):
+            k = int(arg)
+
+    if start_ro < 0 or end_ro < 0 or mi < 0 or url == "" or k < 0:
+        print("Some needed parameter was not given")
+        print(usage)
+        sys.exit()
+
+    start_suite(url, payload, start_ro, end_ro, mi, k)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
