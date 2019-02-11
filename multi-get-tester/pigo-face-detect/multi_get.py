@@ -17,26 +17,25 @@ debug_print = False
 
 
 class FunctionTest():
-    def __init__(self, url, payload, ro, mi, k, dir_name):
+    def __init__(self, url, payload, l, k, dir_name):
         self.url = url
         self.payload = payload
-        self.ro = ro
-        self.mi = mi
+        self.l = l
         self.k = k
         self.dir_name = dir_name
-        self.test_name = "k" + str(k) + "_ro" + str(round(ro, 3)).replace(".", "_") + \
-            "_mi" + str(round(mi, 3)).replace(".", "_")
+        self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
 
         # prepare suite parameters
-        self.l = self.ro*(self.k/self.mi)  # job rate
         self.sec = 30  # total running time for test, in seconds
         self.total_requests = math.floor(self.l * self.sec)
         self.wait_time = 1 / self.l
 
         self.threads = []
+        self.accepted_jobs = 0
+        self.rejected_jobs = 0
         self.pa = 0.0
         self.pb = 0.0
-        self.avg_response_time = 0.0
+        self.mean_time = 0.0
         # per-thread variables
         self.timings = [None] * self.total_requests
         self.output = [None] * self.total_requests
@@ -44,7 +43,7 @@ class FunctionTest():
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
 
-        print("[TEST] Starting with ro = %.2f, l = %.2f, k = %d" % (self.ro, self.l, self.k))
+        print("[TEST] Starting with l = %.2f, k = %d" % (self.l, self.k))
         if not debug_print:
             print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
 
@@ -80,24 +79,36 @@ class FunctionTest():
         for t in self.threads:
             t.join()
 
-        rejected_jobs = 0
-        accepted_jobs = 0
+        self.rejected_jobs = 0
+        self.accepted_jobs = 0
 
         for arr in self.output:
             if arr == None:
                 continue
             if arr == 200:
-                accepted_jobs += 1
+                self.accepted_jobs += 1
             else:
-                rejected_jobs += 1
+                self.rejected_jobs += 1
 
-        self.pb = rejected_jobs * 100/self.total_requests
-        self.pa = accepted_jobs * 100/self.total_requests
+        self.pb = self.rejected_jobs * 100/self.total_requests
+        self.pa = self.accepted_jobs * 100 / self.total_requests
 
-        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected. pB is %.6f\n" %
-              (self.total_requests, accepted_jobs, rejected_jobs, self.pb))
+        self.computeMeans()
+
+        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
+              (self.total_requests, self.accepted_jobs, self.rejected_jobs))
+        print("[TEST] pB is %.6f, mean_time is %.6f\n" % (self.pb, self.mean_time))
 
         # self.plot_timings()
+
+    def computeMeans(self):
+        s = 0.0
+        i = 0
+        for v in self.timings:
+            if self.output[i] == 200:
+                s += v
+            i += 1
+        self.mean_time = s/float(self.accepted_jobs)
 
     def plot_timings(self):
         plt.clf()
@@ -110,51 +121,62 @@ class FunctionTest():
     def getPb(self):
         return self.pb
 
+    def getMeanTime(self):
+        return self.mean_time
 
-def start_suite(url, payload, start_ro, end_ro, mi, k):
+
+def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k):
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
     os.makedirs(dir_name)
 
     print("======== Starting test suite ========")
     print("> url " + url)
     print("> payload " + payload)
-    print("> ro [%.2f,%.2f]" % (start_ro, end_ro))
-    print("> mi %.2f" % (mi))
+    print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
+    print("> lambda_delta %.2f" % (lambda_delta))
     print("> k %d" % (k))
     print("\n")
 
     pbs = []
-    ro = max([start_ro, end_ro])
+    times = []
+    l = start_lambda
     # test all ros
     while True:
-        test = FunctionTest(url, payload, ro, mi, k, dir_name)
+        test = FunctionTest(url, payload, l, k, dir_name)
         test.execute_test()
         pbs.append(test.getPb())
+        times.append(test.getMeanTime())
 
-        ro -= 0.05
-        if ro < min([start_ro, end_ro]):
-            break
+        if start_lambda >= end_lambda:
+            l -= lambda_delta
+            if l < end_lambda:
+                break
+        else:
+            l += lambda_delta
+            if l > end_lambda:
+                break
 
-    def print_ros():
-        print("\n[RESULTS] From ro = %.2f to ro = %.2f:" % (max(start_ro, end_ro), min(start_ro, end_ro)))
-        for pb in pbs:
-            print(pb)
+    def print_res():
+        print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
+        for i in range(len(pbs)):
+            print("%10.6f %10.6f" % (pbs[i], times[i]))
 
-    print_ros()
+    print_res()
 
 
 def main(argv):
     url = ""
-    start_ro = -1
-    end_ro = -1
-    mi = -1
+    start_lambda = -1
+    end_lambda = -1
+    lambda_delta = 0.5
     k = -1
     debug = False
     payload = ""
 
     usage = "multi_get.py"
     try:
-        opts, args = getopt.getopt(argv, "hdm:u:p:k:", ["url=", "start-ro=", "end-ro=", "mi=", "debug="])
+        opts, args = getopt.getopt(
+            argv, "hdm:u:p:k:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -165,25 +187,25 @@ def main(argv):
             sys.exit()
         elif opt in ("-d", "--debug"):
             debug = True
-        elif opt in ("-m", "--mi"):
-            mi = float(arg)
+        elif opt in ("-q", "--lambda-delta"):
+            lambda_delta = float(arg)
         elif opt in ("-u", "--url"):
             url = arg
-        elif opt in ("--start-ro"):
-            start_ro = float(arg)
-        elif opt in ("--end-ro"):
-            end_ro = float(arg)
+        elif opt in ("--start-lambda"):
+            start_lambda = float(arg)
+        elif opt in ("--end-lambda"):
+            end_lambda = float(arg)
         elif opt in ("-p", "--payload"):
             payload = arg
         elif opt in ("-k"):
             k = int(arg)
 
-    if start_ro < 0 or end_ro < 0 or mi < 0 or url == "" or k < 0:
+    if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or url == "" or k < 0:
         print("Some needed parameter was not given")
         print(usage)
         sys.exit()
 
-    start_suite(url, payload, start_ro, end_ro, mi, k)
+    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k)
 
 
 if __name__ == "__main__":
