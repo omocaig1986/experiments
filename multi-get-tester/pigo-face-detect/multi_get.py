@@ -33,11 +33,13 @@ class FunctionTest():
         self.total_requests = math.floor(self.l * self.sec)
         self.wait_time = 1 / self.l
 
-        self.output = []
         self.threads = []
-        self.output = [None] * self.total_requests
         self.pa = 0.0
         self.pb = 0.0
+        self.avg_response_time = 0.0
+        # per-thread variables
+        self.timings = [None] * self.total_requests
+        self.output = [None] * self.total_requests
 
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
@@ -65,10 +67,11 @@ class FunctionTest():
                     print(cc.FAIL + "==> [RES] Status " +
                           str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
 
-            self.output[arg] = [res.status_code, total_time]
+            self.output[arg] = res.status_code
+            self.timings[arg] = total_time
 
         for i in range(self.total_requests):
-            print("\r[TEST] Request %d/%d" % (i, self.total_requests), end='')
+            print("\r[TEST] Request %d/%d" % (i + 1, self.total_requests), end='')
             thread = Thread(target=get_request, args=(i,))
             thread.start()
             self.threads.append(thread)
@@ -83,7 +86,7 @@ class FunctionTest():
         for arr in self.output:
             if arr == None:
                 continue
-            if arr[0] == 200:
+            if arr == 200:
                 accepted_jobs += 1
             else:
                 rejected_jobs += 1
@@ -94,16 +97,11 @@ class FunctionTest():
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected. pB is %.6f\n" %
               (self.total_requests, accepted_jobs, rejected_jobs, self.pb))
 
-        self.plot_timings()
+        # self.plot_timings()
 
     def plot_timings(self):
-        times = []
-        for arr in self.output:
-            if arr == None:
-                continue
-            times.append(arr[1])
-
-        plt.plot(times)
+        plt.clf()
+        plt.plot(self.timings)
         plt.ylabel('Response time')
         plt.xlabel('Request number')
         # plt.show()
@@ -138,7 +136,7 @@ def start_suite(url, payload, start_ro, end_ro, mi, k):
             break
 
     def print_ros():
-        print("\nResults from ro = %.2f to ro = %.2f:" % (start_ro, end_ro))
+        print("\n[RESULTS] From ro = %.2f to ro = %.2f:" % (max(start_ro, end_ro), min(start_ro, end_ro)))
         for pb in pbs:
             print(pb)
 
