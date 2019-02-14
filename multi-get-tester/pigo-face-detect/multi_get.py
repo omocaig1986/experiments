@@ -9,25 +9,24 @@ import matplotlib.pyplot as plt
 import sys
 import getopt
 import uuid
-
-# url = "http://192.168.99.100:18080/function/pigo-face-detector"
-# image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
+import numpy as np
 
 debug_print = False
 
 
 class FunctionTest():
-    def __init__(self, url, payload, l, k, dir_name):
+    def __init__(self, url, payload, l, k, poisson, dir_name):
         self.url = url
         self.payload = payload
         self.l = l
         self.k = k
         self.dir_name = dir_name
+        self.poisson = poisson
         self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
 
         # prepare suite parameters
         self.sec = 30  # total running time for test, in seconds
-        self.total_requests = math.floor(self.l * self.sec)
+        self.total_requests = 0  # to be updated after test
         self.wait_time = 1 / self.l
 
         self.threads = []
@@ -37,15 +36,13 @@ class FunctionTest():
         self.pb = 0.0
         self.mean_time = 0.0
         # per-thread variables
-        self.timings = [None] * self.total_requests
-        self.output = [None] * self.total_requests
+        self.timings = []
+        self.output = []
 
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
 
-        print("[TEST] Starting with l = %.2f, k = %d" % (self.l, self.k))
-        if not debug_print:
-            print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
+        print("[TEST] Starting with l = %.2f, k = %d, Poisson = %s" % (self.l, self.k, self.poisson))
 
         def get_request(arg):
             start_time = time.time()
@@ -69,16 +66,61 @@ class FunctionTest():
             self.output[arg] = res.status_code
             self.timings[arg] = total_time
 
-        for i in range(self.total_requests):
-            print("\r[TEST] Request %d/%d" % (i + 1, self.total_requests), end='')
-            thread = Thread(target=get_request, args=(i,))
-            thread.start()
-            self.threads.append(thread)
-            time.sleep(self.wait_time)
+        def burst_requests():
+            self.total_requests = math.floor(self.l * self.sec)
+            self.timings = [None] * self.total_requests
+            self.output = [None] * self.total_requests
 
-        for t in self.threads:
-            t.join()
+            if not debug_print:
+                print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
+            for i in range(self.total_requests):
+                print("\r[TEST] Request %d/%d" % (i + 1, self.total_requests), end='')
+                thread = Thread(target=get_request, args=(i,))
+                thread.start()
+                self.threads.append(thread)
+                time.sleep(self.wait_time)
 
+            for t in self.threads:
+                t.join()
+
+        def poisson_requests():
+            req_rates = np.random.poisson(self.l, 30)
+            self.total_requests = req_rates.sum()
+            req_n = 0
+            self.timings = [None] * self.total_requests
+            self.output = [None] * self.total_requests
+
+            if not debug_print:
+                print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
+            # simulate self.sec seconds
+            for i in range(self.sec):
+                # if 0 requests only wait 1 second
+                if req_rates[i] == 0:
+                    print("\r[TEST] Request %4d/%4d | Requests/s %4d | Sec. %4d/%4d" %
+                          (req_n + 1, self.total_requests, req_rates[i], i + 1, self.sec), end='')
+                    time.sleep(1)
+                    continue
+                for j in range(req_rates[i]):
+                    print("\r[TEST] Request %4d/%4d | Requests/s %4d | Sec. %4d/%4d" %
+                          (req_n + 1, self.total_requests, req_rates[i], i + 1, self.sec), end='')
+                    thread = Thread(target=get_request, args=(req_n,))
+                    thread.start()
+                    self.threads.append(thread)
+                    time.sleep(1 / req_rates[i])
+                    req_n += 1
+
+            for t in self.threads:
+                t.join()
+
+        if self.poisson:
+            poisson_requests()
+        else:
+            burst_requests()
+
+        self.computeStats()
+
+    def computeStats(self):
+        # compute the jobs rates
         self.rejected_jobs = 0
         self.accepted_jobs = 0
 
@@ -93,15 +135,7 @@ class FunctionTest():
         self.pb = self.rejected_jobs * 100/self.total_requests
         self.pa = self.accepted_jobs * 100 / self.total_requests
 
-        self.computeMeans()
-
-        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
-              (self.total_requests, self.accepted_jobs, self.rejected_jobs))
-        print("[TEST] pB is %.6f, mean_time is %.6f\n" % (self.pb, self.mean_time))
-
-        # self.plot_timings()
-
-    def computeMeans(self):
+        # compute the mean request time
         s = 0.0
         i = 0
         for v in self.timings:
@@ -109,6 +143,12 @@ class FunctionTest():
                 s += v
             i += 1
         self.mean_time = s/float(self.accepted_jobs)
+
+        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
+              (self.total_requests, self.accepted_jobs, self.rejected_jobs))
+        print("[TEST] pB is %.6f, mean_time is %.6f\n" % (self.pb, self.mean_time))
+
+        # self.plot_timings()
 
     def plot_timings(self):
         plt.clf()
@@ -125,7 +165,7 @@ class FunctionTest():
         return self.mean_time
 
 
-def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k):
+def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k):
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
     os.makedirs(dir_name)
 
@@ -135,6 +175,7 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k):
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
     print("> lambda_delta %.2f" % (lambda_delta))
     print("> k %d" % (k))
+    print("> poisson %s" % poisson)
     print("\n")
 
     pbs = []
@@ -142,7 +183,7 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k):
     l = start_lambda
     # test all ros
     while True:
-        test = FunctionTest(url, payload, l, k, dir_name)
+        test = FunctionTest(url, payload, l, k, poisson, dir_name)
         test.execute_test()
         pbs.append(test.getPb())
         times.append(test.getMeanTime())
@@ -172,11 +213,12 @@ def main(argv):
     k = -1
     debug = False
     payload = ""
+    poisson = False
 
     usage = "multi_get.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hdm:u:p:k:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug="])
+            argv, "hdm:u:p:k:r", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -197,6 +239,8 @@ def main(argv):
             end_lambda = float(arg)
         elif opt in ("-p", "--payload"):
             payload = arg
+        elif opt in ("-r", "--poisson"):
+            poisson = True
         elif opt in ("-k"):
             k = int(arg)
 
@@ -205,7 +249,7 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, k)
+    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k)
 
 
 if __name__ == "__main__":
