@@ -23,6 +23,7 @@ class FunctionTest():
         self.dir_name = dir_name
         self.poisson = poisson
         self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
+        self.payload_binary = read_binary(self.payload)
 
         # prepare suite parameters
         self.sec = 30  # total running time for test, in seconds
@@ -52,7 +53,7 @@ class FunctionTest():
             if debug_print:
                 print("==> [GET] Number #" + str(arg))
 
-            res = requests.post(self.url, data=read_binary(self.payload))
+            res = requests.post(self.url, data=self.payload_binary)
 
             end_time = time.time()
             total_time = end_time - start_time
@@ -142,13 +143,13 @@ class FunctionTest():
 
         self.pb = self.rejected_jobs * 100/self.total_requests
         self.pa = self.accepted_jobs * 100 / self.total_requests
-        self.mean_time = timings_sum/float(self.accepted_jobs)
+        self.mean_time = timings_sum / float(self.accepted_jobs)
+        self.pe = self.external_jobs*100/float(self.total_requests)
 
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
         print("[TEST] pB is %.6f, mean_time is %.6f" % (self.pb, self.mean_time))
-        print("[TEST] %d jobs has been executed externally, %.6f%%\n" %
-              (self.external_jobs, self.external_jobs*100/float(self.total_requests)))
+        print("[TEST] %d jobs has been executed externally, %.6f%%\n" % (self.external_jobs, self.pe))
 
         # self.plot_timings()
 
@@ -162,6 +163,9 @@ class FunctionTest():
 
     def getPb(self):
         return self.pb
+
+    def getPe(self):
+        return self.pe
 
     def getMeanTime(self):
         return self.mean_time
@@ -182,12 +186,14 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
 
     pbs = []
     times = []
+    pes = []
     l = start_lambda
     # test all ros
     while True:
         test = FunctionTest(url, payload, l, k, poisson, dir_name)
         test.execute_test()
         pbs.append(test.getPb())
+        pes.append(test.getPe())
         times.append(test.getMeanTime())
 
         if start_lambda >= end_lambda:
@@ -202,7 +208,7 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
     def print_res():
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
         for i in range(len(pbs)):
-            print("%10.6f %10.6f" % (pbs[i], times[i]))
+            print("%10.6f %10.6f %10.2f" % (pbs[i], times[i], pes[i]))
 
     print_res()
 
