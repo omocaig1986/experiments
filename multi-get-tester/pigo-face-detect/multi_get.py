@@ -155,7 +155,7 @@ class FunctionTest():
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
         print("[TEST] pB is %.6f, mean_time is %.6f" % (self.pb, self.mean_time))
-        print("[TEST] %d jobs has been executed externally, %.6f%%\n" % (self.external_jobs, self.pe))
+        print("[TEST] %d jobs has been executed externally, %.2f%%\n" % (self.external_jobs, self.pe))
 
         # self.plot_timings()
 
