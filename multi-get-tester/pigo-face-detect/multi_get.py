@@ -10,6 +10,7 @@ import sys
 import getopt
 import uuid
 import numpy as np
+import mimetypes
 
 debug_print = False
 
@@ -23,7 +24,9 @@ class FunctionTest():
         self.dir_name = dir_name
         self.poisson = poisson
         self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
+        # load payload
         self.payload_binary = read_binary(self.payload)
+        self.payload_mime = mimetypes.guess_type(self.payload)[0]
 
         # prepare suite parameters
         self.sec = 30  # total running time for test, in seconds
@@ -42,6 +45,8 @@ class FunctionTest():
         self.output = []
         self.external = []
 
+        print("[INIT] Loaded payload of mime " + self.payload_mime + "\n")
+
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
 
@@ -53,7 +58,8 @@ class FunctionTest():
             if debug_print:
                 print("==> [GET] Number #" + str(arg))
 
-            res = requests.post(self.url, data=self.payload_binary)
+            headers = {'Content-Type': self.payload_mime}
+            res = requests.post(self.url, data=self.payload_binary, headers=headers)
 
             end_time = time.time()
             total_time = end_time - start_time
