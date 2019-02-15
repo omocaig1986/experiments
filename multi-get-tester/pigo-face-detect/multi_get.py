@@ -32,12 +32,14 @@ class FunctionTest():
         self.threads = []
         self.accepted_jobs = 0
         self.rejected_jobs = 0
+        self.external_jobs = 0
         self.pa = 0.0
         self.pb = 0.0
         self.mean_time = 0.0
         # per-thread variables
         self.timings = []
         self.output = []
+        self.external = []
 
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
@@ -65,11 +67,13 @@ class FunctionTest():
 
             self.output[arg] = res.status_code
             self.timings[arg] = total_time
+            self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
 
         def burst_requests():
             self.total_requests = math.floor(self.l * self.sec)
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
+            self.external = [None] * self.total_requests
 
             if not debug_print:
                 print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
@@ -89,6 +93,7 @@ class FunctionTest():
             req_n = 0
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
+            self.external = [None] * self.total_requests
 
             if not debug_print:
                 print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
@@ -123,30 +128,27 @@ class FunctionTest():
         # compute the jobs rates
         self.rejected_jobs = 0
         self.accepted_jobs = 0
+        self.external_jobs = 0
 
-        for arr in self.output:
-            if arr == None:
-                continue
-            if arr == 200:
+        timings_sum = 0.0
+        for i in range(self.total_requests):
+            if self.output[i] == 200:
                 self.accepted_jobs += 1
+                timings_sum += self.timings[i]
             else:
                 self.rejected_jobs += 1
+            if self.external[i]:
+                self.external_jobs += 1
 
         self.pb = self.rejected_jobs * 100/self.total_requests
         self.pa = self.accepted_jobs * 100 / self.total_requests
-
-        # compute the mean request time
-        s = 0.0
-        i = 0
-        for v in self.timings:
-            if self.output[i] == 200:
-                s += v
-            i += 1
-        self.mean_time = s/float(self.accepted_jobs)
+        self.mean_time = timings_sum/float(self.accepted_jobs)
 
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
-        print("[TEST] pB is %.6f, mean_time is %.6f\n" % (self.pb, self.mean_time))
+        print("[TEST] pB is %.6f, mean_time is %.6f" % (self.pb, self.mean_time))
+        print("[TEST] %d jobs has been executed externally, %.6f%%\n" %
+              (self.external_jobs, self.external_jobs*100/float(self.total_requests)))
 
         # self.plot_timings()
 
