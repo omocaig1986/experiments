@@ -11,6 +11,7 @@ import getopt
 import uuid
 import numpy as np
 import mimetypes
+import random
 
 debug_print = False
 
@@ -95,31 +96,31 @@ class FunctionTest():
                 t.join()
 
         def poisson_requests():
-            req_rates = np.random.poisson(self.l, 30)
-            self.total_requests = req_rates.sum()
+            self.total_requests = math.floor(self.l+100 * self.sec)
             req_n = 0
+            elapsed = 0.0
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
             self.external = [None] * self.total_requests
 
-            if not debug_print:
-                print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
-            # simulate self.sec seconds
-            for i in range(self.sec):
-                # if 0 requests only wait 1 second
-                if req_rates[i] == 0:
-                    print("\r[TEST] Request %4d/%4d | Requests/s %4d | Sec. %4d/%4d" %
-                          (req_n + 1, self.total_requests, req_rates[i], i + 1, self.sec), end='')
-                    time.sleep(1)
-                    continue
-                for j in range(req_rates[i]):
-                    print("\r[TEST] Request %4d/%4d | Requests/s %4d | Sec. %4d/%4d" %
-                          (req_n + 1, self.total_requests, req_rates[i], i + 1, self.sec), end='')
-                    thread = Thread(target=get_request, args=(req_n,))
-                    thread.start()
-                    self.threads.append(thread)
-                    time.sleep(1 / req_rates[i])
-                    req_n += 1
+            print("\r[TEST] Request %4d | Sec. %4.2f/%4d" % (0, elapsed, self.sec), end='')
+            while True:
+                wait_for = random.expovariate(self.l)
+
+                print("\r[TEST] Request %4d | Sec. %4.2f/%4d | Next in %.2fs" %
+                      (req_n + 1, elapsed, self.sec, wait_for), end='')
+                thread = Thread(target=get_request, args=(req_n,))
+                self.threads.append(thread)
+
+                elapsed += wait_for
+                req_n += 1
+
+                thread.start()
+
+                if elapsed > self.sec:
+                    break
+
+                time.sleep(wait_for)
 
             for t in self.threads:
                 t.join()
@@ -137,8 +138,15 @@ class FunctionTest():
         self.accepted_jobs = 0
         self.external_jobs = 0
 
+        self.total_requests = 0
+
         timings_sum = 0.0
-        for i in range(self.total_requests):
+        for i in range(len(self.output)):
+            if self.output[i] == None:
+                continue
+            else:
+                self.total_requests += 1
+
             if self.output[i] == 200:
                 self.accepted_jobs += 1
                 timings_sum += self.timings[i]
@@ -215,7 +223,7 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
         print("%10s %10s %10s %10s" % ("lambda", "pB", "Mean Time", "pE"))
         for i in range(len(pbs)):
-            print("%10d %10.6f %10.6f %10.2f" % (start_lambda + i*lambda_delta, pbs[i], times[i], pes[i]))
+            print("%.2f %.6f %.6f %.2f" % (start_lambda + i*lambda_delta, pbs[i], times[i], pes[i]))
 
     print_res()
 
