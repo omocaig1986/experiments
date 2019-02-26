@@ -17,7 +17,7 @@ debug_print = False
 
 
 class FunctionTest():
-    def __init__(self, url, payload, l, k, poisson, dir_name):
+    def __init__(self, url, payload, l, k, poisson, requests, dir_name):
         self.url = url
         self.payload = payload
         self.l = l
@@ -30,7 +30,7 @@ class FunctionTest():
 
         # prepare suite parameters
         self.sec = 30  # total running time for test, in seconds
-        self.total_requests = 0  # to be updated after test
+        self.total_requests = requests  # to be updated after test
         self.wait_time = 1 / self.l
 
         self.threads = []
@@ -83,7 +83,7 @@ class FunctionTest():
             self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
 
         def burst_requests():
-            self.total_requests = math.floor(self.l * self.sec)
+            #self.total_requests = math.floor(self.l * self.sec)
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
             self.external = [None] * self.total_requests
@@ -101,19 +101,18 @@ class FunctionTest():
                 t.join()
 
         def poisson_requests():
-            self.total_requests = math.floor(self.l+100 * self.sec)
             req_n = 0
             elapsed = 0.0
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
             self.external = [None] * self.total_requests
 
-            print("\r[TEST] Request %4d | Sec. %4.2f/%4d" % (0, elapsed, self.sec), end='')
-            while True:
+            print("\r[TEST] Starting...", end='')
+            for i in range(self.total_requests):
                 wait_for = random.expovariate(self.l)
 
-                print("\r[TEST] Request %4d | Sec. %4.2f/%4d | Next in %.2fs" %
-                      (req_n + 1, elapsed, self.sec, wait_for), end='')
+                print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" %
+                      (req_n + 1, self.total_requests, elapsed, wait_for), end='')
                 thread = Thread(target=get_request, args=(req_n,))
                 self.threads.append(thread)
 
@@ -121,10 +120,6 @@ class FunctionTest():
                 req_n += 1
 
                 thread.start()
-
-                if elapsed > self.sec:
-                    break
-
                 time.sleep(wait_for)
 
             for t in self.threads:
@@ -190,7 +185,7 @@ class FunctionTest():
         return self.mean_time
 
 
-def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k):
+def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests):
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
     # os.makedirs(dir_name)
 
@@ -200,7 +195,8 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
     print("> lambda_delta %.2f" % (lambda_delta))
     print("> k %d" % (k))
-    print("> use poisson %s" % "yes" if poisson else "no")
+    print("> requests %d" % (requests))
+    print("> use poisson %s" % ("yes" if poisson else "no"))
     print("\n")
 
     pbs = []
@@ -209,7 +205,7 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
     l = start_lambda
     # test all ros
     while True:
-        test = FunctionTest(url, payload, l, k, poisson, dir_name)
+        test = FunctionTest(url, payload, l, k, poisson, requests, dir_name)
         test.execute_test()
         pbs.append(test.getPb())
         pes.append(test.getPe())
@@ -242,11 +238,12 @@ def main(argv):
     debug = False
     payload = None
     poisson = False
+    requests = 500
 
     usage = "multi_get.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hdm:u:p:k:r", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson="])
+            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson=", "requests="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -271,13 +268,15 @@ def main(argv):
             poisson = True
         elif opt in ("-k"):
             k = int(arg)
+        elif opt in ("-t", "--requests"):
+            requests = int(arg)
 
     if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or url == "" or k < 0:
         print("Some needed parameter was not given")
         print(usage)
         sys.exit()
 
-    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k)
+    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests)
 
 
 if __name__ == "__main__":
