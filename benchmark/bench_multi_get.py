@@ -25,9 +25,8 @@ class FunctionTest():
         self.dir_name = dir_name
         self.poisson = poisson
         self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
-        # load payload
-        self.payload_binary = read_binary(self.payload)
-        self.payload_mime = mimetypes.guess_type(self.payload)[0]
+        self.payload_binary = None
+        self.payload_mime = None
 
         # prepare suite parameters
         self.sec = 30  # total running time for test, in seconds
@@ -46,7 +45,13 @@ class FunctionTest():
         self.output = []
         self.external = []
 
-        print("[INIT] Loaded payload of mime " + self.payload_mime + "\n")
+        print("[INIT] Starting test")
+
+        # load payload
+        if payload != None:
+            self.payload_binary = read_binary(self.payload)
+            self.payload_mime = mimetypes.guess_type(self.payload)[0]
+            print("[INIT] Loaded payload of mime " + self.payload_mime)
 
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
@@ -190,12 +195,12 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
     # os.makedirs(dir_name)
 
     print("======== Starting test suite ========")
-    print("> url " + url)
-    print("> payload " + payload)
+    print("> url %s" % url)
+    print("> payload %s" % payload)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
     print("> lambda_delta %.2f" % (lambda_delta))
     print("> k %d" % (k))
-    print("> poisson %s" % poisson)
+    print("> use poisson %s" % "yes" if poisson else "no")
     print("\n")
 
     pbs = []
@@ -235,7 +240,7 @@ def main(argv):
     lambda_delta = 0.5
     k = -1
     debug = False
-    payload = ""
+    payload = None
     poisson = False
 
     usage = "multi_get.py"
