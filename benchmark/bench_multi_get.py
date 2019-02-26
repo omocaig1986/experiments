@@ -17,6 +17,7 @@ debug_print = False
 
 
 class FunctionTest():
+
     def __init__(self, url, payload, l, k, poisson, requests, dir_name):
         self.url = url
         self.payload = payload
