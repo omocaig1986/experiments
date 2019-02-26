@@ -1,0 +1,12 @@
+provider:
+  name: faas
+  gateway: http://127.0.0.1:8080
+functions:
+  exponential-loop:
+    lang: go
+    handler: ./exponential-loop
+    image: exponential-loop:latest
+    environment:
+      write_timeout: "300"
+      read_timeout: "300"
+      mi: 1
