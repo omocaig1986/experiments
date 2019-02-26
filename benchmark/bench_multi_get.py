@@ -104,6 +104,7 @@ class FunctionTest():
 
         def poisson_requests():
             elapsed = 0.0
+            req_n = 0
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
             self.external = [None] * self.total_requests
