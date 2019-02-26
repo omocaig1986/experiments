@@ -22,7 +22,6 @@ func Handle(req []byte) string {
 	}
 
 	alfa := r1.ExpFloat64() / mi
-	alfa = 1.0
 	actualLoops := int(float64(loopsForTimeUnit) * alfa)
 
 	startTime := time.Now()
