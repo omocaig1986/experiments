@@ -187,7 +187,7 @@ class FunctionTest():
 
 def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k):
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
-    os.makedirs(dir_name)
+    # os.makedirs(dir_name)
 
     print("======== Starting test suite ========")
     print("> url " + url)
