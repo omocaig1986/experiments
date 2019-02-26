@@ -78,6 +78,7 @@ class FunctionTest():
                 else:
                     print(cc.FAIL + "==> [RES] Status " +
                           str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+                    print(str(res.content))
 
             self.output[arg] = res.status_code
             self.timings[arg] = total_time
@@ -102,7 +103,6 @@ class FunctionTest():
                 t.join()
 
         def poisson_requests():
-            req_n = 0
             elapsed = 0.0
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
@@ -114,7 +114,7 @@ class FunctionTest():
 
                 print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" %
                       (req_n + 1, self.total_requests, elapsed, wait_for), end='')
-                thread = Thread(target=get_request, args=(req_n,))
+                thread = Thread(target=get_request, args=(i,))
                 self.threads.append(thread)
 
                 elapsed += wait_for
@@ -139,15 +139,8 @@ class FunctionTest():
         self.accepted_jobs = 0
         self.external_jobs = 0
 
-        self.total_requests = 0
-
         timings_sum = 0.0
         for i in range(len(self.output)):
-            if self.output[i] == None:
-                continue
-            else:
-                self.total_requests += 1
-
             if self.output[i] == 200:
                 self.accepted_jobs += 1
                 timings_sum += self.timings[i]
@@ -158,8 +151,11 @@ class FunctionTest():
 
         self.pb = self.rejected_jobs * 100/self.total_requests
         self.pa = self.accepted_jobs * 100 / self.total_requests
-        self.mean_time = timings_sum / float(self.accepted_jobs)
-        self.pe = self.external_jobs*100/float(self.total_requests)
+        self.pe = self.external_jobs * 100 / float(self.total_requests)
+        if self.accepted_jobs != 0:
+            self.mean_time = timings_sum / float(self.accepted_jobs)
+        else:
+            self.mean_time = 0
 
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
