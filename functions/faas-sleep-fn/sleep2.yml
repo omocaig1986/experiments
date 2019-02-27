@@ -1,0 +1,8 @@
+provider:
+  name: faas
+  gateway: http://127.0.0.1:8080
+functions:
+  sleep2:
+    lang: python
+    handler: ./sleep2
+    image: sleep2:latest
