@@ -220,9 +220,9 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
 
     def print_res():
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
-        print("%10s %10s %10s %10s" % ("lambda", "pB", "Mean Time", "pE"))
+        print("%s %s %s %s" % ("lambda", "pB", "Mean Time", "pE"))
         for i in range(len(pbs)):
-            print("%.2f %.6f %.6f %.2f" % (start_lambda + i*lambda_delta, pbs[i], times[i], pes[i]))
+            print("%.2f %.6f %.6f %.6f" % (start_lambda + i*lambda_delta, pbs[i], times[i], pes[i]))
 
     print_res()
 
