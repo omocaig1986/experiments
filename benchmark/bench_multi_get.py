@@ -150,9 +150,9 @@ class FunctionTest():
             if self.external[i]:
                 self.external_jobs += 1
 
-        self.pb = self.rejected_jobs * 100/self.total_requests
-        self.pa = self.accepted_jobs * 100 / self.total_requests
-        self.pe = self.external_jobs * 100 / float(self.total_requests)
+        self.pb = self.rejected_jobs / self.total_requests
+        self.pa = self.accepted_jobs / self.total_requests
+        self.pe = self.external_jobs / float(self.total_requests)
         if self.accepted_jobs != 0:
             self.mean_time = timings_sum / float(self.accepted_jobs)
         else:
@@ -161,7 +161,7 @@ class FunctionTest():
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
         print("[TEST] pB is %.6f, mean_time is %.6f" % (self.pb, self.mean_time))
-        print("[TEST] %d jobs has been executed externally, %.2f%%\n" % (self.external_jobs, self.pe))
+        print("[TEST] %d jobs has been executed externally, %.6f%%\n" % (self.external_jobs, self.pe))
 
         # self.plot_timings()
 
