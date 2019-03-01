@@ -19,7 +19,7 @@ mi = 1 / 0.3
 l = 1.0
 
 while True:
-    print("%.2f %.2f %.6f" % (l, computePb(l, mi, K), delay(l, mi, K)))
+    print("%.2f %.6f %.6f" % (l, computePb(l, mi, K), delay(l, mi, K)))
     l += 0.1
 
     if l > 10.0:
