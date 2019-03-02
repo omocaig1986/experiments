@@ -241,7 +241,7 @@ def main(argv):
     usage = "multi_get.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson=", "requests="])
+            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson", "requests="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)

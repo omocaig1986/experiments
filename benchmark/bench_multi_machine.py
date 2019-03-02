@@ -8,27 +8,40 @@ import os
 from pathlib import Path
 import time
 
-def start_suite(cmd_lines):
-    print("[START] Starting test suite")
+r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
+r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
+
+def getTxtOutput(num_thread, l, dir_path):
+    return "{0}/l{1}-line-{2}.txt".format(dir_path, l, num_thread)
+
+def getResTxtOutput(num_thread, dir_path):
+    return "{0}/res-line-{1}.txt".format(dir_path, num_thread)
+
+def doBenchmark(l, cmd_lines, dir_path):
+    print("[START] Starting test suite with l = %.2f" % l)
     processes = []
     threads = []
-
-    dir_path = "./_test_multi_machine-" + str(time.time()).replace(".", "-")
-    os.makedirs(dir_path, exist_ok=True)
+    output = ["" for i in range(len(cmd_lines))] 
 
     def threaded_fun(i, process):
         print("[TEST] Starting thread#%d" % i)
         out, err = process.communicate()
         print("[TEST] Terminated thread#%d" % i)
 
-        out_f = open(dir_path + "/line-" + str(i) + ".txt", "w")
-        #print(str(out), file=out_f)
+        out_f = open(getTxtOutput(i, l, dir_path), "w")
         out_f.write(str(out))
         out_f.close()
 
+        out_f = open(getTxtOutput(i, l, dir_path), "r")
+        last_line = out_f.readlines()[-1]
+        out_f.close()
+        output[i] = last_line
+
+
     i = 0
+    cmd_adding = "--start-lambda \"{0}\" --end-lambda \"{1}\" --lambda-delta \"{2}\"".format(l, l, 0.1)
     for line in cmd_lines:
-        processes.append(subprocess.Popen(line, stdout=subprocess.PIPE, text=True, shell=True))
+        processes.append(subprocess.Popen(line.strip() + " " + cmd_adding, stdout=subprocess.PIPE, text=True, shell=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
         i += 1
     
@@ -37,6 +50,37 @@ def start_suite(cmd_lines):
         threads[i].start()
     for i in range(len(cmd_lines)):
         threads[i].join()
+    
+    print("[END] Ending test suite with l = %.2f" % l)
+    print()
+    return output
+
+def startSuite(cmd_lines, start_lamba, end_lambda, lambda_delta):
+    dir_path = "./_test_multi_machine-" + str(time.time()).replace(".", "-")
+    os.makedirs(dir_path, exist_ok=True)
+
+    l = start_lamba
+    results = ["" for i in range(len(cmd_lines))]
+
+    while True:
+        lines = doBenchmark(l, cmd_lines, dir_path)
+        i = 0
+        for line in lines:
+            results[i] += line
+            i += 1
+
+        l += lambda_delta
+
+        if l > end_lambda:
+            break
+
+    # save results
+    i = 0
+    for result in results:
+        out_f = open(getResTxtOutput(i, dir_path), "w")
+        out_f.write(result)
+        out_f.close()
+        i += 1
 
 
 def main(argv):
@@ -48,12 +92,12 @@ def main(argv):
     usage = "bench_multi_machine.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hf:", ["cmd-file="])
+            argv, "hf:", ["cmd-file=", "start-lambda=", "end-lambda=", "lambda-delta="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
     for opt, arg in opts:
-        # print(opt + " -> " + arg)
+        #print(opt + " -> " + arg)
         if opt == '-h':
             print(usage)
             sys.exit()
@@ -90,7 +134,7 @@ def main(argv):
         sys.exit()
 
 
-    start_suite(cmd_lines)
+    startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
