@@ -150,9 +150,9 @@ class FunctionTest():
             if self.external[i]:
                 self.external_jobs += 1
 
-        self.pb = self.rejected_jobs / self.total_requests
-        self.pa = self.accepted_jobs / self.total_requests
-        self.pe = self.external_jobs / float(self.total_requests)
+        self.pb = self.rejected_jobs / float(self.total_requests)
+        self.pa = self.accepted_jobs / float(self.total_requests)
+        self.pe = self.external_jobs / float(self.accepted_jobs)
         if self.accepted_jobs != 0:
             self.mean_time = timings_sum / float(self.accepted_jobs)
         else:
