@@ -11,17 +11,20 @@ import time
 r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
 r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
 
+
 def getTxtOutput(num_thread, l, dir_path):
-    return "{0}/l{1}-line-{2}.txt".format(dir_path, l, num_thread)
+    return "{0}/l{1}-line-{2}.txt".format(dir_path, round(l, 2), num_thread)
+
 
 def getResTxtOutput(num_thread, dir_path):
     return "{0}/res-line-{1}.txt".format(dir_path, num_thread)
+
 
 def doBenchmark(l, cmd_lines, dir_path):
     print("[START] Starting test suite with l = %.2f" % l)
     processes = []
     threads = []
-    output = ["" for i in range(len(cmd_lines))] 
+    output = ["" for i in range(len(cmd_lines))]
 
     def threaded_fun(i, process):
         print("[TEST] Starting thread#%d" % i)
@@ -37,23 +40,24 @@ def doBenchmark(l, cmd_lines, dir_path):
         out_f.close()
         output[i] = last_line
 
-
     i = 0
     cmd_adding = "--start-lambda \"{0}\" --end-lambda \"{1}\" --lambda-delta \"{2}\"".format(l, l, 0.1)
     for line in cmd_lines:
-        processes.append(subprocess.Popen(line.strip() + " " + cmd_adding, stdout=subprocess.PIPE, text=True, shell=True))
+        processes.append(subprocess.Popen(line.strip() + " " + cmd_adding,
+                                          stdout=subprocess.PIPE, text=True, shell=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
         i += 1
-    
+
     # start threads
     for i in range(len(cmd_lines)):
         threads[i].start()
     for i in range(len(cmd_lines)):
         threads[i].join()
-    
+
     print("[END] Ending test suite with l = %.2f" % l)
     print()
     return output
+
 
 def startSuite(cmd_lines, start_lamba, end_lambda, lambda_delta):
     dir_path = "./_test_multi_machine-" + str(time.time()).replace(".", "-")
@@ -133,8 +137,8 @@ def main(argv):
         print("No line passed!")
         sys.exit()
 
-
     startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
