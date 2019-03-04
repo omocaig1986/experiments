@@ -59,11 +59,11 @@ def doBenchmark(l, cmd_lines, dir_path):
     return output
 
 
-def startSuite(cmd_lines, start_lamba, end_lambda, lambda_delta):
+def startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta):
     dir_path = "./_test_multi_machine-" + str(time.time()).replace(".", "-")
     os.makedirs(dir_path, exist_ok=True)
 
-    l = start_lamba
+    l = start_lambda
     results = ["" for i in range(len(cmd_lines))]
 
     while True:
