@@ -1,10 +1,10 @@
 #!/bin/sh
 cd ../../
 cd stack-discovery
-docker build -t discovery .
+docker build -t discovery:latest .
 cd ..
 cd stack-scheduler
-docker build -t scheduler .
+docker build -t scheduler:latest .
 cd ..
 cd stack
 docker stack rm p2p-fog
