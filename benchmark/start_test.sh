@@ -1,5 +1,6 @@
 #!/bin/sh
 python bench_multi_get.py -k 10 \
+                    --config-url "http://192.168.99.100:18080/monitoring/load" \
                     -u "http://192.168.99.100:18080/function/pigo-face-detector" \
                     -p "/home/gabrielepmattia/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" \
                     --start-lambda "1" \
@@ -9,4 +10,4 @@ python bench_multi_get.py -k 10 \
                     -r
 
 
-#  -p "/Users/gabry3795/Coding/p2p-fog/experiments/multi-get-tester/pigo-face-detect/blobs/family.jpg" \
+#  -p "/Users/gabry3795/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" \

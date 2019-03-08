@@ -15,6 +15,9 @@ import random
 
 debug_print = False
 
+RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
+RES_API_MONITORING_LOAD_K = "functions_running_max"
+
 
 class FunctionTest():
 
@@ -185,19 +188,18 @@ class FunctionTest():
         return self.mean_time
 
 
+def getSystemParameters(config_url):
+    res = requests.get(config_url)
+    body = res.json()
+    return {
+        RES_API_MONITORING_LOAD_SCHEDULER_NAME: body[RES_API_MONITORING_LOAD_SCHEDULER_NAME],
+        RES_API_MONITORING_LOAD_K: body[RES_API_MONITORING_LOAD_K]
+    }
+
+
 def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests):
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
     # os.makedirs(dir_name)
-
-    print("======== Starting test suite ========")
-    print("> url %s" % url)
-    print("> payload %s" % payload)
-    print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
-    print("> lambda_delta %.2f" % (lambda_delta))
-    print("> k %d" % (k))
-    print("> requests %d" % (requests))
-    print("> use poisson %s" % ("yes" if poisson else "no"))
-    print("\n")
 
     pbs = []
     times = []
@@ -239,11 +241,12 @@ def main(argv):
     payload = None
     poisson = False
     requests = 500
+    config_url = ""
 
     usage = "multi_get.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson", "requests="])
+            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson", "requests=", "config-url="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -270,11 +273,31 @@ def main(argv):
             k = int(arg)
         elif opt in ("-t", "--requests"):
             requests = int(arg)
+        elif opt in ("--config-url"):
+            config_url = arg
 
     if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or url == "" or k < 0:
         print("Some needed parameter was not given")
         print(usage)
         sys.exit()
+
+    print("======== Starting test suite ========")
+    print("> url %s" % url)
+    print("> payload %s" % payload)
+    print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
+    print("> lambda_delta %.2f" % (lambda_delta))
+    print("> k %d" % (k))
+    print("> requests %d" % (requests))
+    print("> use poisson %s" % ("yes" if poisson else "no"))
+    print("> config url %s" % config_url)
+
+    if config_url != "":
+        params = getSystemParameters(config_url)
+        print("-------- system info --------")
+        print("> scheduler name %s" % params[RES_API_MONITORING_LOAD_SCHEDULER_NAME])
+        print("> k %d" % params[RES_API_MONITORING_LOAD_K])
+
+    print("\n")
 
     start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests)
 
