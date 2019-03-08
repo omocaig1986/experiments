@@ -6,10 +6,10 @@ import uuid
 import getopt
 import os
 from pathlib import Path
-import time
+from time import localtime, strftime
 
-r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
-r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
+#r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
+#r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
 
 
 def getTxtOutput(num_thread, l, dir_path):
@@ -60,7 +60,8 @@ def doBenchmark(l, cmd_lines, dir_path):
 
 
 def startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta):
-    dir_path = "./_test_multi_machine-" + str(time.time()).replace(".", "-")
+    time_str = strftime("%m%d%Y-%H%M%S", localtime())
+    dir_path = "./_test_multi_machine-" + time_str
     os.makedirs(dir_path, exist_ok=True)
 
     l = start_lambda
