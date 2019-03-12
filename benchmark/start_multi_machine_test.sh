@@ -4,7 +4,7 @@ python bench_multi_machine.py \
         --function-url "function/pigo-face-detector" \
         --payload "/Users/gabry3795/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" \
         --requests "200" \
-        --poisson \
         --start-lambda "1.0" \
         --end-lambda "10.0" \
-        --lambda-delta "0.1"
+        --lambda-delta "0.1" \
+        --poisson
