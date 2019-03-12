@@ -1,4 +1,7 @@
 #!/bin/sh
+# remove unused containers
+docker rm $(docker ps -aq)
+# deploy the stack
 cd ../../
 cd stack-discovery
 docker build -t discovery:latest .
