@@ -16,11 +16,13 @@ hosts_file.close()
 
 print("> got %d hosts" % len(hosts))
 
+i = 0
 for host in hosts:
+    i += 1
     for cmd in commands:
-        print("> Executing %s" % command)
+        print("> [%d/%d] Executing %s" % (i, len(hosts), command))
         command = "ssh {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
         (status, output) = subprocess.getstatusoutput(command)
-        print("> Done! Result %s" % status)
+        print("> [%d/%d] Done! Result %s" % (i, len(hosts), status))
         print(output)
         print()
