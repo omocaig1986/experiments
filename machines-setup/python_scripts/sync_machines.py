@@ -5,8 +5,8 @@ SSH_USERNAME = "docker"
 
 hosts = []
 commands = [
-    "cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack.sh",
-    "cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pigo_deploy.sh",
+    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack.sh\"",
+    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pigo_deploy.sh\"",
 ]
 
 hosts_file = open("hosts.txt", "r")
