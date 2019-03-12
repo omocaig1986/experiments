@@ -24,5 +24,4 @@ for host in hosts:
         print("> [%2d/%2d] Executing %s" % (i, len(hosts), command))
         (status, output) = subprocess.getstatusoutput(command)
         print("> [%2d/%2d] Done! Result %s" % (i, len(hosts), status))
-        print(status)
-        print()
+    print()
