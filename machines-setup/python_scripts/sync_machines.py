@@ -1,7 +1,7 @@
 import subprocess
 import warnings
 
-SSH_USERNAME = "centos"
+SSH_USERNAME = "docker"
 
 hosts = []
 commands = [
