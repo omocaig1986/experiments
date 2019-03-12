@@ -13,6 +13,7 @@ def preparePayload(host_id, host_ip, init_servers):
     payload = {}
     payload["machine_ip"] = host_ip
     payload["machine_id"] = host_id
+    payload["init_servers"] = init_servers
     return json.dumps(payload)
 
 
