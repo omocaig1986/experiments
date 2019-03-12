@@ -1,8 +1,9 @@
+from common import cc
+from common import read_binary
+
 import requests
 from threading import Thread
 import time
-from common import cc
-from common import read_binary
 import math
 import os
 import matplotlib.pyplot as plt

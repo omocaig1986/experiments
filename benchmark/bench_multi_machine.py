@@ -1,3 +1,6 @@
+from common import cc
+from common import read_binary
+
 import subprocess
 from threading import Thread
 import re
@@ -8,9 +11,9 @@ import os
 from pathlib import Path
 from time import localtime, strftime
 import requests
-from common import cc
 import time
 import json
+import mimetypes
 
 # r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
 # r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
@@ -18,6 +21,7 @@ CHECK_STR = " " + cc.WARNING + "CHCK" + cc.ENDC + " "
 OK_STR = "  " + cc.OKGREEN + "OK" + cc.ENDC + "  "
 DEAD_STR = " " + cc.FAIL + "DEAD" + cc.ENDC + " "
 MISM_STR = " " + cc.WARNING + "MISM" + cc.ENDC + " "
+WARN_STR = " " + cc.WARNING + "WARN" + cc.ENDC + " "
 
 BENCHMARK_SCRIPT = "python bench_multi_get.py"
 
@@ -156,6 +160,7 @@ def checkHosts(hosts, scheduler_port):
 
 
 def checkDiscoveryLists(hosts, discovery_port):
+
     print("==> Checking peers hosts configurations if matches")
     last_hosts = []
     test_passed = True
@@ -200,6 +205,44 @@ def checkDiscoveryLists(hosts, discovery_port):
     return test_passed
 
 
+def checkFunction(hosts, scheduler_port, function_url, payload):
+    print("==> Checking if function works on all hosts")
+    last_scheduler = ""
+    last_k = ""
+    test_passed = True
+
+    payload_binary = read_binary(payload)
+    payload_mime = mimetypes.guess_type(payload)[0]
+
+    i = 0
+    for host in hosts:
+        url = "http://{0}:{1}/{2}".format(host, scheduler_port, function_url)
+        print("\r[%s] %s checking function..." % (CHECK_STR, host), end="")
+
+        ok = True
+
+        try:
+            headers = {'Content-Type': payload_mime}
+            res = requests.post(url, timeout=5, data=payload_binary, headers=headers)
+        except (requests.Timeout, requests.ConnectionError) as e:
+            print("\r[%s] %s is not responding" % (DEAD_STR, host))
+            ok = False
+            test_passed = False
+
+        if ok:
+            print_str = OK_STR
+            if res.status_code != 200:
+                print_str = WARN_STR
+                test_passed = False
+
+            print("\r[%s] %s function results is %s" % (print_str, host, res.status_code))
+
+        i += 1
+
+    print()
+    return test_passed
+
+
 def main(argv):
     hosts_file_path = ""
     scheduler_port = 18080
@@ -220,7 +263,7 @@ def main(argv):
         print(usage)
         sys.exit(2)
     for opt, arg in opts:
-        #print(opt + " -> " + arg)
+        # print(opt + " -> " + arg)
         if opt == '-h':
             print(usage)
             sys.exit()
@@ -280,6 +323,10 @@ def main(argv):
 
     if not checkDiscoveryLists(hosts, discovery_port):
         print("Preliminary discovery check not passed!")
+        sys.exit(1)
+
+    if not checkFunction(hosts, scheduler_port, function_url, payload):
+        print("Preliminary function check not passed!")
         sys.exit(1)
 
     startSuite(hosts, function_url, scheduler_port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta)
