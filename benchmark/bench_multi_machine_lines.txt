@@ -1,4 +1,4 @@
-python bench_multi_get.py -k 10 -u "http://192.168.99.100:18080/function/pigo-face-detector" -p "/home/gabrielepmattia/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" -t "200" --config-url "http://192.168.99.100:18080/monitoring/load" --poisson
-python bench_multi_get.py -k 10 -u "http://192.168.99.101:18080/function/pigo-face-detector" -p "/home/gabrielepmattia/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" -t "200" --config-url "http://192.168.99.101:18080/monitoring/load" --poisson
-python bench_multi_get.py -k 10 -u "http://192.168.99.102:18080/function/pigo-face-detector" -p "/home/gabrielepmattia/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" -t "200" --config-url "http://192.168.99.102:18080/monitoring/load" --poisson
-python bench_multi_get.py -k 10 -u "http://192.168.99.103:18080/function/pigo-face-detector" -p "/home/gabrielepmattia/Coding/p2p-fog/experiments/benchmark/blobs/family.jpg" -t "200" --config-url "http://192.168.99.103:18080/monitoring/load" --poisson
+192.168.99.100:18080
+192.168.99.101:18080
+192.168.99.102:18080
+192.168.99.103:18080

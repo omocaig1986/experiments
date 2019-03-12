@@ -18,6 +18,8 @@ debug_print = False
 RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
 RES_API_MONITORING_LOAD_K = "functions_running_max"
 
+API_MONITORING_LOAD_URL = "monitoring/load"
+
 
 class FunctionTest():
 
@@ -89,7 +91,7 @@ class FunctionTest():
             self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
 
         def burst_requests():
-            #self.total_requests = math.floor(self.l * self.sec)
+            # self.total_requests = math.floor(self.l * self.sec)
             self.timings = [None] * self.total_requests
             self.output = [None] * self.total_requests
             self.external = [None] * self.total_requests
@@ -188,7 +190,8 @@ class FunctionTest():
         return self.mean_time
 
 
-def getSystemParameters(config_url):
+def getSystemParameters(host):
+    config_url = "http://{0}/{1}".format(host, API_MONITORING_LOAD_URL)
     res = requests.get(config_url)
     body = res.json()
     return {
@@ -197,7 +200,8 @@ def getSystemParameters(config_url):
     }
 
 
-def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests):
+def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests):
+    url = "http://{0}/{1}".format(host, function_url)
     dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
     # os.makedirs(dir_name)
 
@@ -232,21 +236,31 @@ def start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k
 
 
 def main(argv):
-    url = ""
+    host = ""
+    function_url = ""
     start_lambda = -1
     end_lambda = -1
     lambda_delta = 0.5
-    k = -1
     debug = False
     payload = None
     poisson = False
     requests = 500
-    config_url = ""
 
     usage = "multi_get.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hdm:u:p:k:rt:", ["url=", "lambda-delta=", "start-lambda=", "end-lambda=", "mi=", "debug=", "poisson", "requests=", "config-url="])
+            argv, "hdm:u:p:k:t:", ["host=",
+                                   "function-url=",
+                                   "lambda-delta=",
+                                   "start-lambda=",
+                                   "end-lambda=",
+                                   "mi=",
+                                   "debug=",
+                                   "poisson",
+                                   "requests=",
+                                   "config-url=",
+                                   "payload="
+                                   ])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -257,49 +271,50 @@ def main(argv):
             sys.exit()
         elif opt in ("-d", "--debug"):
             debug = True
-        elif opt in ("-q", "--lambda-delta"):
+        elif opt in ("--host"):
+            host = arg
+        elif opt in ("--function-url"):
+            function_url = arg
+        elif opt in ("--lambda-delta"):
             lambda_delta = float(arg)
-        elif opt in ("-u", "--url"):
-            url = arg
         elif opt in ("--start-lambda"):
             start_lambda = float(arg)
         elif opt in ("--end-lambda"):
             end_lambda = float(arg)
         elif opt in ("-p", "--payload"):
             payload = arg
-        elif opt in ("-r", "--poisson"):
+        elif opt in ("--poisson"):
             poisson = True
-        elif opt in ("-k"):
-            k = int(arg)
         elif opt in ("-t", "--requests"):
             requests = int(arg)
-        elif opt in ("--config-url"):
-            config_url = arg
 
-    if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or url == "" or k < 0:
+    if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
         print("Some needed parameter was not given")
         print(usage)
         sys.exit()
 
-    print("======== Starting test suite ========")
-    print("> url %s" % url)
+    print("="*10 + " Starting test suite " + "="*10)
+    print("> host %s" % host)
+    print("> function_url %s" % function_url)
     print("> payload %s" % payload)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
     print("> lambda_delta %.2f" % (lambda_delta))
-    print("> k %d" % (k))
     print("> requests %d" % (requests))
     print("> use poisson %s" % ("yes" if poisson else "no"))
-    print("> config url %s" % config_url)
 
-    if config_url != "":
-        params = getSystemParameters(config_url)
-        print("-------- system info --------")
-        print("> scheduler name %s" % params[RES_API_MONITORING_LOAD_SCHEDULER_NAME])
-        print("> k %d" % params[RES_API_MONITORING_LOAD_K])
-
+    params = getSystemParameters(host)
+    k = int(params[RES_API_MONITORING_LOAD_K])
+    print("-"*10 + " system info " + "-"*10)
+    print("> scheduler name %s" % params[RES_API_MONITORING_LOAD_SCHEDULER_NAME])
+    print("> k %d" % params[RES_API_MONITORING_LOAD_K])
     print("\n")
 
-    start_suite(url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests)
+    if k < 0 or k == 0:
+        print("Received bad k from server")
+        print(usage)
+        sys.exit()
+
+    start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests)
 
 
 if __name__ == "__main__":
