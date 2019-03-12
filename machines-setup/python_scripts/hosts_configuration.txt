@@ -1,0 +1,16 @@
+proiettimattia-p2pfogc00n0 192.168.1.61
+proiettimattia-p2pfogc01n0 192.168.1.164
+proiettimattia-p2pfogc02n0 192.168.1.162
+proiettimattia-p2pfogc03n0 192.168.1.213
+proiettimattia-p2pfogc04n0 192.168.1.206
+proiettimattia-p2pfogc05n0 192.168.2.115
+proiettimattia-p2pfogc06n0 192.168.0.199
+proiettimattia-p2pfogc07n0 192.168.0.212
+proiettimattia-p2pfogc08n0 192.168.0.208
+proiettimattia-p2pfogc09n0 192.168.0.175
+proiettimattia-p2pfogc10n0 192.168.0.193
+proiettimattia-p2pfogc11n0 192.168.1.209
+proiettimattia-p2pfogc12n0 192.168.0.69
+proiettimattia-p2pfogc13n0 192.168.0.80
+proiettimattia-p2pfogc14n0 192.168.2.236
+proiettimattia-p2pfogc15n0 192.168.2.237
