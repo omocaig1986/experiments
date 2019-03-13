@@ -1,6 +1,7 @@
 #!/bin/sh
 CURRENT_PATH=$(pwd)
 
+source $CURRENT_PATH/env/bin/activate
 $CURRENT_PATH/env/bin/python bench_multi_machine.py \
         --hosts-file "$CURRENT_PATH/bench_multi_machine_lines.txt" \
         --function-url "function/pigo-face-detector" \
