@@ -33,7 +33,7 @@ def parseLogFile(file_path):
 
 def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
     def plotData(i, feature, model=None):
-        print("Plotting %s-machine%s-k%d" % (feature, i, k))
+        print("Plotting %s-machine%02d-k%d" % (feature, i, k))
         plt.clf()
         line_experimental, = plt.plot(d[DICT_LAMBDA], d[feature])
         if model != None:
@@ -43,12 +43,12 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         plt.title("{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i))
         plt.xlabel("λ")
         plt.ylabel(feature)
-        plt.savefig("{0}/{1}-machine{2}-k{3}.pdf".format(out_dir, feature, i, k))
+        plt.savefig("{0}/{1}-machine{2:02}-k{3}.pdf".format(out_dir, feature, i, k))
 
     # create plot dirs
     os.makedirs(out_dir, exist_ok=True)
     for i in range(files_number):
-        d = parseLogFile("{0}/{1}{2}.txt".format(files_path, files_prefix, i))
+        d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         if with_model:
             plotData(i, DICT_PB, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
             plotData(i, DICT_DELAY, model_mm1k.generateDelayArray(d[DICT_LAMBDA], k, mi))
@@ -110,9 +110,9 @@ def main(argv):
         sys.exit()
 
     for i in range(files_number):
-        mfile = Path("{0}/{1}{2}.txt".format(files_path, files_prefix, i))
+        mfile = Path("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         if not mfile.is_file():
-            print("File {0}/{1}{2}.txt does not exist".format(files_path, files_prefix, i))
+            print("File {0}/{1}{2:02}.txt does not exist".format(files_path, files_prefix, i))
             sys.exit()
 
     out_dir = "{0}/{1}".format(files_path, "_plots")
