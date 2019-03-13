@@ -1,7 +1,7 @@
 #!/bin/sh
 CURRENT_PATH=$(pwd)
 
-python bench_multi_get.py \
+$CURRENT_PATH/env/bin/python bench_multi_get.py \
                     --host "192.168.99.100:18080" \
                     --function-url "function/pigo-face-detector" \
                     --payload "$CURRENT_PATH/blobs/family.jpg" \
