@@ -28,7 +28,7 @@ for host in hosts:
     for cmd in commands:
         j += 1
         command = "ssh {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
-        print("> [%2d/%2d] Executing %s" % (i, len(hosts), command))
+        print("[%2d/%2d] Executing %s" % (i, len(hosts), command))
         (status, output) = subprocess.getstatusoutput(command)
         # print the output to file
         outfile = open(
@@ -36,5 +36,5 @@ for host in hosts:
         outfile.write(output)
         outfile.close()
 
-        print("> [%2d/%2d] Done! Result %s" % (i, len(hosts), status))
+        print("[%2d/%2d] Done! Result %s" % (i, len(hosts), status))
     print()
