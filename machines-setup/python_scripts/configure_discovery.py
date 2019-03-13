@@ -38,7 +38,7 @@ def setConfiguration(host_id, host_ip, init_servers):
         print("\r[%s] %s set as \"%s\" [%s]" % (print_str, host_ip, host_id, res.status_code))
 
 
-conf_file = open("hosts_configuration.txt", "r")
+conf_file = open("configure_discovery.txt", "r")
 
 for line in conf_file:
     comp = line.split()
