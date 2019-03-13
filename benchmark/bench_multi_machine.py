@@ -34,11 +34,11 @@ API_DISCOVERY_LIST_URL = "list"
 
 
 def getTxtOutput(num_thread, l, dir_path):
-    return "{0}/l{1}-machine-{2}.txt".format(dir_path, str(round(l, 2)).replace(".", "_"), num_thread)
+    return "{0}/lambda{1}-machine-{2:02}.txt".format(dir_path, str(round(l, 2)).replace(".", "_"), num_thread)
 
 
 def getResTxtOutput(num_thread, dir_path):
-    return "{0}/results-machine-{1}.txt".format(dir_path, num_thread)
+    return "{0}/results-machine-{1:02}.txt".format(dir_path, num_thread)
 
 
 def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_path):
