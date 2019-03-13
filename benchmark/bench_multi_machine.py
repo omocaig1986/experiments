@@ -297,6 +297,9 @@ def main(argv):
     hosts_file_f = open(hosts_file_path, "r")
     hosts = []
     for line in hosts_file_f:
+        # skip commented lines
+        if line[0] == "#":
+            continue
         hosts.append(line.strip())
     hosts_file_f.close()
 
