@@ -54,3 +54,5 @@ print("> got %d hosts\n" % len(ips))
 # start requests
 for i in range(len(ips)):
     setConfiguration(ids[i], ips[i], [ips[0]])
+
+print("\n> Done!")
