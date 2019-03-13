@@ -35,12 +35,12 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
     def plotData(i, feature, model=None):
         print("Plotting %s-machine%s-k%d" % (feature, i, k))
         plt.clf()
-        line_sperimental, = plt.plot(d[DICT_LAMBDA], d[feature])
+        line_experimental, = plt.plot(d[DICT_LAMBDA], d[feature])
         if model != None:
             lines_model, = plt.plot(d[DICT_LAMBDA], model)
-            plt.legend([line_sperimental, lines_model], ['Experiment', "Model " + model_name])
+            plt.legend([line_experimental, lines_model], ['Experiment', "Model " + model_name])
 
-        plt.title("{0} - LL({1}, K-{2}) - (K={3},μ={4}) - Machine#{5}".format(function, f, t, k, mi, i))
+        plt.title("{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i))
         plt.xlabel("λ")
         plt.ylabel(feature)
         plt.savefig("{0}/{1}-machine{2}-k{3}.pdf".format(out_dir, feature, i, k))
@@ -66,7 +66,7 @@ def main(argv):
     function = ""
     fanout = 1
     threshold = 1
-    mi = 1
+    job_duration = 1
     k = 10
     with_model = False
     model_name = ""
@@ -74,7 +74,7 @@ def main(argv):
     usage = "utils_plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "mi=", "with-model", "model-name="])
+            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -95,8 +95,8 @@ def main(argv):
             fanout = int(arg)
         elif opt in ("--threshold"):
             threshold = int(arg)
-        elif opt in ("--mi"):
-            mi = float(arg)
+        elif opt in ("--job-duration"):
+            job_duration = float(arg)
         elif opt in ("-k"):
             k = int(arg)
         elif opt in ("--with-model"):
@@ -121,7 +121,7 @@ def main(argv):
     print("> files_path %s" % files_path)
     print("> files_prefix %s" % files_prefix)
     print("> files_number %d" % files_number)
-    print("> mi %f" % mi)
+    print("> job_duration %f => mi %f" % (job_duration, 1.0/job_duration))
     print("> k %d" % k)
     print("> with model %s" % with_model)
     print("> model name %s" % model_name)
@@ -129,6 +129,7 @@ def main(argv):
     print("> out_dir %s" % out_dir)
     print("")
 
+    mi = 1.0/job_duration
     start_plot(files_path, files_prefix, files_number, out_dir, k, fanout, threshold, mi,
                function, with_model, model_name)
     # startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)
