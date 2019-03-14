@@ -21,6 +21,8 @@ RES_API_MONITORING_LOAD_K = "functions_running_max"
 
 API_MONITORING_LOAD_URL = "monitoring/load"
 
+TIMEOUT = 10
+
 
 class FunctionTest():
 
@@ -72,8 +74,12 @@ class FunctionTest():
             if debug_print:
                 print("==> [GET] Number #" + str(arg))
 
-            headers = {'Content-Type': self.payload_mime}
-            res = requests.post(self.url, data=self.payload_binary, headers=headers)
+            try:
+                headers = {'Content-Type': self.payload_mime}
+                res = requests.post(self.url, data=self.payload_binary, headers=headers, timeout=TIMEOUT)
+            except (requests.ConnectionError, requests.Timeout):
+                print("Operation timed out, stopping test")
+                sys.exit(1)
 
             end_time = time.time()
             total_time = end_time - start_time
