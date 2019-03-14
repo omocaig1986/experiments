@@ -13,4 +13,6 @@ docker stack deploy -c docker-compose-local.yml p2p-fog
 
 # remove unused images and containers
 docker container prune -f
-docker image prune --filter "label=stage=builder"
+docker volume prune -f
+docker image prune -f --filter "label=stage=builder"
+docker image prune -f
