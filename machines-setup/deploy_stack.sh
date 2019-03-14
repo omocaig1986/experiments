@@ -1,6 +1,4 @@
 #!/bin/sh
-# remove unused containers
-docker rm $(docker ps -aq)
 # deploy the stack
 cd ../../
 cd stack-discovery
@@ -12,3 +10,7 @@ cd ..
 cd stack
 docker stack rm p2p-fog
 docker stack deploy -c docker-compose-local.yml p2p-fog
+
+# remove unused images and containers
+docker container prune -f
+docker image prune --filter "label=stage=builder"

@@ -1,16 +1,16 @@
 cd ..
-echo "Pulling..."
-git lfs pull
+echo "==> Pulling..."
+git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
 cd ../stack
-echo "Pulling stack..."
-git lfs pull
+echo "==> Pulling stack..."
+git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
-echo "Pulling scheduler..."
+echo "==> Pulling scheduler..."
 cd ../stack-scheduler
-git lfs pull
+git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
-echo "Pulling discovery..."
+echo "==> Pulling discovery..."
 cd ../stack-discovery
-git lfs pull
+git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
