@@ -27,8 +27,7 @@ hosts_file.close()
 print("> got %d hosts\n" % len(hosts))
 
 
-def threaded_fun(arg):
-    i = arg
+def threaded_fun(host, i):
     j = 0
     for cmd in commands:
         j += 1
@@ -53,7 +52,7 @@ for host in hosts:
     i += 1
     consumer_sem.acquire()
     print("> Started job for Machine#%d" % i)
-    t = threading.Thread(target=threaded_fun, args=[i])
+    t = threading.Thread(target=threaded_fun, args=[host, i])
     thread_pool.append(t)
     t.start()
 
