@@ -36,7 +36,7 @@ def threaded_fun(host, i):
         (status, output) = subprocess.getstatusoutput(command)
 
         # print the output to file
-        file_path = "{0}/machine-{1}-command-{2}-res-{3}.txt".format(dir_path, i, j, status)
+        file_path = "{0}/machine-{1:02}-command-{2}-res-{3}.txt".format(dir_path, i, j, status)
         outfile = open(file_path, "w")
         outfile.write(output)
         outfile.close()
