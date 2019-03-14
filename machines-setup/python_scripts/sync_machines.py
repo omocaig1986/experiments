@@ -2,6 +2,7 @@ import subprocess
 import os
 from time import localtime, strftime
 import threading
+import time
 
 THREAD_POOL_N = 8
 SSH_USERNAME = "docker"
@@ -30,6 +31,7 @@ print("> got %d hosts\n" % len(hosts))
 def threaded_fun(host, i):
     j = 0
     for cmd in commands:
+        consumer_sem.acquire()
         j += 1
         command = "ssh -o ConnectTimeout=5 {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
         print("[%2d/%2d] Executing %s" % (i, len(hosts), command))
@@ -44,14 +46,15 @@ def threaded_fun(host, i):
         print("[%2d/%2d] Command #%d Done! [%s]" % (i, len(hosts), j, status))
         consumer_sem.release()
 
+        time.sleep(5)
+
 
 thread_pool = []
 
 i = 0
 for host in hosts:
     i += 1
-    consumer_sem.acquire()
-    print("> Started job for Machine#%d" % i)
+    # print("> Started job for Machine#%d" % i)
     t = threading.Thread(target=threaded_fun, args=[host, i])
     thread_pool.append(t)
     t.start()
