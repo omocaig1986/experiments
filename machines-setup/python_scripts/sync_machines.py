@@ -10,6 +10,7 @@ consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
 hosts = []
 commands = [
+    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack.sh\"",
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pigo_deploy.sh\"",
 ]
