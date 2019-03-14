@@ -21,7 +21,7 @@ RES_API_MONITORING_LOAD_K = "functions_running_max"
 
 API_MONITORING_LOAD_URL = "monitoring/load"
 
-TIMEOUT = 10
+TIMEOUT = 60
 
 
 class FunctionTest():
@@ -70,6 +70,7 @@ class FunctionTest():
 
         def get_request(arg):
             start_time = time.time()
+            net_error = False
 
             if debug_print:
                 print("==> [GET] Number #" + str(arg))
@@ -77,14 +78,14 @@ class FunctionTest():
             try:
                 headers = {'Content-Type': self.payload_mime}
                 res = requests.post(self.url, data=self.payload_binary, headers=headers, timeout=TIMEOUT)
-            except (requests.ConnectionError, requests.Timeout):
-                print("Operation timed out, stopping test")
-                sys.exit(1)
+            except (requests.ConnectionError, requests.Timeout) as e:
+                print(e)
+                net_error = True
 
             end_time = time.time()
             total_time = end_time - start_time
 
-            if debug_print:
+            if debug_print and not net_error:
                 if res.status_code == 200:
                     print(cc.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
                           str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
@@ -93,9 +94,13 @@ class FunctionTest():
                           str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
                     print(str(res.content))
 
-            self.output[arg] = res.status_code
             self.timings[arg] = total_time
-            self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
+
+            if not net_error:
+                self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
+                self.output[arg] = res.status_code
+            else:
+                self.output[arg] = 500
 
         def burst_requests():
             # self.total_requests = math.floor(self.l * self.sec)
