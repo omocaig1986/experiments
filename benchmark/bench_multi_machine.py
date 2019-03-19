@@ -254,11 +254,12 @@ def main(argv):
     start_lambda = 1.0
     end_lambda = 1.1
     lambda_delta = 0.1
+    check = False
 
     usage = "bench_multi_machine.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hf:k:", ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=", "lambda-delta=", "scheduler-port=", "discovery-port="])
+            argv, "hf:k:", ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=", "lambda-delta=", "scheduler-port=", "discovery-port=", "check"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -287,6 +288,8 @@ def main(argv):
             start_lambda = float(arg)
         elif opt in ("--end-lambda"):
             end_lambda = float(arg)
+        elif opt in ("--check"):
+            check = True
 
     my_file = Path(hosts_file_path)
     if not my_file.is_file():
@@ -331,6 +334,9 @@ def main(argv):
     if not checkFunction(hosts, scheduler_port, function_url, payload):
         print("Preliminary function check not passed!")
         sys.exit(1)
+
+    if check:
+        sys.exit(0)
 
     startSuite(hosts, function_url, scheduler_port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta)
     sys.exit(0)
