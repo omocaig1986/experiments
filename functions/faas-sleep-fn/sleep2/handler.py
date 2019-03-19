@@ -8,15 +8,10 @@ def handle(req):
     """
 
     out = ""
-    i = 0
 
-    while True:
-        if i == 4:
-            break
-
+    for i in range(10):
         time.sleep(1)
         out += "Count... " + str(i) + "\n"
-        i += 1
 
     out += "\n\n" + str(req)
     return out
