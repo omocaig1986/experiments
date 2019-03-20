@@ -18,7 +18,7 @@ DICT_PE = "pe"
 
 def parseLogFile(file_path):
     in_file = open(file_path, "r")
-    d = {"lambda": [], "pb": [], "delay": [], "pe": []}
+    d = {DICT_LAMBDA: [], DICT_PB: [], DICT_DELAY: [], DICT_PE: []}
 
     for line in in_file:
         comps = line.split()
@@ -32,7 +32,8 @@ def parseLogFile(file_path):
 
 
 def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
-    def plotData(i, feature, model=None):
+
+    def plotData(i, d, feature, model=None):
         print("Plotting %s-machine%02d-k%d" % (feature, i, k))
         plt.clf()
         line_experimental, = plt.plot(d[DICT_LAMBDA], d[feature])
@@ -50,13 +51,13 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
     for i in range(files_number):
         d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         if with_model:
-            plotData(i, DICT_PB, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
-            plotData(i, DICT_DELAY, model_mm1k.generateDelayArray(d[DICT_LAMBDA], k, mi))
-            plotData(i, DICT_PE)
+            plotData(i, d, DICT_PB, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
+            plotData(i, d, DICT_DELAY, model_mm1k.generateDelayArray(d[DICT_LAMBDA], k, mi))
+            plotData(i, d, DICT_PE)
         else:
-            plotData(i, DICT_PB)
-            plotData(i, DICT_PE)
-            plotData(i, DICT_DELAY)
+            plotData(i, d, DICT_PB)
+            plotData(i, d, DICT_PE)
+            plotData(i, d, DICT_DELAY)
 
 
 def main(argv):
