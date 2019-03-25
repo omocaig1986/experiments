@@ -113,6 +113,10 @@ def startSuite(hosts, function_url, port, payload, requests,  poisson, start_lam
         if l > end_lambda:
             break
 
+        # wait some time
+        print("\n[SLEEP] Waiting 30 secs\n")
+        time.sleep(30)
+
     # save results
     i = 0
     for result in results:
