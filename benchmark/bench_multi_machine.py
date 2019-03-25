@@ -70,7 +70,11 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
         out_f = open(getTxtOutput(i, l, dir_path), "r")
         last_line = out_f.readlines()[-1]
         out_f.close()
-        output[i] = last_line
+
+        if last_line[0] in "0123456789":
+            output[i] = last_line
+        else:
+            output[i] = ""
 
     i = 0
     for host in hosts:
