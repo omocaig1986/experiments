@@ -255,11 +255,12 @@ def main(argv):
     end_lambda = 1.1
     lambda_delta = 0.1
     check = False
+    skip_check = False
 
     usage = "bench_multi_machine.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hf:k:", ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=", "lambda-delta=", "scheduler-port=", "discovery-port=", "check"])
+            argv, "hf:k:", ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=", "lambda-delta=", "scheduler-port=", "discovery-port=", "check", "skip-check"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -290,6 +291,8 @@ def main(argv):
             end_lambda = float(arg)
         elif opt in ("--check"):
             check = True
+        elif opt in ("--skip-check"):
+            skip_check = True
 
     my_file = Path(hosts_file_path)
     if not my_file.is_file():
@@ -317,26 +320,29 @@ def main(argv):
     print("> poisson %s" % poisson)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
     print("> lambda_delta %.2f" % (lambda_delta))
+    print("> check %s" % check)
+    print("> skip_check %s" % skip_check)
     print("")
 
     if len(hosts) == 0:
         print("No host passed!")
         sys.exit(1)
 
-    if not checkHosts(hosts, scheduler_port):
-        print("Preliminary hosts check not passed!")
-        sys.exit(1)
+    if not skip_check:
+        if not checkHosts(hosts, scheduler_port):
+            print("Preliminary hosts check not passed!")
+            sys.exit(1)
 
-    if not checkDiscoveryLists(hosts, discovery_port):
-        print("Preliminary discovery check not passed!")
-        sys.exit(1)
+        if not checkDiscoveryLists(hosts, discovery_port):
+            print("Preliminary discovery check not passed!")
+            sys.exit(1)
 
-    if not checkFunction(hosts, scheduler_port, function_url, payload):
-        print("Preliminary function check not passed!")
-        sys.exit(1)
+        if not checkFunction(hosts, scheduler_port, function_url, payload):
+            print("Preliminary function check not passed!")
+            sys.exit(1)
 
-    if check:
-        sys.exit(0)
+        if check:
+            sys.exit(0)
 
     startSuite(hosts, function_url, scheduler_port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta)
     sys.exit(0)
