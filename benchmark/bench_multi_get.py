@@ -13,8 +13,7 @@ import uuid
 import numpy as np
 import mimetypes
 import random
-
-debug_print = False
+import json
 
 RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
 RES_API_MONITORING_LOAD_K = "functions_running_max"
@@ -23,10 +22,25 @@ API_MONITORING_LOAD_URL = "monitoring/load"
 
 TIMEOUT = 60
 
+TIMINGS_REQUEST_TIME = "request_time"
+TIMINGS_QUEUE_TIME = "queue_time"
+TIMINGS_FORWARDING_TIME = "forwarding_time"
+TIMINGS_EXECUTION_TIME = "execution_time"
+TIMINGS_FAAS_EXECUTION_TIME = "faas_execution_time"
+TIMINGS_PROBING_TIME = "probing_time"
+
+RES_HEADER_EXTERNALLY_EXECUTED = "X-PFog-Externally-Executed"
+RES_HEADER_TIMING_PROBING_LIST = "X-PFog-Timing-Probing-Seconds-List"
+RES_HEADER_TIMING_FORWARDING_LIST = "X-PFog-Timing-Forwarding-Seconds-List"
+RES_HEADER_TIMING_QUEUE = "X-Pfog-Timing-Queue-Seconds"
+RES_HEADER_TIMING_EXECUTION = "X-PFog-Timing-Execution-Seconds"
+RES_HEADER_TIMING_FAAS_EXECUTION = "X-PFog-Timing-Faas-Execution-Seconds"
+
 
 class FunctionTest():
 
     def __init__(self, url, payload, l, k, poisson, requests, dir_name):
+        self.debug_print = False
         self.url = url
         self.payload = payload
         self.l = l
@@ -38,7 +52,6 @@ class FunctionTest():
         self.payload_mime = None
 
         # prepare suite parameters
-        self.sec = 30  # total running time for test, in seconds
         self.total_requests = requests  # to be updated after test
         self.wait_time = 1 / self.l
 
@@ -49,11 +62,23 @@ class FunctionTest():
         self.pa = 0.0
         self.pb = 0.0
         self.pe = 0.0
-        self.mean_time = 0.0
+        self.mean_request_time = 0.0
+        self.mean_queue_time = 0.0
+        self.mean_execution_time = 0.0
+        self.mean_faas_execution_time = 0.0
+        self.mean_probing_time = 0.0
+        self.mean_forwarding_time = 0.0
         # per-thread variables
-        self.timings = []
-        self.output = []
-        self.external = []
+        self.timings = {
+            TIMINGS_QUEUE_TIME: [0.0] * self.total_requests,
+            TIMINGS_FAAS_EXECUTION_TIME: [0.0] * self.total_requests,
+            TIMINGS_FORWARDING_TIME: [0.0] * self.total_requests,
+            TIMINGS_REQUEST_TIME: [0.0] * self.total_requests,
+            TIMINGS_EXECUTION_TIME: [0.0] * self.total_requests,
+            TIMINGS_PROBING_TIME: [0.0] * self.total_requests,
+        }
+        self.output = [None] * self.total_requests
+        self.external = [None] * self.total_requests
 
         print("[INIT] Starting test")
 
@@ -63,7 +88,7 @@ class FunctionTest():
             self.payload_mime = mimetypes.guess_type(self.payload)[0]
             print("[INIT] Loaded payload of mime " + self.payload_mime)
 
-    def execute_test(self):
+    def executeTest(self):
         """ Execute test by passing ro and mi as average execution time """
 
         print("[TEST] Starting with l = %.2f, k = %d, Poisson = %s" % (self.l, self.k, self.poisson))
@@ -72,7 +97,7 @@ class FunctionTest():
             start_time = time.time()
             net_error = False
 
-            if debug_print:
+            if self.debug_print:
                 print("==> [GET] Number #" + str(arg))
 
             try:
@@ -84,31 +109,22 @@ class FunctionTest():
 
             end_time = time.time()
             total_time = end_time - start_time
+            self.printReqResLine(arg, res, net_error, total_time)
 
-            if debug_print and not net_error:
-                if res.status_code == 200:
-                    print(cc.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
-                          str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
-                else:
-                    print(cc.FAIL + "==> [RES] Status " +
-                          str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
-                    print(str(res.content))
-
-            self.timings[arg] = total_time
+            # update timings
+            self.timings[TIMINGS_REQUEST_TIME][arg] = total_time
 
             if not net_error:
-                self.external[arg] = res.headers.get("X-PFog-Externally-Executed") != None
+                self.external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) != None
                 self.output[arg] = res.status_code
+                # parse headers if request is successful
+                if res.status_code == 200:
+                    self.parseTimingsFromHeaders(res.headers, arg)
             else:
                 self.output[arg] = 500
 
         def burst_requests():
-            # self.total_requests = math.floor(self.l * self.sec)
-            self.timings = [None] * self.total_requests
-            self.output = [None] * self.total_requests
-            self.external = [None] * self.total_requests
-
-            if not debug_print:
+            if not self.debug_print:
                 print("[TEST] Request %d/%d" % (0, self.total_requests), end='')
             for i in range(self.total_requests):
                 print("\r[TEST] Request %d/%d" % (i + 1, self.total_requests), end='')
@@ -123,9 +139,6 @@ class FunctionTest():
         def poisson_requests():
             elapsed = 0.0
             req_n = 0
-            self.timings = [None] * self.total_requests
-            self.output = [None] * self.total_requests
-            self.external = [None] * self.total_requests
 
             print("\r[TEST] Starting...", end='')
             for i in range(self.total_requests):
@@ -153,38 +166,51 @@ class FunctionTest():
         self.computeStats()
 
     def computeStats(self):
-        # compute the jobs rates
-        self.rejected_jobs = 0
-        self.accepted_jobs = 0
-        self.external_jobs = 0
+        timings_request_sum = 0.0
+        timings_queue_sum = 0.0
+        timings_execution_sum = 0.0
+        timings_faas_execution_sum = 0.0
+        timings_probing_time_sum = 0.0
+        timings_forwarding_time_sum = 0.0
 
-        timings_sum = 0.0
         for i in range(len(self.output)):
             if self.output[i] == 200:
                 self.accepted_jobs += 1
-                timings_sum += self.timings[i]
+                timings_request_sum += self.timings[TIMINGS_REQUEST_TIME][i]
+                timings_queue_sum += self.timings[TIMINGS_QUEUE_TIME][i]
+                timings_execution_sum += self.timings[TIMINGS_EXECUTION_TIME][i]
+                timings_faas_execution_sum += self.timings[TIMINGS_FAAS_EXECUTION_TIME][i]
             else:
                 self.rejected_jobs += 1
+
             if self.external[i]:
                 self.external_jobs += 1
+                timings_probing_time_sum += self.timings[TIMINGS_PROBING_TIME][i]
+                timings_forwarding_time_sum += self.timings[TIMINGS_FORWARDING_TIME][i]
 
         self.pb = self.rejected_jobs / float(self.total_requests)
         self.pa = self.accepted_jobs / float(self.total_requests)
 
-        if self.accepted_jobs != 0:
-            self.mean_time = timings_sum / float(self.accepted_jobs)
+        if self.accepted_jobs > 0:
+            self.mean_request_time = timings_request_sum / float(self.accepted_jobs)
+            self.mean_queue_time = timings_queue_sum / float(self.accepted_jobs)
+            self.mean_execution_time = timings_execution_sum / float(self.accepted_jobs)
+            self.mean_faas_execution_time = timings_faas_execution_sum / float(self.accepted_jobs)
             self.pe = self.external_jobs / float(self.accepted_jobs)
-        else:
-            self.mean_time = 0
+
+        if self.external_jobs > 0:
+            self.mean_probing_time = timings_probing_time_sum / float(self.external_jobs)
+            self.mean_forwarding_time = timings_forwarding_time_sum / float(self.external_jobs)
 
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs))
-        print("[TEST] pB is %.6f, mean_time is %.6f" % (self.pb, self.mean_time))
-        print("[TEST] %d jobs has been executed externally, %.6f\n" % (self.external_jobs, self.pe))
+        print("[TEST] pB is %.6f, mean_request_time is %.6f" % (self.pb, self.mean_request_time))
+        print("[TEST] %.6f%% jobs externally executed, forward and probing times are %.6fs %.6fs\n" %
+              (self.pe, self.mean_forwarding_time, self.mean_probing_time))
 
-        # self.plot_timings()
+        # self.plotTimings()
 
-    def plot_timings(self):
+    def plotTimings(self):
         plt.clf()
         plt.plot(self.timings)
         plt.ylabel('Response time')
@@ -192,14 +218,55 @@ class FunctionTest():
         # plt.show()
         plt.savefig(self.dir_name + "/" + self.test_name + "_job_timings")
 
+    #
+    # Getters
+    #
+
     def getPb(self):
         return self.pb
 
     def getPe(self):
         return self.pe
 
-    def getMeanTime(self):
-        return self.mean_time
+    def getTimings(self):
+        return {
+            TIMINGS_REQUEST_TIME: self.mean_request_time,
+            TIMINGS_QUEUE_TIME: self.mean_queue_time,
+            TIMINGS_EXECUTION_TIME: self.mean_execution_time,
+            TIMINGS_FAAS_EXECUTION_TIME: self.mean_faas_execution_time,
+            TIMINGS_FORWARDING_TIME: self.mean_forwarding_time,
+            TIMINGS_PROBING_TIME: self.mean_probing_time
+        }
+
+    #
+    # Utils
+    #
+
+    def printReqResLine(self, i, res, net_error, time):
+        if not self.debug_print:
+            return
+
+        if not net_error:
+            if res.status_code == 200:
+                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (cc.OKGREEN, i, res.status_code, time, cc.ENDC))
+            else:
+                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (cc.FAIL, i, res.status_code, time, cc.ENDC))
+                print(str(res.content))
+
+    def parseTimingsFromHeaders(self, headers, i):
+        queue_time = float(headers.get(RES_HEADER_TIMING_QUEUE))
+        execution_time = float(headers.get(RES_HEADER_TIMING_EXECUTION))
+        faas_execution_time = float(headers.get(RES_HEADER_TIMING_FAAS_EXECUTION))
+
+        if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) != None:
+            probing_times = json.loads(headers.get(RES_HEADER_TIMING_PROBING_LIST))
+            forwarding_times = json.loads(headers.get(RES_HEADER_TIMING_FORWARDING_LIST))
+            self.timings[TIMINGS_FORWARDING_TIME][i] = float(forwarding_times[0])
+            self.timings[TIMINGS_PROBING_TIME][i] = float(probing_times[0])
+
+        self.timings[TIMINGS_QUEUE_TIME][i] = queue_time
+        self.timings[TIMINGS_EXECUTION_TIME][i] = execution_time
+        self.timings[TIMINGS_FAAS_EXECUTION_TIME][i] = faas_execution_time
 
 
 def getSystemParameters(host):
@@ -218,16 +285,26 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     # os.makedirs(dir_name)
 
     pbs = []
-    times = []
     pes = []
+    timings_request = []
+    timings_queue = []
+    timings_execution = []
+    timings_faas_execution = []
+    timings_probing = []
+    timings_forward = []
     l = start_lambda
     # test all ros
     while True:
         test = FunctionTest(url, payload, l, k, poisson, requests, dir_name)
-        test.execute_test()
+        test.executeTest()
         pbs.append(test.getPb())
         pes.append(test.getPe())
-        times.append(test.getMeanTime())
+        timings_request.append(test.getTimings()[TIMINGS_REQUEST_TIME])
+        timings_queue.append(test.getTimings()[TIMINGS_QUEUE_TIME])
+        timings_execution.append(test.getTimings()[TIMINGS_EXECUTION_TIME])
+        timings_faas_execution.append(test.getTimings()[TIMINGS_FAAS_EXECUTION_TIME])
+        timings_probing.append(test.getTimings()[TIMINGS_PROBING_TIME])
+        timings_forward.append(test.getTimings()[TIMINGS_FORWARDING_TIME])
 
         if start_lambda >= end_lambda:
             l -= lambda_delta
@@ -240,9 +317,12 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
     def print_res():
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
-        print("%s %s %s %s" % ("lambda", "pB", "Mean Time", "pE"))
+        print("%s %s %s %s %s %s %s %s %s" % ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
+                                              "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime"))
         for i in range(len(pbs)):
-            print("%.2f %.6f %.6f %.6f" % (start_lambda + i*lambda_delta, pbs[i], times[i], pes[i]))
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f" %
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
+                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i]))
 
     print_res()
 
