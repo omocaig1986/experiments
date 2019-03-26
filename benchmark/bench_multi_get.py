@@ -261,7 +261,7 @@ class FunctionTest():
         if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) != None:
             probing_times = json.loads(headers.get(RES_HEADER_TIMING_PROBING_LIST))
             forwarding_times = json.loads(headers.get(RES_HEADER_TIMING_FORWARDING_LIST))
-            self.timings[TIMINGS_FORWARDING_TIME][i] = float(forwarding_times[0])
+            self.timings[TIMINGS_FORWARDING_TIME][i] = float(forwarding_times[0]) - faas_execution_time
             self.timings[TIMINGS_PROBING_TIME][i] = float(probing_times[0])
 
         self.timings[TIMINGS_QUEUE_TIME][i] = queue_time
