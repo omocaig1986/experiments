@@ -63,6 +63,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         print("[MACHINE#%02d] Plotting %s to \"%s\"" % (i, filetitle, filetitle))
 
         plt.clf()
+        plt.title("{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i))
         y00 = [0]*len(d[DICT_LAMBDA])
         y0 = d[DICT_PROBE_TIME]
         y1 = sumArrays(y0, d[DICT_FORWARDING_TIME])
@@ -76,11 +77,11 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         y9p, = plt.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
         plt.legend([y0p, y1p, y2p, y3p, y9p], [DICT_PROBE_TIME, DICT_FORWARDING_TIME,
                                                DICT_EXEC_TIME, DICT_FAAS_EXEC_TIME, DICT_DELAY])
-        plt.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0')
-        plt.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1')
-        plt.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2')
-        plt.fill_between(d[DICT_LAMBDA], y3, y2, where=y3 >= y3, facecolor='C3')
-        plt.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4')
+        plt.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0', alpha=0.2)
+        plt.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1', alpha=0.2)
+        plt.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2', alpha=0.2)
+        plt.fill_between(d[DICT_LAMBDA], y3, y2, where=y3 >= y3, facecolor='C3', alpha=0.2)
+        plt.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4', alpha=0.2)
         plt.savefig(filename)
 
     # create plot dirs
