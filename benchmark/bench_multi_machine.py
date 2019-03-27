@@ -114,8 +114,8 @@ def startSuite(hosts, function_url, port, payload, requests,  poisson, start_lam
             break
 
         # wait some time
-        print("\n[SLEEP] Waiting 30 secs\n")
-        time.sleep(30)
+        print("\n[SLEEP] Waiting 60 secs\n")
+        time.sleep(60)
 
     # save results
     i = 0
