@@ -14,5 +14,5 @@ functions:
       write_timeout: "300"
       read_timeout: "300"
       mi: 1
-      loops_for_time_unit: 33000000
+      loops_for_time_unit: 52725915
       exponential_alfa: False

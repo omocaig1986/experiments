@@ -1,6 +1,6 @@
 #!/bin/sh
-cd ../functions/pigo-openfaas
+cd ../functions/exponential-loop
 faas-cli login -u admin --password admin
 faas-cli build
 faas-cli deploy
-docker image prune -f
+docker system prune -f --volumes

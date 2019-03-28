@@ -13,7 +13,8 @@ hosts = []
 commands = [
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack.sh\"",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pigo_deploy.sh\"",
+    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_exponential_loop.sh\"",
 ]
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
