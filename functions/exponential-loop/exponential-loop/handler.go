@@ -34,9 +34,7 @@ func Handle(req []byte) string {
 	startTime := time.Now()
 	// test loop time
 	for i := 0; i < actualLoops; i++ {
-		sTmp := rand.NewSource(time.Now().UnixNano())
-		rTmp := rand.New(sTmp)
-		rTmp.Float64()
+		r1.Float64()
 	}
 	elapsed := time.Since(startTime)
 
