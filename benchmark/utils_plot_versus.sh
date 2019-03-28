@@ -1,3 +1,4 @@
+#!/bin/sh
 CURRENT_PATH=$(dirname $0)
 
 source $CURRENT_PATH/env/bin/activate

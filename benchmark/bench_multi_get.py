@@ -83,7 +83,7 @@ class FunctionTest():
         print("[INIT] Starting test")
 
         # load payload
-        if payload != None:
+        if payload != None or payload != "":
             self.payload_binary = read_binary(self.payload)
             self.payload_mime = mimetypes.guess_type(self.payload)[0]
             print("[INIT] Loaded payload of mime " + self.payload_mime)

@@ -1,4 +1,5 @@
-CURRENT_PATH=$(pwd)
+#!/bin/sh
+CURRENT_PATH=$(dirname $0)
 
 source $CURRENT_PATH/env/bin/activate
 $CURRENT_PATH/env/bin/python utils_plot_times.py --files-prefix "results-machine-" \
