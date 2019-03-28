@@ -10,6 +10,9 @@ class cc:
 
 
 def read_binary(uri):
+    if uri == "" or uri == None:
+        return None
+
     in_file = open(uri, "rb")  # opening for [r]eading as [b]inary
     data = in_file.read()  # if you only wanted to read 512 bytes, do .read(512)
     in_file.close()

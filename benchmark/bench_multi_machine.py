@@ -215,8 +215,6 @@ def checkDiscoveryLists(hosts, discovery_port):
 
 def checkFunction(hosts, scheduler_port, function_url, payload):
     print("==> Checking if function works on all hosts")
-    last_scheduler = ""
-    last_k = ""
     test_passed = True
     payload_binary = None
     payload_mime = None
