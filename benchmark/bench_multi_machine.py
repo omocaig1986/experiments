@@ -218,9 +218,12 @@ def checkFunction(hosts, scheduler_port, function_url, payload):
     last_scheduler = ""
     last_k = ""
     test_passed = True
+    payload_binary = None
+    payload_mime = None
 
-    payload_binary = read_binary(payload)
-    payload_mime = mimetypes.guess_type(payload)[0]
+    if payload != None or payload != "":
+        payload_binary = read_binary(payload)
+        payload_mime = mimetypes.guess_type(payload)[0]
 
     i = 0
     for host in hosts:
