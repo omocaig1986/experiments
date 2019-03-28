@@ -21,13 +21,22 @@ func Handle(req []byte) string {
 		loopsForTimeUnit = 25000000
 	}
 
-	alfa := r1.ExpFloat64() / mi
+	exponentialAlfa, _ := strconv.ParseBool(os.Getenv("exponential_alfa"))
+	var alfa float64
+	if exponentialAlfa {
+		alfa = r1.ExpFloat64() / mi
+	} else {
+		alfa = mi
+	}
+
 	actualLoops := int(float64(loopsForTimeUnit) * alfa)
 
 	startTime := time.Now()
 	// test loop time
 	for i := 0; i < actualLoops; i++ {
-		rand.Float64()
+		sTmp := rand.NewSource(time.Now().UnixNano())
+		rTmp := rand.New(sTmp)
+		rTmp.Float64()
 	}
 	elapsed := time.Since(startTime)
 
