@@ -4,7 +4,7 @@ from time import localtime, strftime
 import threading
 import time
 
-THREAD_POOL_N = 8
+THREAD_POOL_N = 16
 SSH_USERNAME = "docker"
 
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
