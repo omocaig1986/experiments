@@ -226,7 +226,7 @@ def computeMeanDict(dicts):
     # copy lambda
     for l in dicts[0][DICT_LAMBDA]:
         avg_dict[DICT_LAMBDA].append(l)
-    return d
+    return avg_dict
 
 #
 # Entrypoint

@@ -380,11 +380,6 @@ def main(argv):
         elif opt in ("-t", "--requests"):
             requests = int(arg)
 
-    if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
-        print("Some needed parameter was not given")
-        print(usage)
-        sys.exit()
-
     print("="*10 + " Starting test suite " + "="*10)
     print("> host %s" % host)
     print("> function_url %s" % function_url)
@@ -393,6 +388,11 @@ def main(argv):
     print("> lambda_delta %.2f" % (lambda_delta))
     print("> requests %d" % (requests))
     print("> use poisson %s" % ("yes" if poisson else "no"))
+
+    if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
+        print("Some needed parameter was not given")
+        print(usage)
+        sys.exit()
 
     params = getSystemParameters(host)
     k = int(params[RES_API_MONITORING_LOAD_K])
