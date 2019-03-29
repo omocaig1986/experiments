@@ -103,7 +103,7 @@ class FunctionTest():
             try:
                 headers = {'Content-Type': self.payload_mime}
                 res = requests.post(self.url, data=self.payload_binary, headers=headers, timeout=TIMEOUT)
-            except (requests.ConnectionError, requests.Timeout) as e:
+            except Exception as e:
                 print(e)
                 net_error = True
 
