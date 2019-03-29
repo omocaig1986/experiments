@@ -48,12 +48,13 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
     output = ["" for i in range(len(hosts))]
 
     def build_cmdline(host):
+        print("len(payload)=%d" % len(payload))
         out = BENCHMARK_SCRIPT
         out += " " + "--host {0}:{1}".format(host, port)
         out += " " + "--function-url {0}".format(function_url)
         out += " " + "--requests {0}".format(requests)
-        out += " " + "--start-lambda \"{0}\" --end-lambda \"{1}\" --lambda-delta \"{2}\" ".format(l, l, 0.1)
-        if payload != None or payload != "":
+        out += " " + "--start-lambda \"{0}\" --end-lambda \"{1}\" --lambda-delta \"{2}\"".format(l, l, 0.1)
+        if len(payload) > 0:
             out += " " + "--payload {0}".format(payload)
         if poisson:
             out += " " + "--poisson"
@@ -79,6 +80,7 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
 
     i = 0
     for host in hosts:
+        print(build_cmdline(host))
         processes.append(subprocess.Popen(build_cmdline(host), stdout=subprocess.PIPE, text=True, shell=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
         i += 1
@@ -220,7 +222,7 @@ def checkFunction(hosts, scheduler_port, function_url, payload):
     payload_binary = None
     payload_mime = None
 
-    if payload != None or payload != "":
+    if len(payload) > 0:
         payload_binary = read_binary(payload)
         payload_mime = mimetypes.guess_type(payload)[0]
 

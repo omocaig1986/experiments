@@ -83,7 +83,7 @@ class FunctionTest():
         print("[INIT] Starting test")
 
         # load payload
-        if payload != None or payload != "":
+        if len(payload) > 0:
             self.payload_binary = read_binary(self.payload)
             self.payload_mime = mimetypes.guess_type(self.payload)[0]
             print("[INIT] Loaded payload of mime " + self.payload_mime)
@@ -334,7 +334,7 @@ def main(argv):
     end_lambda = -1
     lambda_delta = 0.5
     debug = False
-    payload = None
+    payload = ""
     poisson = False
     requests = 500
 
