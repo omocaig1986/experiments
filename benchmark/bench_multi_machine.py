@@ -49,7 +49,6 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
     output = ["" for i in range(len(hosts))]
 
     def build_cmdline(host):
-        print("len(payload)=%d" % len(payload))
         out = BENCHMARK_SCRIPT
         out += " " + "--host {0}:{1}".format(host, port)
         out += " " + "--function-url {0}".format(function_url)
@@ -81,7 +80,6 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
 
     i = 0
     for host in hosts:
-        print(build_cmdline(host))
         processes.append(subprocess.Popen(build_cmdline(host), stdout=subprocess.PIPE, text=True, shell=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
         i += 1
