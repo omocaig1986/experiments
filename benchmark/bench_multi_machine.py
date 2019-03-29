@@ -24,6 +24,7 @@ MISM_STR = " " + cc.WARNING + "MISM" + cc.ENDC + " "
 WARN_STR = " " + cc.WARNING + "WARN" + cc.ENDC + " "
 
 BENCHMARK_SCRIPT = "python bench_multi_get.py"
+SLEEP_SEC_BETWEEN_TESTS = 10
 
 API_MONITORING_LOAD_URL = "monitoring/load"
 RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
@@ -117,8 +118,8 @@ def startSuite(hosts, function_url, port, payload, requests,  poisson, start_lam
             break
 
         # wait some time
-        print("\n[SLEEP] Waiting 60 secs\n")
-        time.sleep(60)
+        print("\n[SLEEP] Waiting %d secs\n" % SLEEP_SEC_BETWEEN_TESTS)
+        time.sleep(SLEEP_SEC_BETWEEN_TESTS)
 
     # save results
     i = 0
