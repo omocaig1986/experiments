@@ -230,7 +230,7 @@ class FunctionTest():
                                                                           self.accepted_jobs, self.rejected_jobs, self.l, self.k))
         for i in range(len(self.timings[TIMINGS_REQUEST_TIME])):
             if self.output[i] == 200:
-                f.write("{:.06}\n".format(self.timings[TIMINGS_REQUEST_TIME][i]))
+                f.write("{}\n".format(self.timings[TIMINGS_REQUEST_TIME][i]))
         f.close()
 
 #
