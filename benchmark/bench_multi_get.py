@@ -39,15 +39,16 @@ RES_HEADER_TIMING_FAAS_EXECUTION = "X-PFog-Timing-Faas-Execution-Seconds"
 
 class FunctionTest():
 
-    def __init__(self, url, payload, l, k, poisson, requests, dir_name):
+    def __init__(self, url, payload, l, k, poisson, requests, out_dir, machine_id):
         self.debug_print = False
         self.url = url
         self.payload = payload
         self.l = l
         self.k = k
-        self.dir_name = dir_name
+        self.out_dir = out_dir
         self.poisson = poisson
         self.test_name = "k" + str(k) + "_lambda" + str(round(l, 3)).replace(".", "_")
+        self.machine_id = machine_id
         self.payload_binary = None
         self.payload_mime = None
 
@@ -216,11 +217,21 @@ class FunctionTest():
         plt.ylabel('Response time')
         plt.xlabel('Request number')
         # plt.show()
-        plt.savefig(self.dir_name + "/" + self.test_name + "_job_timings")
+        plt.savefig(self.out_dir + "/" + self.test_name + "_job_timings")
 
-    #
-    # Getters
-    #
+    def saveRequestTimings(self):
+        if self.out_dir == "":
+            return
+        file_path = "{}/req-times-l{:02.2}-machine{}.txt".format(self.out_dir,
+                                                                 str(round(self.l, 3)).replace(".", "_"), self.machine_id)
+        f = open(file_path, "w")
+        for t in self.timings[TIMINGS_REQUEST_TIME]:
+            f.write("{:.06}\n".format(t))
+        f.close()
+
+#
+# Getters
+#
 
     def getPb(self):
         return self.pb
@@ -279,10 +290,9 @@ def getSystemParameters(host):
     }
 
 
-def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests):
+def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir, machine_id):
     url = "http://{0}/{1}".format(host, function_url)
-    dir_name = "_test_" + url[url.rfind("/") + 1:] + "_" + str(uuid.uuid1())
-    # os.makedirs(dir_name)
+    os.makedirs(out_dir)
 
     pbs = []
     pes = []
@@ -295,7 +305,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     l = start_lambda
     # test all ros
     while True:
-        test = FunctionTest(url, payload, l, k, poisson, requests, dir_name)
+        test = FunctionTest(url, payload, l, k, poisson, requests, out_dir, machine_id)
         test.executeTest()
         pbs.append(test.getPb())
         pes.append(test.getPe())
@@ -305,6 +315,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         timings_faas_execution.append(test.getTimings()[TIMINGS_FAAS_EXECUTION_TIME])
         timings_probing.append(test.getTimings()[TIMINGS_PROBING_TIME])
         timings_forward.append(test.getTimings()[TIMINGS_FORWARDING_TIME])
+
+        test.saveRequestTimings()
 
         if start_lambda >= end_lambda:
             l -= lambda_delta
@@ -337,6 +349,8 @@ def main(argv):
     payload = ""
     poisson = False
     requests = 500
+    out_dir = ""
+    machine_id = 0
 
     usage = "multi_get.py"
     try:
@@ -351,7 +365,9 @@ def main(argv):
                                    "poisson",
                                    "requests=",
                                    "config-url=",
-                                   "payload="
+                                   "payload=",
+                                   "out-dir=",
+                                   "machine-id="
                                    ])
     except getopt.GetoptError:
         print(usage)
@@ -379,6 +395,10 @@ def main(argv):
             poisson = True
         elif opt in ("-t", "--requests"):
             requests = int(arg)
+        elif opt in ("--out-dir"):
+            out_dir = arg
+        elif opt in ("--machine-id"):
+            machine_id = int(arg)
 
     print("="*10 + " Starting test suite " + "="*10)
     print("> host %s" % host)
@@ -388,6 +408,8 @@ def main(argv):
     print("> lambda_delta %.2f" % (lambda_delta))
     print("> requests %d" % (requests))
     print("> use poisson %s" % ("yes" if poisson else "no"))
+    print("> out_dir %s" % (out_dir))
+    print("> machine_id %d" % (machine_id))
 
     if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
         print("Some needed parameter was not given")
@@ -406,7 +428,8 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests)
+    start_suite(host, function_url, payload, start_lambda, end_lambda,
+                lambda_delta, poisson, k, requests, out_dir, machine_id)
 
 
 if __name__ == "__main__":
