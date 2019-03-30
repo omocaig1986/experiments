@@ -112,8 +112,7 @@ def startSuite(hosts, function_url, port, payload, requests,  poisson, start_lam
             results[i] += line
             i += 1
 
-        l += lambda_delta
-
+        l = round(l + lambda_delta, 2)
         if l > end_lambda:
             break
 

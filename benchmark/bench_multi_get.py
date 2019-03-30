@@ -223,8 +223,8 @@ class FunctionTest():
     def saveRequestTimings(self):
         if self.out_dir == "":
             return
-        file_path = "{}/req-times-l{}-machine{}.txt".format(self.out_dir,
-                                                            str(round(self.l, 3)).replace(".", "_"), self.machine_id)
+        file_path = "{}/req-times-l{}-machine{:02}.txt".format(self.out_dir,
+                                                               str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
         f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}".format(self.mean_request_time, self.total_requests,
                                                                           self.accepted_jobs, self.rejected_jobs, self.l, self.k))
@@ -233,9 +233,9 @@ class FunctionTest():
                 f.write("{}\n".format(self.timings[TIMINGS_REQUEST_TIME][i]))
         f.close()
 
-#
-# Getters
-#
+    #
+    # Getters
+    #
 
     def getPb(self):
         return self.pb
@@ -322,11 +322,11 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         test.saveRequestTimings()
 
         if start_lambda >= end_lambda:
-            l -= lambda_delta
-            if l < end_lambda:
+            l = round(l - lambda_delta, 2)
+            if l > end_lambda:
                 break
         else:
-            l += lambda_delta
+            l = round(l + lambda_delta, 2)
             if l > end_lambda:
                 break
 
