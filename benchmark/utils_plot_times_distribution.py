@@ -35,8 +35,8 @@ def start_plot(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_
     out_plots_dir = "{0}/{1}".format(path, "_plots_distribution")
     os.makedirs(out_plots_dir, exist_ok=True)
     d, all_values = parseAllFiles(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_id)
-    histogram_data, bins_edges = np.histogram(all_values, bins=bins)
-    print(histogram_data, bins_edges)
+    min_v = min(all_values)
+    max_v = max(all_values)
 
     def plotAllValuesHist():
         filename = "all-values-hist-machine{:02}.pdf".format(machine_id)
@@ -51,15 +51,41 @@ def start_plot(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_
         filename = "heatmap-hist-machine{:02}.pdf".format(machine_id)
         print("Plotting %s" % filename)
         plt.clf()
+        bins_edges = []
         heat_matrix = []
+
+        x_ticks = []
+        y_ticks = []
+
         l = start_lambda
         while True:
-            heat_matrix.append(d[str(l)])
+            x_ticks.append(str(l))
+            histogram_data, bins_edges = np.histogram(d[str(l)], bins=bins, range=(min_v, max_v))
+            heat_matrix.append(histogram_data)
             l = round(lambda_delta + l, 2)
             if l > end_lambda:
                 break
+        # generate y_ticks
+        for i in range(len(bins_edges)):
+            if i + 1 >= len(bins_edges):
+                break
+            y_ticks.append("[{}, {}]".format(str(round(bins_edges[i], 2)), str(round(bins_edges[i+1], 2))))
+
         fig, ax = plt.subplots()
         im = ax.imshow(np.array(heat_matrix))
+        # colorbar
+        cbar = ax.figure.colorbar(im, ax=ax)
+        cbar.ax.set_ylabel("Occurrences", rotation=-90, va="bottom")
+        # set ticks
+        ax.set_xticks(np.arange(len(x_ticks)))
+        ax.set_yticks(np.arange(len(y_ticks)))
+        ax.set_xticklabels(x_ticks, fontsize="xx-small")
+        ax.set_yticklabels(y_ticks, fontsize="x-small")
+        ax.set_xlabel('λ')
+        ax.set_ylabel('Delay (s)')
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+                 rotation_mode="anchor")
+        # save
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
