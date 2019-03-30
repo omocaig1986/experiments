@@ -226,7 +226,7 @@ class FunctionTest():
         file_path = "{}/req-times-l{}-machine{}.txt".format(self.out_dir,
                                                             str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
-        for i in range(self.timings[TIMINGS_REQUEST_TIME]):
+        for i in range(len(self.timings[TIMINGS_REQUEST_TIME])):
             if self.output[i] == 200:
                 f.write("{:.06}\n".format(self.timings[TIMINGS_REQUEST_TIME][i]))
         f.close()
