@@ -223,8 +223,8 @@ class FunctionTest():
     def saveRequestTimings(self):
         if self.out_dir == "":
             return
-        file_path = "{}/req-times-l{:02.2}-machine{}.txt".format(self.out_dir,
-                                                                 str(round(self.l, 3)).replace(".", "_"), self.machine_id)
+        file_path = "{}/req-times-l{}-machine{}.txt".format(self.out_dir,
+                                                            str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
         for t in self.timings[TIMINGS_REQUEST_TIME]:
             f.write("{:.06}\n".format(t))
