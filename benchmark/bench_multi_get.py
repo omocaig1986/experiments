@@ -321,9 +321,9 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
         test.saveRequestTimings()
 
-        if start_lambda >= end_lambda:
+        if start_lambda > end_lambda:
             l = round(l - lambda_delta, 2)
-            if l > end_lambda:
+            if l < end_lambda:
                 break
         else:
             l = round(l + lambda_delta, 2)
