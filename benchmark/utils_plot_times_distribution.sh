@@ -10,6 +10,7 @@ $CURRENT_PATH/env/bin/python utils_plot_times_distribution.py --files-prefix "re
                         --job-duration "1.02" \
                         -k "10" \
                         --start-lambda "0.1" \
-                        --end-lambda "1.1" \
+                        --end-lambda "3.0" \
                         --lambda-delta "0.1" \
+                        --bins "30" \
                         --machine-id "0"

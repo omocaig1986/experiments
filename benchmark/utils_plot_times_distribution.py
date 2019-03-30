@@ -38,15 +38,16 @@ def start_plot(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_
     histogram_data, bins_edges = np.histogram(all_values, bins=bins)
     print(histogram_data, bins_edges)
 
-    def plotAllValuesHist(histogram_data, bins_edges):
+    def plotAllValuesHist():
         filename = "all-values-hist-machine{:02}.pdf".format(machine_id)
         print("Plotting %s" % filename)
         plt.clf()
-        plt.hist(histogram_data, bins=bins_edges)
-        plt.show()
+        plt.hist(all_values, bins=bins)
+        plt.xlabel("Delay (s)")
+        plt.ylabel("Occurrences")
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
-    def plotHeatMap(histogram_data, bins_edges):
+    def plotHeatMap():
         filename = "heatmap-hist-machine{:02}.pdf".format(machine_id)
         print("Plotting %s" % filename)
         plt.clf()
@@ -62,8 +63,8 @@ def start_plot(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
-    plotAllValuesHist(histogram_data, bins_edges)
-    plotHeatMap(histogram_data, bins_edges)
+    plotAllValuesHist()
+    plotHeatMap()
 
 #
 # Entrypoint
@@ -88,7 +89,7 @@ def main(argv):
     usage = "utils_plot_times_distribution.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "start-lambda=", "end-lambda=", "lambda-delta=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "machine-id="])
+            argv, "hk:p:", ["files-prefix=", "start-lambda=", "end-lambda=", "lambda-delta=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "machine-id=", "bins="])
     except getopt.GetoptError as e:
         print(e)
         print(usage)
