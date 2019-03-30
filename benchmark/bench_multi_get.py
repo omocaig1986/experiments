@@ -14,6 +14,7 @@ import numpy as np
 import mimetypes
 import random
 import json
+from time import localtime, strftime
 
 RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
 RES_API_MONITORING_LOAD_K = "functions_running_max"
@@ -399,6 +400,11 @@ def main(argv):
             out_dir = arg
         elif opt in ("--machine-id"):
             machine_id = int(arg)
+
+    if out_dir == "":
+        time_str = strftime("%m%d%Y-%H%M%S", localtime())
+        out_dir = "./_test_multi_get-" + time_str
+        os.makedirs(out_dir, exist_ok=True)
 
     print("="*10 + " Starting test suite " + "="*10)
     print("> host %s" % host)
