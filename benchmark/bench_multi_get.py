@@ -293,7 +293,6 @@ def getSystemParameters(host):
 
 def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir, machine_id):
     url = "http://{0}/{1}".format(host, function_url)
-    os.makedirs(out_dir)
 
     pbs = []
     pes = []
@@ -404,7 +403,7 @@ def main(argv):
     if out_dir == "":
         time_str = strftime("%m%d%Y-%H%M%S", localtime())
         out_dir = "./_test_multi_get-" + time_str
-        os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
 
     print("="*10 + " Starting test suite " + "="*10)
     print("> host %s" % host)
