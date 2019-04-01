@@ -98,6 +98,7 @@ class FunctionTest():
         def get_request(arg):
             start_time = time.time()
             net_error = False
+            res = None
 
             if self.debug_print:
                 print("==> [GET] Number #" + str(arg))
