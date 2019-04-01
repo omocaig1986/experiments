@@ -19,4 +19,9 @@ print("> end_lambda %.2f" % end_lambda)
 print("> lambda_delta %.2f" % lambda_delta)
 print("> requests %d" % requests)
 print()
-print("Total apprx. time %.2fs = %.2fhrs" % (total_time, total_time/3600))
+
+hrs = int(total_time / 3600)
+mins = int((total_time - hrs * 3600) / 60)
+secs = total_time - hrs*3600 - mins*60
+
+print("Total apprx. time %.2fs = %dh%dm%ds" % (total_time, hrs, mins, secs))
