@@ -7,7 +7,7 @@ $CURRENT_PATH/env/bin/python bench_multi_machine.py \
         --function-url "function/pigo-face-detector" \
         --payload "$CURRENT_PATH/blobs/family.jpg" \
         --requests "200" \
-        --start-lambda "1.0" \
-        --end-lambda "10.0" \
-        --lambda-delta "0.1" \
+        --start-lambda "0.1" \
+        --end-lambda "3.8" \
+        --lambda-delta "0.05" \
         --poisson
