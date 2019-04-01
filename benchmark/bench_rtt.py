@@ -11,9 +11,10 @@ import sys
 
 
 def bench_rtt(host, function, payload, requests_num):
+    url = "http://{}/{}".format(host, function)
+    print("> function url is %s", url)
 
     def get_request(arg):
-        url = "http://{}/{}".format(host, function)
         start_time = time.time()
 
         payload_bin = None
