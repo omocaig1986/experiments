@@ -9,14 +9,8 @@ import math
 import getopt
 import sys
 
-import matplotlib.pyplot as plt
 
-url = "http://192.168.99.100:18080/function/pigo-face-detector"
-image_uri = os.path.dirname(os.path.abspath(__file__)) + "/blobs/family.jpg"
-total_req = 300
-
-
-def bench_rtt(host, function, payload, requests):
+def bench_rtt(host, function, payload, requests_num):
 
     def get_request(arg):
         url = "http://{}/{}".format(host, function)
@@ -43,7 +37,7 @@ def bench_rtt(host, function, payload, requests):
 
     times = []
 
-    for i in range(requests):
+    for i in range(requests_num):
         res_time = get_request(i)
         times.append(res_time)
 
@@ -51,7 +45,7 @@ def bench_rtt(host, function, payload, requests):
     for n in times:
         total_time += n
 
-    avg = total_time / requests
+    avg = total_time / requests_num
 
     print("\nMean response time is " + str(avg) + "ms")
     print("Max is %f and min is %f" % (max(times), min(times)))
