@@ -21,7 +21,7 @@ RES_API_MONITORING_LOAD_K = "functions_running_max"
 
 API_MONITORING_LOAD_URL = "monitoring/load"
 
-TIMEOUT = 60
+TIMEOUT = 120
 
 TIMINGS_REQUEST_TIME = "request_time"
 TIMINGS_QUEUE_TIME = "queue_time"
