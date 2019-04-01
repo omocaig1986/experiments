@@ -330,14 +330,25 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
             if l > end_lambda:
                 break
 
-    def print_res():
+    def print_res(saveToFile=True):
+        features = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
+                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime")
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
-        print("%s %s %s %s %s %s %s %s %s" % ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                                              "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime"))
+
+        out_file = open("{}/results.txt".format(out_dir), "w")
+
+        print("%s %s %s %s %s %s %s %s %s" % features)
+        print("# %s %s %s %s %s %s %s %s %s" % features, file=out_file)
+
         for i in range(len(pbs)):
             print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f" %
                   (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
                    timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i]))
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f" %
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
+                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i]), file=out_file)
+
+        out_file.close()
 
     print_res()
 
