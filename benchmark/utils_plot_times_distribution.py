@@ -28,6 +28,7 @@ def parseAllFiles(path, prefix, start_lambda, end_lambda, lambda_delta, k, machi
         if current_lambda > end_lambda:
             break
 
+    print("[DEBUG] Parsed %d lambdas" % len(d))
     return d, all_values
 
 
@@ -53,6 +54,24 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
         min_v = min(base_values)
         max_v = max(base_values)
 
+    def plotCumulativeFrequency():
+        filename = "all-values-cumulative-machine{:02}.pdf".format(machine_id)
+        print("Plotting %s" % filename)
+        histogram_binned, bins_edges = np.histogram(all_values, bins=bins, range=(min_v, max_v))
+
+        histogram_data = []
+        cumulative_occ = 0
+        for i in range(len(histogram_binned)):
+            cumulative_occ += histogram_binned[i]
+            histogram_data.append(cumulative_occ)
+
+        plt.clf()
+        plt.plot(bins_edges[1:], histogram_data)
+        plt.xlabel("Delay (s)")
+        plt.ylabel("Occurrences")
+        plt.title(plot_title)
+        plt.savefig("{}/{}{}".format(out_plots_dir, "" if len(data_files) == 0 else "merged-", filename))
+
     def plotAllValuesHist():
         filename = "all-values-hist-machine{:02}.pdf".format(machine_id)
         print("Plotting %s" % filename)
@@ -77,7 +96,7 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
         while True:
             x_ticks.append(str(l))
             histogram_data, bins_edges = np.histogram(d[str(l)], bins=bins, range=(min_v, max_v))
-            heat_matrix.append(histogram_data.tolist()[::-1])
+            heat_matrix.append(histogram_data.tolist()[:: -1])
             l = round(lambda_delta + l, 2)
             if l > end_lambda:
                 break
@@ -86,7 +105,7 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
             if i + 1 >= len(bins_edges):
                 break
             y_ticks.append("[{}, {}]".format(str(round(bins_edges[i], 2)), str(round(bins_edges[i + 1], 2))))
-        y_ticks = y_ticks[::-1]
+        y_ticks = y_ticks[:: -1]
 
         fig, ax = plt.subplots()
         im = ax.imshow(np.array(matrixSym(heat_matrix)))
@@ -108,14 +127,17 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
 
     plotAllValuesHist()
     plotHeatMap()
+    plotCumulativeFrequency()
 
 
 def matrixSym(m):
-    out = [None] * len(m)
+    out = [None] * len(m[0])
+    for i in range(len(m[0])):
+        out[i] = [0.0] * len(m)
+
     for i in range(len(m)):
-        out[i] = [0.0] * len(m[i])
         for j in range(len(m[i])):
-            out[i][j] = m[j][i]
+            out[j][i] = m[i][j]
     return out
 #
 # Entrypoint
@@ -188,6 +210,7 @@ def main(argv):
     print("> files_prefix %s" % files_prefix)
     print("> start_lambda %.2f" % start_lambda)
     print("> end_lambda %.2f" % end_lambda)
+    print("> lambda_delta %.2f" % lambda_delta)
     print("> function %s" % function)
     print("> fanout %d" % fanout)
     print("> threshold %d" % threshold)
