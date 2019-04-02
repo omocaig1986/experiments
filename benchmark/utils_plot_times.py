@@ -55,6 +55,8 @@ def parseLogFile(file_path):
     d = getBaseDict()
 
     for line in in_file:
+        if line[0] == "#":
+            continue
         comps = line.split()
         d[DICT_LAMBDA].append(float(comps[0]))
         d[DICT_PB].append(float(comps[1]))
