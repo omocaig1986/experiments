@@ -44,6 +44,8 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
     out_plots_dir = "{0}/{1}".format(path, "_plots_distribution")
     plot_title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Machine#{}".format(function,
                                                                            f, t, k, mi, machine_id)
+    function_normalized = function.lower().replace(" ", "")
+
     os.makedirs(out_plots_dir, exist_ok=True)
     d, all_values = parseAllFiles(path, prefix, start_lambda, end_lambda, lambda_delta, k, machine_id)
     if len(data_files) == 0:
@@ -55,7 +57,7 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
         max_v = max(base_values)
 
     def plotCumulativeFrequency():
-        filename = "all-values-cumulative-machine{:02}.pdf".format(machine_id)
+        filename = "{}-all-values-cumulative-machine{:02}.pdf".format(function_normalized, machine_id)
         print("Plotting %s" % filename)
         histogram_binned, bins_edges = np.histogram(all_values, bins=bins, range=(min_v, max_v))
 
@@ -66,14 +68,16 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
             histogram_data.append(cumulative_occ)
 
         plt.clf()
-        plt.plot(bins_edges[1:], histogram_data)
-        plt.xlabel("Delay (s)")
-        plt.ylabel("Occurrences")
-        plt.title(plot_title)
+        fig, ax = plt.subplots()
+        ax.plot(bins_edges[1:], histogram_data)
+        ax.set_xlabel("Delay (s)")
+        ax.set_ylabel("Occurrences")
+        ax.set_title(plot_title)
+        fig.tight_layout()
         plt.savefig("{}/{}{}".format(out_plots_dir, "" if len(data_files) == 0 else "merged-", filename))
 
     def plotAllValuesHist():
-        filename = "all-values-hist-machine{:02}.pdf".format(machine_id)
+        filename = "{}-all-values-hist-machine{:02}.pdf".format(function_normalized, machine_id)
         print("Plotting %s" % filename)
         plt.clf()
         plt.hist(all_values, bins=bins, range=(min_v, max_v))
@@ -83,7 +87,7 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
         plt.savefig("{}/{}{}".format(out_plots_dir, "" if len(data_files) == 0 else "merged-", filename))
 
     def plotHeatMap():
-        filename = "heatmap-hist-machine{:02}.pdf".format(machine_id)
+        filename = "{}-heatmap-hist-machine{:02}.pdf".format(function_normalized, machine_id)
         print("Plotting %s" % filename)
         plt.clf()
         bins_edges = []
