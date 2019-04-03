@@ -73,7 +73,9 @@ def parseLogFile(file_path):
     return d
 
 
-def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
+def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name, plot_every_machine):
+
+    function_normalized = function.lower().replace(" ", "")
 
     def plotData(d, feature, title, filename, model=None):
         if len(d[feature]) == 0:
@@ -93,7 +95,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
     def plotFeatures(d, title):
         features = getFeaturesArray()
         for f in features:
-            filename = "avg-{}-k{}.pdf".format(f, k)
+            filename = "{}-avg-{}-k{}.pdf".format(function_normalized, f, k)
             print("Plotting %s to \"%s\"" % (f, filename))
 
             if f == DICT_PB and with_model:
@@ -109,7 +111,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         d = computeMeanDict(dicts)
         plotFeatures(d, title)
 
-        stacked_filename = "avg-timingsStacked-k{}.pdf".format(k)
+        stacked_filename = "{}-avg-timingsStacked-k{}.pdf".format(function_normalized, k)
         print("Plotting %s to \"%s\"" % (stacked_filename, stacked_filename))
         plotStackedTimings(d, title, stacked_filename)
 
@@ -170,8 +172,9 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         dicts.append(d)
 
-        plotFeaturesForMachine(i, d)
-        plotStackedTimingsForMachine(i, d)
+        if plot_every_machine:
+            plotFeaturesForMachine(i, d)
+            plotStackedTimingsForMachine(i, d)
     plotAverage(dicts)
 
 
@@ -246,11 +249,12 @@ def main(argv):
     k = 10
     with_model = False
     model_name = ""
+    plot_every_machine = False
 
     usage = "utils_plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name="])
+            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name=", "plot-every-machine"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -279,6 +283,8 @@ def main(argv):
             with_model = True
         elif opt in ("--model-name"):
             model_name = arg
+        elif opt in ("--plot-every-machine"):
+            plot_every_machine = True
 
     if files_path == "":
         print("Some needed parameter was not given")
@@ -302,6 +308,7 @@ def main(argv):
     print("> k %d" % k)
     print("> with model %s" % with_model)
     print("> model name %s" % model_name)
+    print("> plot_every_machine %s" % plot_every_machine)
     print("----")
     print("> out_plots_dir %s" % out_plots_dir)
     print("> out_computations_dir %s" % out_computations_dir)
@@ -309,7 +316,7 @@ def main(argv):
 
     mi = 1.0/job_duration
     start_plot(files_path, files_prefix, files_number, out_plots_dir, k,
-               fanout, threshold, mi, function, with_model, model_name)
+               fanout, threshold, mi, function, with_model, model_name, plot_every_machine)
     # startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)
     do_computations(files_path, files_prefix, files_number, out_computations_dir, k, fanout, threshold, mi,
                     function, with_model, model_name)
