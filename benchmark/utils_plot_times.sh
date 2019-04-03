@@ -7,7 +7,7 @@ $CURRENT_PATH/env/bin/python utils_plot_times.py --files-prefix "results-machine
                         --path "/Users/gabry3795/Cloud/Google Drive/Università/Magistrale/Thesis/Experiments/BladeServers/PigoFaceDetect/MultiNode/LL(1,K-2)-16machines" \
                         --function "Pigo Face Detect" \
                         --fanout "1" \
-                        --threshold "10" \
+                        --threshold "2" \
                         --job-duration "0.274371" \
                         --with-model \
                         --model-name "M/M/1/10" \
