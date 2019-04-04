@@ -44,7 +44,7 @@ def setConfiguration(host_id, host_ip, init_servers):
 conf_file = open("configure_discovery.txt", "r")
 
 for line in conf_file:
-    if line == "#":
+    if line[0] == "#":
         continue
     comp = line.split()
     host_ip = comp[1]
