@@ -44,6 +44,8 @@ def setConfiguration(host_ip, scheduler_line):
 conf_file = open("hosts.txt", "r")
 
 for line in conf_file:
+    if line[0] == "#":
+        continue
     ips.append(line.strip())
 
 conf_file.close()
