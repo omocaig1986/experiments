@@ -69,7 +69,7 @@ def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f
 
         plt.clf()
         fig, ax = plt.subplots()
-        ax.plot(bins_edges[1:], histogram_data)
+        ax.plot(bins_edges[1:], histogram_data, marker="x", markersize=3.0, markeredgewidth=1.0, linewidth=0.8)
         ax.set_xlabel("Delay (s)")
         ax.set_ylabel("Occurrences")
         ax.set_title(plot_title)
