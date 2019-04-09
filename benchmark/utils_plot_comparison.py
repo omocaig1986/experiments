@@ -130,6 +130,9 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
     def getLAtIndex(i):
         return l_delta * i + from_l
 
+    def getLiFromV(l):
+        return int(round(((l-from_l)/l_delta)))
+
     def plotData(to_plot_x, to_plot_y, l, feature):
         title = "{} - LL({},T) - {}machines - λ = {:.2f}".format(function, f, m, l)
         filename = "{}-fixedl{}.pdf".format(feature, "{:.2f}".format(l).replace(".", "_"))
@@ -159,10 +162,10 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         i = 0
         for arr in y_plots:
             ax.plot(x_plot, arr, marker="x",
-                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="λ = {}".format(y_labels[i]))
+                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="λ = {:.2f}".format(y_labels[i]))
             i += 1
 
-        ax.set_xlabel("T")
+        ax.set_xlabel("λ")
         ax.set_ylabel(feature)
         ax.set_title(title)
         ax.legend()
@@ -181,12 +184,14 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
                 to_plot_y.append(d_all[t][feature][l_index])
         return (to_plot_x, to_plot_y)
 
-    def retrieveAllData(feature):
+    def retrieveAllData(feature, select=None):
         x_plot = []
         y_plots = []
         y_labels = []
 
         for l_index in range(lambdas):
+            if select != None and l_index not in select:
+                continue
             x, y = retrievePlotData(l_index, feature)
             y_plots.append(y)
             y_labels.append(getLAtIndex(l_index))
@@ -201,16 +206,17 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         x, y = retrievePlotData(l_index, DICT_DELAY)
         plotData(x, y, getLAtIndex(l_index), DICT_DELAY)
 
-    x, y, l = retrieveAllData(DICT_PB)
+    select = [getLiFromV(2.5), getLiFromV(3.0), getLiFromV(3.50), getLiFromV(3.65), getLiFromV(3.80)]
+    x, y, l = retrieveAllData(DICT_PB, select=select)
     plotAllData(x, y, l, DICT_PB)
-    x, y, l = retrieveAllData(DICT_DELAY)
+    x, y, l = retrieveAllData(DICT_DELAY, select=select)
     plotAllData(x, y, l, DICT_DELAY)
 
 
 def start_plot(path, function, f, from_t, to_t, mi, from_l, to_l, l_delta, k, m, out_plots_dir):
     d_all = parseAllResultFiles(path, from_t, to_t, m, k, function)
     plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_l, l_delta, f, out_plots_dir)
-    #plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, to_l, l_delta, out_plots_dir)
+    plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, to_l, l_delta, out_plots_dir)
 
 
 def main(argv):
