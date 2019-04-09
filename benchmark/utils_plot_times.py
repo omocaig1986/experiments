@@ -40,6 +40,9 @@ def getFeaturesArray():
 
 def printDict(d, outfile):
     features = getFeaturesArray()
+    features_t = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
+                  "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime")
+    print("# %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
     for i in range(len(d[DICT_LAMBDA])):
         print("%.2f" % d[DICT_LAMBDA][i], end="", file=outfile)
         for f in features:
@@ -82,14 +85,17 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
             return
 
         plt.clf()
-        line_experimental, = plt.plot(d[DICT_LAMBDA], d[feature])
+        fig, ax = plt.subplots()
+        line_experimental, = ax.plot(d[DICT_LAMBDA], d[feature], marker="x",
+                                     markersize=3.0, markeredgewidth=1.0, linewidth=0.8)
         if model != None:
-            lines_model, = plt.plot(d[DICT_LAMBDA], model)
+            lines_model, = ax.plot(d[DICT_LAMBDA], model)
             plt.legend([line_experimental, lines_model], ['Experiment', "Model " + model_name])
 
-        plt.title(title)
-        plt.xlabel("λ")
-        plt.ylabel(feature)
+        ax.set_title(title)
+        ax.set_xlabel("λ")
+        ax.set_ylabel(feature)
+        fig.tight_layout()
         plt.savefig("{}/{}".format(out_dir, filename))
 
     def plotFeatures(d, title):
@@ -179,9 +185,10 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
 
 
 def do_computations(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
+    averages_filename = "{}-avg-k{}-t{}-m{}.txt".format(function.lower().replace(" ", ""), k, k-t, files_number)
 
     def saveAverages(d):
-        outfile = open("{}/{}".format(out_dir, "avg-results.txt"), "w")
+        outfile = open("{}/{}".format(out_dir, averages_filename), "w")
         printDict(d, outfile)
         outfile.close()
 
