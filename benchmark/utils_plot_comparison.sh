@@ -7,7 +7,7 @@ $CURRENT_PATH/env/bin/python utils_plot_comparison.py \
                         --function "Pigo Face Detect" \
                         --fanout "1" \
                         --from-threshold "1" \
-                        --to-threshold "9" \
+                        --to-threshold "8" \
                         --job-duration "0.274371" \
                         -k "10" \
                         --start-lambda "0.1" \

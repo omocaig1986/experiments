@@ -71,9 +71,9 @@ def parseResultFile(file_path):
 
 def parseAllResultFiles(path, from_t, to_t, m, k, function):
     d_all = {}
-    for t in range(from_t, to_t):
+    for t in range(from_t, to_t+1):
         filename = "{}-avg-k{}-t{}-m{}.txt".format(
-            function.lower().replace(" ", ""), k, k - t, m)
+            function.lower().replace(" ", ""), k, t, m)
         print("> Parsing file \"%s\"" % filename)
         d_t = parseResultFile("{}/{}".format(path, filename))
         d_all[t] = d_t
@@ -84,7 +84,7 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
     lambdas = int((to_l - from_l) / l_delta) + 2
 
     def plotData(x_plot, y_plots, y_labels, feature):
-        title = "{} - LL({},T) - {}machines".format(function, f, m)
+        title = "{} - LL({},T) - (K={}, μ={:.2f}) - {}machines".format(function, f, k, mi, m)
         filename = "comparison-{}.pdf".format(feature)
         print("> Plotting \"%s\"" % filename)
 
@@ -99,7 +99,7 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
                     markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="T = {}".format(y_labels[i]))
             i += 1
 
-        ax.set_xlabel("T")
+        ax.set_xlabel("λ")
         ax.set_ylabel(feature)
         ax.set_title(title)
         ax.legend()
@@ -110,7 +110,7 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
         x_plot = []
         y_plots = []
         y_labels = []
-        for t in range(from_t, to_t):
+        for t in range(from_t, to_t+1):
             if feature in d_all[t].keys():
                 y_plots.append(d_all[t][feature])
                 y_labels.append(t)
@@ -134,7 +134,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         return int(round(((l-from_l)/l_delta)))
 
     def plotData(to_plot_x, to_plot_y, l, feature):
-        title = "{} - LL({},T) - {}machines - λ = {:.2f}".format(function, f, m, l)
+        title = "{} - LL({},T) - (K={}, μ={:.2f}) - {}machines - λ = {:.2f}".format(function, f, k, mi, m, l)
         filename = "{}-fixedl{}.pdf".format(feature, "{:.2f}".format(l).replace(".", "_"))
         print("> Plotting \"%s\"" % filename)
 
@@ -149,9 +149,11 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
-    def plotAllData(x_plot, y_plots, y_labels, feature):
-        title = "{} - LL({},T) - {}machines".format(function, f, m)
+    def plotAllData(x_plot, y_plots, y_labels, feature, select=False):
+        title = "{} - LL({},T) - (K={}, μ={:.2f}) - {}machines".format(function, f, k, mi, m)
         filename = "allData-{}.pdf".format(feature)
+        if select:
+            filename = "allData-selection-{}.pdf".format(feature)
         print("> Plotting \"%s\"" % filename)
 
         plt.cla()
@@ -165,10 +167,11 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
                     markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="λ = {:.2f}".format(y_labels[i]))
             i += 1
 
-        ax.set_xlabel("λ")
+        ax.set_xlabel("T")
         ax.set_ylabel(feature)
         ax.set_title(title)
-        ax.legend()
+        if select:
+            ax.legend()
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
@@ -176,7 +179,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         to_plot_y = []
         to_plot_x = []
 
-        for t in range(from_t, to_t):
+        for t in range(from_t, to_t+1):
             to_plot_x.append(t)
             if feature not in d_all[t].keys():
                 to_plot_y.append(0)
@@ -206,10 +209,15 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         x, y = retrievePlotData(l_index, DICT_DELAY)
         plotData(x, y, getLAtIndex(l_index), DICT_DELAY)
 
-    select = [getLiFromV(2.5), getLiFromV(3.0), getLiFromV(3.50), getLiFromV(3.65), getLiFromV(3.80)]
+    select = [getLiFromV(2.5), getLiFromV(3.0), getLiFromV(3.50), getLiFromV(3.65)]
     x, y, l = retrieveAllData(DICT_PB, select=select)
-    plotAllData(x, y, l, DICT_PB)
+    plotAllData(x, y, l, DICT_PB, select=True)
     x, y, l = retrieveAllData(DICT_DELAY, select=select)
+    plotAllData(x, y, l, DICT_DELAY, select=True)
+    # plot all data
+    x, y, l = retrieveAllData(DICT_PB)
+    plotAllData(x, y, l, DICT_PB)
+    x, y, l = retrieveAllData(DICT_DELAY)
     plotAllData(x, y, l, DICT_DELAY)
 
 
@@ -256,7 +264,7 @@ def main(argv):
             fanout = int(arg)
         elif opt in ("--from-threshold"):
             from_t = int(arg)
-        elif opt in ("--from-threshold"):
+        elif opt in ("--to-threshold"):
             to_t = int(arg)
         elif opt in ("--job-duration"):
             job_duration = float(arg)
