@@ -23,6 +23,8 @@ os.makedirs(dir_path, exist_ok=True)
 
 hosts_file = open("hosts.txt", "r")
 for host in hosts_file:
+    if host[0] == "#":
+        continue
     hosts.append(host.strip())
 hosts_file.close()
 
