@@ -1,3 +1,4 @@
+#!/bin/sh
 cd ..
 echo "==> Pulling..."
 git checkout $(git rev-parse --abbrev-ref HEAD) --force
