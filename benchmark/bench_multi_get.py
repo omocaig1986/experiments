@@ -36,6 +36,7 @@ RES_HEADER_TIMING_FORWARDING_LIST = "X-PFog-Timing-Forwarding-Seconds-List"
 RES_HEADER_TIMING_QUEUE = "X-Pfog-Timing-Queue-Seconds"
 RES_HEADER_TIMING_EXECUTION = "X-PFog-Timing-Execution-Seconds"
 RES_HEADER_TIMING_FAAS_EXECUTION = "X-PFog-Timing-Faas-Execution-Seconds"
+RES_HEADER_PROBE_MESSAGES = "X-PFog-Timing-Probe-Messages"
 
 
 class FunctionTest():
@@ -70,6 +71,7 @@ class FunctionTest():
         self.mean_faas_execution_time = 0.0
         self.mean_probing_time = 0.0
         self.mean_forwarding_time = 0.0
+        self.total_probe_messages = 0
         # per-thread variables
         self.timings = {
             TIMINGS_QUEUE_TIME: [0.0] * self.total_requests,
@@ -81,6 +83,7 @@ class FunctionTest():
         }
         self.output = [None] * self.total_requests
         self.external = [None] * self.total_requests
+        self.probe_messages = [0] * self.total_requests
 
         print("[INIT] Starting test")
 
@@ -122,6 +125,7 @@ class FunctionTest():
                 self.output[arg] = res.status_code
                 # parse headers if request is successful
                 if res.status_code == 200:
+                    self.probe_messages[arg] = int(res.headers.get(RES_HEADER_PROBE_MESSAGES))
                     self.parseTimingsFromHeaders(res.headers, arg)
             else:
                 self.output[arg] = 500
@@ -177,6 +181,7 @@ class FunctionTest():
         timings_forwarding_time_sum = 0.0
 
         for i in range(len(self.output)):
+            self.total_probe_messages += self.probe_messages[i]
             if self.output[i] == 200:
                 self.accepted_jobs += 1
                 timings_request_sum += self.timings[TIMINGS_REQUEST_TIME][i]
@@ -244,6 +249,9 @@ class FunctionTest():
     def getPe(self):
         return self.pe
 
+    def getProbeMessagesCount(self):
+        return self.total_probe_messages
+
     def getTimings(self):
         return {
             TIMINGS_REQUEST_TIME: self.mean_request_time,
@@ -306,6 +314,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     timings_faas_execution = []
     timings_probing = []
     timings_forward = []
+    probe_messages = []
     l = start_lambda
     # test all ros
     while True:
@@ -319,6 +328,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         timings_faas_execution.append(test.getTimings()[TIMINGS_FAAS_EXECUTION_TIME])
         timings_probing.append(test.getTimings()[TIMINGS_PROBING_TIME])
         timings_forward.append(test.getTimings()[TIMINGS_FORWARDING_TIME])
+        probe_messages.append(test.getProbeMessagesCount())
 
         test.saveRequestTimings()
 
@@ -333,21 +343,21 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
     def print_res(saveToFile=True):
         features = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime")
+                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages")
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
 
         out_file = open("{}/results.txt".format(out_dir), "w")
 
-        print("%s %s %s %s %s %s %s %s %s" % features)
-        print("# %s %s %s %s %s %s %s %s %s" % features, file=out_file)
+        print("%s %s %s %s %s %s %s %s %s %s" % features)
+        print("# %s %s %s %s %s %s %s %s %s %s" % features, file=out_file)
 
         for i in range(len(pbs)):
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f" %
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
+                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]))
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
                   (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
-                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i]))
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f" %
-                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
-                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i]), file=out_file)
+                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]), file=out_file)
 
         out_file.close()
 
