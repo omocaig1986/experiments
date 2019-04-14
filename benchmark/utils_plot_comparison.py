@@ -16,6 +16,7 @@ DICT_EXEC_TIME = "timeExec"
 DICT_FAAS_EXEC_TIME = "timeFaasExec"
 DICT_PROBE_TIME = "timeProbing"
 DICT_FORWARDING_TIME = "timeForwarding"
+DICT_PROBE_MESSAGES = "probeMessages"
 
 PLOT_MARKERS = ".,ov^<>x12348s"
 PLOT_LINES = ['-', '--', '-.', ':']
@@ -37,7 +38,8 @@ def getFeaturesArray():
             DICT_EXEC_TIME,
             DICT_FAAS_EXEC_TIME,
             DICT_PROBE_TIME,
-            DICT_FORWARDING_TIME]
+            DICT_FORWARDING_TIME,
+            DICT_PROBE_MESSAGES]
 
 
 def parseResultFile(file_path):
@@ -58,12 +60,13 @@ def parseResultFile(file_path):
         d[DICT_PB].append(float(comps[1]))
         d[DICT_DELAY].append(float(comps[2]))
         d[DICT_PE].append(float(comps[3]))
-        if len(comps) == 9:
+        if len(comps) >= 9:
             d[DICT_QUEUE_TIME].append(float(comps[4]))
             d[DICT_EXEC_TIME].append(float(comps[5]))
             d[DICT_FAAS_EXEC_TIME].append(float(comps[6]))
             d[DICT_PROBE_TIME].append(float(comps[7]))
             d[DICT_FORWARDING_TIME].append(float(comps[8]))
+            d[DICT_PROBE_MESSAGES].append(float(comps[9]))
 
     in_file.close()
     return d
@@ -81,7 +84,7 @@ def parseAllResultFiles(path, from_t, to_t, m, k, function):
 
 
 def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, to_l, l_delta, out_plots_dir):
-    lambdas = int((to_l - from_l) / l_delta) + 2
+    lambdas = int((to_l - from_l) / l_delta) + 1
 
     def plotData(x_plot, y_plots, y_labels, feature):
         title = "{} - LL({},T) - (K={}, μ={:.2f}) - {}machines".format(function, f, k, mi, m)
@@ -125,7 +128,7 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
 
 
 def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_l, l_delta, f, out_plots_dir):
-    lambdas = int((to_l - from_l) / l_delta) + 2
+    lambdas = int((to_l - from_l) / l_delta) + 1
 
     def getLAtIndex(i):
         return l_delta * i + from_l
@@ -209,7 +212,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         x, y = retrievePlotData(l_index, DICT_DELAY)
         plotData(x, y, getLAtIndex(l_index), DICT_DELAY)
 
-    select = [getLiFromV(2.5), getLiFromV(3.0), getLiFromV(3.50), getLiFromV(3.65)]
+    select = [getLiFromV(3.00), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
     x, y, l = retrieveAllData(DICT_PB, select=select)
     plotAllData(x, y, l, DICT_PB, select=True)
     x, y, l = retrieveAllData(DICT_DELAY, select=select)

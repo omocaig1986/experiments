@@ -17,6 +17,7 @@ DICT_EXEC_TIME = "timeExec"
 DICT_FAAS_EXEC_TIME = "timeFaasExec"
 DICT_PROBE_TIME = "timeProbing"
 DICT_FORWARDING_TIME = "timeForwarding"
+DICT_PROBE_MESSAGES = "probeMessages"
 
 
 def getBaseDict():
@@ -35,14 +36,15 @@ def getFeaturesArray():
             DICT_EXEC_TIME,
             DICT_FAAS_EXEC_TIME,
             DICT_PROBE_TIME,
-            DICT_FORWARDING_TIME]
+            DICT_FORWARDING_TIME,
+            DICT_PROBE_MESSAGES]
 
 
 def printDict(d, outfile):
     features = getFeaturesArray()
     features_t = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                  "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime")
-    print("# %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
+                  "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages")
+    print("# %s %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
     for i in range(len(d[DICT_LAMBDA])):
         print("%.2f" % d[DICT_LAMBDA][i], end="", file=outfile)
         for f in features:
@@ -65,12 +67,13 @@ def parseLogFile(file_path):
         d[DICT_PB].append(float(comps[1]))
         d[DICT_DELAY].append(float(comps[2]))
         d[DICT_PE].append(float(comps[3]))
-        if len(comps) == 9:
+        if len(comps) >= 9:
             d[DICT_QUEUE_TIME].append(float(comps[4]))
             d[DICT_EXEC_TIME].append(float(comps[5]))
             d[DICT_FAAS_EXEC_TIME].append(float(comps[6]))
             d[DICT_PROBE_TIME].append(float(comps[7]))
             d[DICT_FORWARDING_TIME].append(float(comps[8]))
+            d[DICT_PROBE_MESSAGES].append(int(comps[9]))
 
     in_file.close()
     return d
