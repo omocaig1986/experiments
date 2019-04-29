@@ -59,9 +59,10 @@ class FunctionTest():
         self.wait_time = 1 / self.l
 
         self.threads = []
-        self.accepted_jobs = 0
-        self.rejected_jobs = 0
+        self.accepted_jobs = 0  # jobs with response code == 200
+        self.rejected_jobs = 0  # jobs with response code == 500
         self.external_jobs = 0
+        self.neterr_jobs = 0  # jobs that had a network error
         self.pa = 0.0
         self.pb = 0.0
         self.pe = 0.0
@@ -127,8 +128,10 @@ class FunctionTest():
                 if res.status_code == 200:
                     self.probe_messages[arg] = int(res.headers.get(RES_HEADER_PROBE_MESSAGES))
                     self.parseTimingsFromHeaders(res.headers, arg)
+                else:
+                    self.output[arg] = res.status_code
             else:
-                self.output[arg] = 500
+                self.output[arg] = 999
 
         def burst_requests():
             if not self.debug_print:
@@ -188,8 +191,10 @@ class FunctionTest():
                 timings_queue_sum += self.timings[TIMINGS_QUEUE_TIME][i]
                 timings_execution_sum += self.timings[TIMINGS_EXECUTION_TIME][i]
                 timings_faas_execution_sum += self.timings[TIMINGS_FAAS_EXECUTION_TIME][i]
-            else:
+            elif self.output[i] == 500:
                 self.rejected_jobs += 1
+            else:
+                self.neterr_jobs += 1
 
             if self.external[i]:
                 self.external_jobs += 1
@@ -210,8 +215,8 @@ class FunctionTest():
             self.mean_probing_time = timings_probing_time_sum / float(self.external_jobs)
             self.mean_forwarding_time = timings_forwarding_time_sum / float(self.external_jobs)
 
-        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected." %
-              (self.total_requests, self.accepted_jobs, self.rejected_jobs))
+        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d had network error." %
+              (self.total_requests, self.accepted_jobs, self.rejected_jobs, self.neterr_jobs))
         print("[TEST] pB is %.6f, mean_request_time is %.6f" % (self.pb, self.mean_request_time))
         print("[TEST] %.6f%% jobs externally executed, forward and probing times are %.6fs %.6fs\n" %
               (self.pe, self.mean_forwarding_time, self.mean_probing_time))
@@ -261,6 +266,9 @@ class FunctionTest():
             TIMINGS_FORWARDING_TIME: self.mean_forwarding_time,
             TIMINGS_PROBING_TIME: self.mean_probing_time
         }
+
+    def getNetErrorJobs(self):
+        return self.neterr_jobs
 
     #
     # Utils
@@ -315,6 +323,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     timings_probing = []
     timings_forward = []
     probe_messages = []
+    neterror_jobs = []
     l = start_lambda
     # test all ros
     while True:
@@ -329,6 +338,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         timings_probing.append(test.getTimings()[TIMINGS_PROBING_TIME])
         timings_forward.append(test.getTimings()[TIMINGS_FORWARDING_TIME])
         probe_messages.append(test.getProbeMessagesCount())
+        neterror_jobs.append(test.getNetErrorJobs())
 
         test.saveRequestTimings()
 
@@ -343,21 +353,28 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
     def print_res(saveToFile=True):
         features = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages")
+                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages", "NetErrJobs")
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
 
         out_file = open("{}/results.txt".format(out_dir), "w")
 
-        print("%s %s %s %s %s %s %s %s %s %s" % features)
-        print("# %s %s %s %s %s %s %s %s %s %s" % features, file=out_file)
+        print("# ", end="", file=out_file)
+        for f in features:
+            print("%s" % f, end="")
+            print("%s" % f, end="", file=out_file)
+        print("\n")
+        print("\n", file=out_file)
+
+        # print("%s %s %s %s %s %s %s %s %s %s %s" % features)
+        # print("# %s %s %s %s %s %s %s %s %s %s %s" % features, file=out_file)
 
         for i in range(len(pbs)):
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %d" %
                   (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
-                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]))
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
+                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i], neterror_jobs[i]))
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %d" %
                   (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
-                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]), file=out_file)
+                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]), neterror_jobs[i], file=out_file)
 
         out_file.close()
 
