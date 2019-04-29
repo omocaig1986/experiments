@@ -360,8 +360,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
         print("# ", end="", file=out_file)
         for f in features:
-            print("%s" % f, end="")
-            print("%s" % f, end="", file=out_file)
+            print("%s " % f, end="")
+            print("%s " % f, end="", file=out_file)
         print("\n")
         print("\n", file=out_file)
 
@@ -373,8 +373,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
                   (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
                    timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i], neterror_jobs[i]))
             print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %d" %
-                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i],
-                   timings_queue[i], timings_execution[i], timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i]), neterror_jobs[i], file=out_file)
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
+                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i], neterror_jobs[i]), file=out_file)
 
         out_file.close()
 
