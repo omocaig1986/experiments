@@ -6,6 +6,7 @@ import time
 import matplotlib.pyplot as plt
 import model_mm1k
 import numpy as np
+import model_mm1k
 
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"
@@ -145,10 +146,25 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         plt.clf()
         plt.close()
         fig, ax = plt.subplots()
-        ax.plot(to_plot_x, to_plot_y, marker="x", markersize=3.0, markeredgewidth=1.0, linewidth=0.8)
+        ax.plot(to_plot_x, to_plot_y, marker="x", markersize=3.0,
+                markeredgewidth=1.0, linewidth=0.7, label="λ = {:.2f}".format(l))
+
+        # add model
+        model_values = []
+        if feature == DICT_PB:
+            for t in range(from_t, to_t + 1):
+                model_values.append(model_mm1k.computePb(l, mi, k))
+        elif feature == DICT_DELAY:
+            for t in range(from_t, to_t + 1):
+                model_values.append(model_mm1k.delay(l, mi, k))
+        if len(model_values) > 0:
+            ax.plot(to_plot_x, model_values, marker="x", markersize=3.0,
+                    markeredgewidth=1.0, linewidth=1, label="M/M/1/K Model")
+
         ax.set_xlabel("T")
         ax.set_ylabel(feature)
         ax.set_title(title)
+        ax.legend()
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
@@ -167,7 +183,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         i = 0
         for arr in y_plots:
             ax.plot(x_plot, arr, marker="x",
-                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="λ = {:.2f}".format(y_labels[i]))
+                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label=y_labels[i])
             i += 1
 
         ax.set_xlabel("T")
@@ -200,17 +216,18 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
                 continue
             x, y = retrievePlotData(l_index, feature)
             y_plots.append(y)
-            y_labels.append(getLAtIndex(l_index))
+            y_labels.append("λ = {:.2f}".format(getLAtIndex(l_index)))
             if len(x_plot) == 0:
                 x_plot = x
 
         return (x_plot, y_plots, y_labels)
 
     for l_index in range(lambdas):
+        l_value = getLAtIndex(l_index)
         x, y = retrievePlotData(l_index, DICT_PB)
-        plotData(x, y, getLAtIndex(l_index), DICT_PB)
+        plotData(x, y, l_value, DICT_PB)
         x, y = retrievePlotData(l_index, DICT_DELAY)
-        plotData(x, y, getLAtIndex(l_index), DICT_DELAY)
+        plotData(x, y, l_value, DICT_DELAY)
 
     select = [getLiFromV(3.00), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
     x, y, l = retrieveAllData(DICT_PB, select=select)
