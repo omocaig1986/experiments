@@ -1,7 +1,7 @@
 #!/bin/sh
 # login
-docker registry.gitlab.com login -u "gitlab+deploy-token-64025" -p "CfNK37-zH4oV1xDstDe6"
-docker registry.gitlab.com login -u "gitlab+deploy-token-64030" -p "zNCW2p4iJG6CpPsxnnqx"
+docker login registry.gitlab.com -u "gitlab+deploy-token-64025" -p "CfNK37-zH4oV1xDstDe6"
+docker login registry.gitlab.com -u "gitlab+deploy-token-64030" -p "zNCW2p4iJG6CpPsxnnqx"
 
 cd ../../
 cd stack
