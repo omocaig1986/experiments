@@ -19,6 +19,7 @@ commands = [
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack.sh\"",
     "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
     "docker system prune -f --volumes",
+    "sudo reboot"
 ]
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
