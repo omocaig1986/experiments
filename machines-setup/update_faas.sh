@@ -2,9 +2,10 @@
 # Update the openfaas distribution
 cd ../../../
 cd faas
-
+# update
 git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
+# undeploy
 docker stack rm func
-docker network rm func_functions
+# re-reploy
 ./deploy_stack.sh
