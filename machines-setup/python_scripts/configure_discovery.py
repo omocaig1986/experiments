@@ -14,6 +14,8 @@ def preparePayload(host_id, host_ip, init_servers):
     payload["machine_ip"] = host_ip
     payload["machine_id"] = host_id
     payload["init_servers"] = init_servers
+    payload["poll_time"] = 120
+    payload["poll_timeout"] = 5
     return json.dumps(payload)
 
 
