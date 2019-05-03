@@ -5,19 +5,19 @@ import threading
 import time
 
 THREAD_POOL_N = 16
-SSH_USERNAME = "docker"
+SSH_USERNAME = "p2pfog"
 
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
 hosts = []
 commands = [
     "docker system prune -f --volumes",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    # "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./update_faas.sh\"",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
-    "\"cd /home/docker/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
     "docker system prune -f --volumes",
     # "sudo reboot"
 ]
