@@ -1,7 +1,7 @@
-start_lambda = 0.1
-end_lambda = 3.80
+start_lambda = 3.50
+end_lambda = 3.50
 lambda_delta = 0.05
-requests = 200
+requests = 25000
 
 l = start_lambda
 total_time = 0.0

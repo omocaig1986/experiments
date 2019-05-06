@@ -1,30 +1,32 @@
-def computePb(l, mi, k):
+from functools import reduce
+
+
+def p_i(l, mi, i, k):
+    '''Compute the probability of the system to be in the state i'''
     ro = float(l) / float(mi)
+    k = int(k)
     if ro == 1.0:
         ro -= 0.00001
-    #print("l is %f, k is %d ,ro is %f" % (l, k, ro))
-    return ((1-ro)*pow(ro, k))/(1-pow(ro, k+1))
+    return ((1-ro)/(1-pow(ro, k+1)))*pow(ro, i)
+
+
+def P_B(l, mi, k):
+    '''Compute the blocking probability'''
+    return p_i(l, mi, k, k)
 
 
 def delay(l, mi, k):
-    ro = float(l)/float(mi)
-    pb = computePb(l, mi, k)
     k = int(k)
 
-    if ro == 1.0:
-        ro -= 0.00001
-
-    total = 0.0
-    for i in range(1, k + 1):
-        total += i*pow(ro, i)
-
-    return (((1-ro)/(1-pow(ro, k+1)))*total)/(float(l)*(1-pb))
+    num = reduce(lambda x, y: x+y, [i*p_i(l, mi, i, k) for i in range(0, k+1)])
+    den = l*(1-P_B(l, mi, k))
+    return num/den
 
 
 def generatePbArray(lambda_array, k, mi):
     out = []
     for l in lambda_array:
-        out.append(computePb(l, mi, k))
+        out.append(P_B(l, mi, k))
     return out
 
 

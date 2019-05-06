@@ -153,7 +153,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         model_values = []
         if feature == DICT_PB:
             for t in range(from_t, to_t + 1):
-                model_values.append(model_mm1k.computePb(l, mi, k))
+                model_values.append(model_mm1k.P_B(l, mi, k))
         elif feature == DICT_DELAY:
             for t in range(from_t, to_t + 1):
                 model_values.append(model_mm1k.delay(l, mi, k))
