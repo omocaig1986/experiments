@@ -10,7 +10,7 @@ cd ..
 cd stack
 docker stack rm p2p-fog
 
-if (( $(uname -m | cut -b 1-3) == "arm" ));
+if [ $(uname -m | cut -b 1-3) == "arm" ]
 then
     echo "==> ARM architecture detected"
     docker stack deploy -c docker-compose-local.armhf.yml p2p-fog
