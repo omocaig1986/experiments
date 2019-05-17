@@ -20,7 +20,14 @@ def delay(l, mi, k):
 
     num = reduce(lambda x, y: x+y, [i*p_i(l, mi, i, k) for i in range(0, k+1)])
     den = l*(1-P_B(l, mi, k))
-    return num/den
+    return num / den
+
+
+def newDelay(l, mi, k):
+    ro = float(l) / float(mi)
+    k = int(k)
+
+    return ((1)/(mi-l)) - ((k*pow(ro, k+1))/(l*(1-pow(ro, k))))
 
 
 def generatePbArray(lambda_array, k, mi):
@@ -34,4 +41,11 @@ def generateDelayArray(lambda_array, k, mi):
     out = []
     for l in lambda_array:
         out.append(delay(l, mi, k))
+    return out
+
+
+def generateDelayArrayNew(lambda_array, k, mi):
+    out = []
+    for l in lambda_array:
+        out.append(newDelay(l, mi, k))
     return out
