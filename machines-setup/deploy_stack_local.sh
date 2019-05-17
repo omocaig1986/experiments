@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # deploy the stack
 cd ../../
 cd stack-discovery
