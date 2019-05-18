@@ -14,7 +14,7 @@ do
                             --function "Pigo Face Detect" \
                             --fanout $f \
                             --threshold $i \
-                            --job-duration "0.301769" \
+                            --job-duration "0.27" \
                             --with-model \
                             --model-name "M/M/1/10" \
                             -k "10"
