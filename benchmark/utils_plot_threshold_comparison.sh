@@ -2,7 +2,7 @@
 CURRENT_PATH=$(dirname $0)
 
 source $CURRENT_PATH/env/bin/activate
-$CURRENT_PATH/env/bin/python utils_plot_comparison.py \
+$CURRENT_PATH/env/bin/python utils_plot_threshold_comparison.py \
                         --path "/Users/gabry3795/Coding/p2p-fog/experiments-data/BladeServers/debian/PigoFaceDetect/LL(1,K)/700reqs/_8machines" \
                         --function "Pigo Face Detect" \
                         --fanout "1" \
