@@ -8,6 +8,14 @@ import model_mm1k
 import numpy as np
 import model_mm1k
 
+USE_TEX = True
+
+if USE_TEX:
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['text.latex.preamble'] = [
+        r'\DeclareUnicodeCharacter{03BB}{$\lambda$}\DeclareUnicodeCharacter{03BC}{$\mu$}\usepackage[utf8]{inputenc}']
+
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"
 DICT_DELAY = "timeDelay"
@@ -21,6 +29,19 @@ DICT_PROBE_MESSAGES = "probeMessages"
 
 PLOT_MARKERS = ".,ov^<>x12348s"
 PLOT_LINES = ['-', '--', '-.', ':']
+
+labels = {
+    DICT_LAMBDA: "λ" if not USE_TEX else r"$\lambda$",
+    DICT_PB: "pb" if not USE_TEX else r"$P_B$",
+    DICT_DELAY: "Delay (s)" if not USE_TEX else r"$W$ (s)",
+    DICT_PE: "pe",
+    DICT_QUEUE_TIME: "timeQueue",
+    DICT_EXEC_TIME: "timeExec",
+    DICT_FAAS_EXEC_TIME: "timeFaasExec",
+    DICT_PROBE_TIME: "timeProbing",
+    DICT_FORWARDING_TIME: "timeForwarding",
+    DICT_PROBE_MESSAGES: "probeMessages"
+}
 
 
 def getBaseDict():
@@ -100,11 +121,11 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
         i = 0
         for arr in y_plots:
             ax.plot(x_plot, arr, marker="x",
-                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label="T = {}".format(y_labels[i]))
+                    markersize=3.0, markeredgewidth=1, linewidth=0.7, label="T = {}".format(y_labels[i]))
             i += 1
 
-        ax.set_xlabel("λ")
-        ax.set_ylabel(feature)
+        ax.set_xlabel(labels[DICT_LAMBDA])
+        ax.set_ylabel(labels[feature])
         ax.set_title(title)
         ax.legend()
         fig.tight_layout()
@@ -147,7 +168,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         plt.close()
         fig, ax = plt.subplots()
         ax.plot(to_plot_x, to_plot_y, marker="x", markersize=3.0,
-                markeredgewidth=1.0, linewidth=0.7, label="λ = {:.2f}".format(l))
+                markeredgewidth=1, linewidth=0.7, label="λ = {:.2f}".format(l))
 
         # add model
         model_values = []
@@ -158,11 +179,11 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
             for t in range(from_t, to_t + 1):
                 model_values.append(model_mm1k.delay(l, mi, k))
         if len(model_values) > 0:
-            ax.plot(to_plot_x, model_values, marker="x", markersize=3.0,
-                    markeredgewidth=1.0, linewidth=1, label="M/M/1/K Model")
+            ax.plot(to_plot_x, model_values, markersize=4.0,
+                    markeredgewidth=0.3, linewidth=1.2, label="M/M/1/K Model")
 
         ax.set_xlabel("T")
-        ax.set_ylabel(feature)
+        ax.set_ylabel(labels[feature])
         ax.set_title(title)
         ax.legend()
         fig.tight_layout()
@@ -182,12 +203,11 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
 
         i = 0
         for arr in y_plots:
-            ax.plot(x_plot, arr, marker="x",
-                    markersize=2.0, markeredgewidth=0.5, linewidth=0.3, label=y_labels[i])
+            ax.plot(x_plot, arr, marker="x", markersize=3.0, markeredgewidth=1, linewidth=0.7, label=y_labels[i])
             i += 1
 
         ax.set_xlabel("T")
-        ax.set_ylabel(feature)
+        ax.set_ylabel(labels[feature])
         ax.set_title(title)
         if select:
             ax.legend()

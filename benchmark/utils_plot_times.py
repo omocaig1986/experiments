@@ -10,12 +10,6 @@ import numpy as np
 
 USE_TEX = True
 
-# fonts
-#from matplotlib import rcParams
-#rcParams['font.serif'] = ['LM Roman 12', 'serif']
-#rcParams['font.sans-serif'] = ['Fira Sans', 'DejaVu Sans', 'Lucida Grande', 'Verdana']
-#rcParams['font.family'] = 'serif'
-
 if USE_TEX:
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['text.usetex'] = True
