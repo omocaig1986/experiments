@@ -8,6 +8,20 @@ import matplotlib.pyplot as plt
 import model_mm1k
 import numpy as np
 
+USE_TEX = True
+
+# fonts
+#from matplotlib import rcParams
+#rcParams['font.serif'] = ['LM Roman 12', 'serif']
+#rcParams['font.sans-serif'] = ['Fira Sans', 'DejaVu Sans', 'Lucida Grande', 'Verdana']
+#rcParams['font.family'] = 'serif'
+
+if USE_TEX:
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['text.latex.preamble'] = [
+        r'\DeclareUnicodeCharacter{03BB}{$\lambda$}\DeclareUnicodeCharacter{03BC}{$\mu$}\usepackage[utf8]{inputenc}']
+
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"
 DICT_DELAY = "timeDelay"
@@ -18,6 +32,19 @@ DICT_FAAS_EXEC_TIME = "timeFaasExec"
 DICT_PROBE_TIME = "timeProbing"
 DICT_FORWARDING_TIME = "timeForwarding"
 DICT_PROBE_MESSAGES = "probeMessages"
+
+labels = {
+    DICT_LAMBDA: "λ" if not USE_TEX else r"$\lambda$",
+    DICT_PB: "pb" if not USE_TEX else r"$P_B$",
+    DICT_DELAY: "Delay (s)" if not USE_TEX else r"$W$ (s)",
+    DICT_PE: "pe",
+    DICT_QUEUE_TIME: "timeQueue",
+    DICT_EXEC_TIME: "timeExec",
+    DICT_FAAS_EXEC_TIME: "timeFaasExec",
+    DICT_PROBE_TIME: "timeProbing",
+    DICT_FORWARDING_TIME: "timeForwarding",
+    DICT_PROBE_MESSAGES: "probeMessages"
+}
 
 
 def getBaseDict():
@@ -60,7 +87,7 @@ def parseLogFile(file_path):
     d = getBaseDict()
 
     for line in in_file:
-        if line[0] == "#":
+        if line[0] == "#" or line.strip() == "":
             continue
         comps = line.split()
         d[DICT_LAMBDA].append(float(comps[0]))
@@ -79,7 +106,7 @@ def parseLogFile(file_path):
     return d
 
 
-def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name, plot_every_machine):
+def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name, plot_every_machine, algorithm):
 
     function_normalized = function.lower().replace(" ", "")
 
@@ -96,8 +123,8 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
             plt.legend([line_experimental, lines_model], ['Experiment', "Model " + model_name])
 
         ax.set_title(title)
-        ax.set_xlabel("λ")
-        ax.set_ylabel(feature)
+        ax.set_xlabel(labels[DICT_LAMBDA])
+        ax.set_ylabel(labels[feature])
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_dir, filename))
 
@@ -115,17 +142,26 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
                 plotData(d, f, title, filename)
 
     def plotAverage(dicts):
-        title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Average of {}".format(function,
-                                                                             f, t, k, mi, files_number)
+        chart_title = ""
+        if algorithm == "NS(K)":
+            chart_title = "{} - NS({}) - (μ={:.4f})".format(function, k, mi)
+        elif algorithm == "LL-PS(F,T)":
+            chart_title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Average of {}".format(function,
+                                                                                       f, t, k, mi, files_number)
         d = computeMeanDict(dicts)
-        plotFeatures(d, title)
+        plotFeatures(d, chart_title)
 
         stacked_filename = "{}-avg-timingsStacked-k{}.pdf".format(function_normalized, k)
         print("Plotting %s to \"%s\"" % (stacked_filename, stacked_filename))
-        plotStackedTimings(d, title, stacked_filename)
+        plotStackedTimings(d, chart_title, stacked_filename)
 
     def plotDataForMachine(i, d, feature, model=None):
-        chart_title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i)
+        chart_title = ""
+        if algorithm == "NS(K)":
+            chart_title = "{0} - NS({1}) - (μ={2:.4f}) - Machine#{3}".format(function, k, mi, i)
+        elif algorithm == "LL-PS(F,T)":
+            chart_title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i)
+
         filename = "{}-machine{:02}-k{}.pdf".format(feature, i, k)
         print("[MACHINE#%02d] Plotting %s to \"%s-machine%02d-k%d\"" % (i, feature, feature, i, k))
         plotData(d, feature, chart_title, filename, model)
@@ -260,11 +296,12 @@ def main(argv):
     with_model = False
     model_name = ""
     plot_every_machine = False
+    algorithm = ""
 
     usage = "utils_plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name=", "plot-every-machine"])
+            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name=", "plot-every-machine", "algorithm="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -295,17 +332,8 @@ def main(argv):
             model_name = arg
         elif opt in ("--plot-every-machine"):
             plot_every_machine = True
-
-    if files_path == "":
-        print("Some needed parameter was not given")
-        print(usage)
-        sys.exit()
-
-    for i in range(files_number):
-        mfile = Path("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
-        if not mfile.is_file():
-            print("File {0}/{1}{2:02}.txt does not exist".format(files_path, files_prefix, i))
-            sys.exit()
+        elif opt in ("--algorithm"):
+            algorithm = arg
 
     out_plots_dir = "{0}/{1}".format(files_path, "_plots")
     out_computations_dir = "{0}/{1}".format(files_path, "_computed")
@@ -319,14 +347,31 @@ def main(argv):
     print("> with model %s" % with_model)
     print("> model name %s" % model_name)
     print("> plot_every_machine %s" % plot_every_machine)
+    print("> algorithm %s" % algorithm)
     print("----")
     print("> out_plots_dir %s" % out_plots_dir)
     print("> out_computations_dir %s" % out_computations_dir)
     print("")
 
+    if files_path == "":
+        print("Some needed parameter was not given")
+        print(usage)
+        sys.exit()
+
+    if not (algorithm == "NS(K)" or algorithm == "LL-PS(F,T)"):
+        print("Given algorithm is not supported")
+        print(usage)
+        sys.exit()
+
+    for i in range(files_number):
+        mfile = Path("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
+        if not mfile.is_file():
+            print("File {0}/{1}{2:02}.txt does not exist".format(files_path, files_prefix, i))
+            sys.exit()
+
     mi = 1.0/job_duration
     start_plot(files_path, files_prefix, files_number, out_plots_dir, k,
-               fanout, threshold, mi, function, with_model, model_name, plot_every_machine)
+               fanout, threshold, mi, function, with_model, model_name, plot_every_machine, algorithm)
     # startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)
     do_computations(files_path, files_prefix, files_number, out_computations_dir, k, fanout, threshold, mi,
                     function, with_model, model_name)
