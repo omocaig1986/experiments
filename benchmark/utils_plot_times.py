@@ -117,9 +117,10 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         plt.clf()
         fig, ax = plt.subplots()
         line_experimental, = ax.plot(d[DICT_LAMBDA], d[feature], marker="x",
-                                     markersize=3.0, markeredgewidth=1.0, linewidth=0.8)
+                                     markersize=3.0, markeredgewidth=1, linewidth=0.7)
         if model != None:
-            lines_model, = ax.plot(d[DICT_LAMBDA], model)
+            lines_model, = ax.plot(d[DICT_LAMBDA], model,
+                                   markersize=4.0, markeredgewidth=0.3, linewidth=1.2)
             plt.legend([line_experimental, lines_model], ['Experiment', "Model " + model_name])
 
         ax.set_title(title)
