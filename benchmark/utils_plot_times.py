@@ -32,11 +32,11 @@ labels = {
     DICT_PB: "pb" if not USE_TEX else r"$P_B$",
     DICT_DELAY: "Delay (s)" if not USE_TEX else r"$W$ (s)",
     DICT_PE: "pe",
-    DICT_QUEUE_TIME: "timeQueue",
-    DICT_EXEC_TIME: "timeExec",
-    DICT_FAAS_EXEC_TIME: "timeFaasExec",
-    DICT_PROBE_TIME: "timeProbing",
-    DICT_FORWARDING_TIME: "timeForwarding",
+    DICT_QUEUE_TIME: "Queue Delay (s)",
+    DICT_EXEC_TIME: "Exec Delay (s)",
+    DICT_FAAS_EXEC_TIME: "OpenFaaS Exec Delay (s)",
+    DICT_PROBE_TIME: "Probing Delay (s)",
+    DICT_FORWARDING_TIME: "Forwarding Delay (s)",
     DICT_PROBE_MESSAGES: "probeMessages"
 }
 
@@ -180,6 +180,8 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         plt.clf()
         fig, ax = plt.subplots()
         ax.set_title(title)
+        ax.set_xlabel(labels[DICT_LAMBDA])
+        ax.set_ylabel("Delay (s)")
         y00 = [0]*len(d[DICT_LAMBDA])
         y0 = d[DICT_PROBE_TIME]
         y1 = sumArrays(y0, d[DICT_FORWARDING_TIME])
@@ -191,8 +193,8 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         y2p, = ax.plot(d[DICT_LAMBDA], y2, linewidth=0.5)
         y3p, = ax.plot(d[DICT_LAMBDA], y3, linewidth=0.5)
         #y9p, = ax.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
-        ax.legend([y0p, y1p, y2p, y3p], [DICT_PROBE_TIME, DICT_FORWARDING_TIME,
-                                         DICT_FAAS_EXEC_TIME, DICT_EXEC_TIME])
+        ax.legend([y0p, y1p, y2p, y3p], [labels[DICT_PROBE_TIME], labels[DICT_FORWARDING_TIME],
+                                         labels[DICT_FAAS_EXEC_TIME], labels[DICT_EXEC_TIME]])
         ax.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0', alpha=0.2)
         ax.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1', alpha=0.2)
         ax.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2', alpha=0.2)
