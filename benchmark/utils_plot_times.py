@@ -122,6 +122,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         ax.set_ylabel(labels[feature])
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_dir, filename))
+        plt.close(fig)
 
     def plotFeatures(d, title):
         features = getFeaturesArray()
@@ -153,9 +154,9 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
     def plotDataForMachine(i, d, feature, model=None):
         chart_title = ""
         if algorithm == "NS(K)":
-            chart_title = "{0} - NS({1}) - (μ={2:.4f}) - Machine#{3}".format(function, k, mi, i)
+            chart_title = "{0} - NS({1}) - (μ={2:.4f}) - Machine{3}".format(function, k, mi, i)
         elif algorithm == "LL-PS(F,T)":
-            chart_title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i)
+            chart_title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine{5}".format(function, f, t, k, mi, i)
 
         filename = "{}-machine{:02}-k{}.pdf".format(feature, i, k)
         print("[MACHINE#%02d] Plotting %s to \"%s-machine%02d-k%d\"" % (i, feature, feature, i, k))
@@ -177,31 +178,34 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
                 return
 
         plt.clf()
-        plt.title(title)
+        fig, ax = plt.subplots()
+        ax.set_title(title)
         y00 = [0]*len(d[DICT_LAMBDA])
         y0 = d[DICT_PROBE_TIME]
         y1 = sumArrays(y0, d[DICT_FORWARDING_TIME])
-        y2 = sumArrays(y1, diffArrays(d[DICT_EXEC_TIME], d[DICT_FAAS_EXEC_TIME]))
-        y3 = sumArrays(y2, d[DICT_FAAS_EXEC_TIME])
-        y9 = d[DICT_DELAY]
-        y0p, = plt.plot(d[DICT_LAMBDA], y0, linewidth=0.5)
-        y1p, = plt.plot(d[DICT_LAMBDA], y1, linewidth=0.5)
-        y2p, = plt.plot(d[DICT_LAMBDA], y2, linewidth=0.5)
-        y3p, = plt.plot(d[DICT_LAMBDA], y3, linewidth=0.5)
-        y9p, = plt.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
-        plt.legend([y0p, y1p, y2p, y3p, y9p], [DICT_PROBE_TIME, DICT_FORWARDING_TIME,
-                                               DICT_EXEC_TIME, DICT_FAAS_EXEC_TIME, DICT_DELAY])
-        plt.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0', alpha=0.2)
-        plt.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1', alpha=0.2)
-        plt.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2', alpha=0.2)
-        plt.fill_between(d[DICT_LAMBDA], y3, y2, where=y3 >= y3, facecolor='C3', alpha=0.2)
-        plt.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4', alpha=0.2)
+        y2 = sumArrays(y1, d[DICT_FAAS_EXEC_TIME])
+        y3 = sumArrays(y2, diffArrays(d[DICT_EXEC_TIME], d[DICT_FAAS_EXEC_TIME]))
+        #y9 = d[DICT_DELAY]
+        y0p, = ax.plot(d[DICT_LAMBDA], y0, linewidth=0.5)
+        y1p, = ax.plot(d[DICT_LAMBDA], y1, linewidth=0.5)
+        y2p, = ax.plot(d[DICT_LAMBDA], y2, linewidth=0.5)
+        y3p, = ax.plot(d[DICT_LAMBDA], y3, linewidth=0.5)
+        #y9p, = ax.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
+        ax.legend([y0p, y1p, y2p, y3p], [DICT_PROBE_TIME, DICT_FORWARDING_TIME,
+                                         DICT_FAAS_EXEC_TIME, DICT_EXEC_TIME])
+        ax.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0', alpha=0.2)
+        ax.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1', alpha=0.2)
+        ax.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2', alpha=0.2)
+        ax.fill_between(d[DICT_LAMBDA], y3, y2, where=y3 >= y3, facecolor='C3', alpha=0.2)
+        #ax.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4', alpha=0.2)
+        fig.tight_layout()
         plt.savefig("{}/{}".format(out_dir, filename))
+        plt.close(fig)
 
     def plotStackedTimingsForMachine(i, d):
         filetitle = "timeStacked"
         filename = "{}-machine{:02}-k{}.pdf".format(filetitle, i, k)
-        title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine#{5}".format(function, f, t, k, mi, i)
+        title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine{5}".format(function, f, t, k, mi, i)
         print("[MACHINE#%02d] Plotting %s to \"%s\"" % (i, filetitle, filetitle))
         plotStackedTimings(d, title, filename)
         # create plot dirs
