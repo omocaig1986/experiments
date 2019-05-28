@@ -43,7 +43,7 @@ def setConfiguration(host_id, host_ip, init_servers):
               (print_str, host_ip, host_id, res.status_code))
 
 
-conf_file = open("configure_discovery.txt", "r")
+conf_file = open("configure_discovery-rpi.txt", "r")
 
 for line in conf_file:
     if line[0] == "#":

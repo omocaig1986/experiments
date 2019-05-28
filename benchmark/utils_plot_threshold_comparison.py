@@ -249,7 +249,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         x, y = retrievePlotData(l_index, DICT_DELAY)
         plotData(x, y, l_value, DICT_DELAY)
 
-    select = [getLiFromV(3.00), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
+    select = [getLiFromV(3.15), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
     x, y, l = retrieveAllData(DICT_PB, select=select)
     plotAllData(x, y, l, DICT_PB, select=True)
     x, y, l = retrieveAllData(DICT_DELAY, select=select)
