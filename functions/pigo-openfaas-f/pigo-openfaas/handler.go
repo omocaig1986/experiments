@@ -36,6 +36,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/esimov/pigo/core"
 	"github.com/fogleman/gg"
 )
 
@@ -93,13 +94,13 @@ func Handle(req []byte) string {
 				return fmt.Sprintf("Only jpeg or png images, either raw uncompressed bytes or base64 encoded are acceptable inputs, you uploaded: %s", contentType)
 			}
 		}
-		tmpfile, err := ioutil.TempFile("/tmp", "image")
-		if err != nil {
-			log.Fatalf("Unable to create temporary file: %v", err)
-		}
-		defer os.Remove(tmpfile.Name())
+			*/
 
-	*/
+	tmpfile, err := ioutil.TempFile("/tmp", "image")
+	if err != nil {
+		log.Fatalf("Unable to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name())
 
 	data, err := ioutil.ReadFile("./samples/monarchy.jpg")
 
