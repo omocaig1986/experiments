@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="44bbe5b7-e482-4903-b1c7-2f513b395d20" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../pkg/dep/sources/https---github.com-esimov-pigo" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../pkg/dep/sources/https---github.com-fogleman-gg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../pkg/dep/sources/https---github.com-golang-freetype" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../pkg/dep/sources/https---go.googlesource.com-image" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/pigo-openfaas.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/LICENSE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/bezier.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/gradient.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/matrix.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/path.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/pattern.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/point.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/util.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/wrap.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/AUTHORS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/CONTRIBUTORS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/geom.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/paint.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/raster.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/raster/stroke.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/testdata/COPYING" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/face.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/glyph.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/hint.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/opcodes.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/github.com/golang/freetype/truetype/truetype.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/AUTHORS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/CONTRIBUTORS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/PATENTS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/draw/draw.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/draw/gen.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/draw/impl.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/draw/scale.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/font/basicfont/basicfont.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/font/basicfont/data.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/font/basicfont/gen.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/font/font.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/font/plan9font/plan9font.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/math/f64/f64.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vendor/golang.org/x/image/math/fixed/fixed.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/Gopkg.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Gopkg.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/Gopkg.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Gopkg.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/data/facefinder" beforeDir="false" afterPath="$PROJECT_DIR$/data/facefinder" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/samples/monarchy.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/samples/monarchy.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/samples/nasa.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/samples/nasa.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/esimov/pigo/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/esimov/pigo/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/esimov/pigo/core/grayscale.go" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/esimov/pigo/core/grayscale.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/esimov/pigo/core/image.go" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/esimov/pigo/core/image.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/esimov/pigo/core/pigo.go" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/esimov/pigo/core/pigo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/fogleman/gg/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/github.com/fogleman/gg/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/github.com/fogleman/gg/context.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/golang.org/x/image/draw/go1_8.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pigo-openfaas/vendor/golang.org/x/image/draw/go1_9.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../stack.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../stack.yml" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/handler.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="20" column="12" lean-forward="true" selection-start-line="20" selection-start-column="12" selection-end-line="20" selection-end-column="12" />
+              <folding>
+                <element signature="e#1145#1346#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Gopkg.lock">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>pigo</find>
+    </findStrings>
+  </component>
+  <component name="GOROOT" path="/usr/local/Cellar/go/1.12.5/libexec" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="GoDepProject">
+    <integration-enabled>true</integration-enabled>
+    <exec-path>/usr/local/bin/dep</exec-path>
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+    <option name="urls">
+      <list>
+        <option value="file://$PROJECT_DIR$/../.." />
+      </list>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/handler.go" />
+        <option value="$PROJECT_DIR$/Gopkg.lock" />
+        <option value="$PROJECT_DIR$/Gopkg.toml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectConfigurationFiles">
+    <option name="files">
+      <list>
+        <option value="$PROJECT_DIR$/.idea/pigo-openfaas.iml" />
+        <option value="$PROJECT_DIR$/.idea/misc.xml" />
+        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
+        <option value="$PROJECT_DIR$/.idea/modules.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="877" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="pigo-openfaas" type="b2602c69:ProjectViewProjectNode" />
+              <item name="pigo-openfaas" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Module.GOPATH.is.expanded" value="false" />
+    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
+    <property name="go.gopath.indexing.explicitly.defined" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.vendoring.notification.had.been.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoLibrariesConfigurableProvider" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1440" height="877" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2532189" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3299363" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Statistic" order="10" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49928468" weight="0.3299363" />
+      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5007153" side_tool="true" weight="0.3299363" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/vendor/github.com/esimov/pigo/core/pigo.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="231" column="16" selection-start-line="231" selection-start-column="16" selection-end-line="231" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Gopkg.lock">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="9" selection-start-line="12" selection-start-column="9" selection-end-line="12" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Gopkg.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="79" selection-start-line="29" selection-start-column="79" selection-end-line="29" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/handler.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="12" lean-forward="true" selection-start-line="20" selection-start-column="12" selection-end-line="20" selection-end-column="12" />
+          <folding>
+            <element signature="e#1145#1346#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

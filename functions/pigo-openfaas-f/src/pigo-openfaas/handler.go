@@ -31,6 +31,7 @@ import (
 	"image/jpeg"
 	"io"
 	"io/ioutil"
+	"log"
 	"math"
 	"net/url"
 	"os"
@@ -61,7 +62,7 @@ type DetectionResult struct {
 // Handle a serverless request
 func Handle(req []byte) string {
 	var (
-		resp  DetectionResult
+		// resp  DetectionResult
 		rects []image.Rectangle
 		data  []byte
 		image []byte
@@ -94,7 +95,7 @@ func Handle(req []byte) string {
 				return fmt.Sprintf("Only jpeg or png images, either raw uncompressed bytes or base64 encoded are acceptable inputs, you uploaded: %s", contentType)
 			}
 		}
-			*/
+	*/
 
 	tmpfile, err := ioutil.TempFile("/tmp", "image")
 	if err != nil {
@@ -102,7 +103,7 @@ func Handle(req []byte) string {
 	}
 	defer os.Remove(tmpfile.Name())
 
-	data, err := ioutil.ReadFile("./samples/monarchy.jpg")
+	data, err = ioutil.ReadFile("./samples/monarchy.jpg")
 
 	_, err = io.Copy(tmpfile, bytes.NewBuffer(data))
 	if err != nil {
@@ -133,7 +134,7 @@ func Handle(req []byte) string {
 			return fmt.Sprintf("Error creating image output: %s", err)
 		}
 
-		resp = DetectionResult{
+		_ = DetectionResult{
 			Faces:       rects,
 			ImageBase64: base64.StdEncoding.EncodeToString(image),
 		}
@@ -199,10 +200,10 @@ func (fd *FaceDetector) DetectFaces(source string) ([]pigo.Detection, error) {
 		return nil, err
 	}
 
-	pigo := pigo.NewPigo()
+	pigoLib := pigo.NewPigo()
 	// Unpack the binary file. This will return the number of cascade trees,
 	// the tree depth, the threshold and the prediction from tree's leaf nodes.
-	classifier, err := pigo.Unpack(cascadeFile)
+	classifier, err := pigoLib.Unpack(cascadeFile)
 	if err != nil {
 		return nil, err
 	}
