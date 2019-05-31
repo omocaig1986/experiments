@@ -20,6 +20,13 @@ RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
 RES_API_MONITORING_LOAD_K = "functions_running_max"
 
 API_MONITORING_LOAD_URL = "monitoring/load"
+API_SCHEDULER_CONFIGURATION_URL = "configuration/scheduler"
+API_CONFIGURATION_URL = "configuration"
+
+RES_SCHEDULER_CONFIGURATION_NAME = "name"
+RES_SCHEDULER_CONFIGURATION_PARAMETERS = "parameters"
+
+RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX = "running_functions_max"
 
 TIMEOUT = 120
 
@@ -302,12 +309,16 @@ class FunctionTest():
 
 
 def getSystemParameters(host):
-    config_url = "http://{0}/{1}".format(host, API_MONITORING_LOAD_URL)
+    config_url = "http://{0}/{1}".format(host, API_CONFIGURATION_URL)
+    config_s_url = "http://{0}/{1}".format(host, API_SCHEDULER_CONFIGURATION_URL)
     res = requests.get(config_url)
+    res_s = requests.get(config_url)
     body = res.json()
+    body_s = res_s.json()
     return {
-        RES_API_MONITORING_LOAD_SCHEDULER_NAME: body[RES_API_MONITORING_LOAD_SCHEDULER_NAME],
-        RES_API_MONITORING_LOAD_K: body[RES_API_MONITORING_LOAD_K]
+        RES_SCHEDULER_CONFIGURATION_NAME: body_s[RES_SCHEDULER_CONFIGURATION_NAME],
+        RES_SCHEDULER_CONFIGURATION_PARAMETERS: body_s[RES_SCHEDULER_CONFIGURATION_PARAMETERS],
+        RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX: body[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX]
     }
 
 
@@ -464,10 +475,10 @@ def main(argv):
         sys.exit()
 
     params = getSystemParameters(host)
-    k = int(params[RES_API_MONITORING_LOAD_K])
+    k = int(params[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX])
     print("-"*10 + " system info " + "-"*10)
-    print("> scheduler name %s" % params[RES_API_MONITORING_LOAD_SCHEDULER_NAME])
-    print("> k %d" % params[RES_API_MONITORING_LOAD_K])
+    print("> scheduler name %s:%s" % (params[RES_SCHEDULER_CONFIGURATION_NAME], params[RES_SCHEDULER_CONFIGURATION_PARAMETERS]))
+    print("> k %d" % k)
     print("\n")
 
     if k < 0 or k == 0:
