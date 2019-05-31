@@ -312,7 +312,7 @@ def getSystemParameters(host):
     config_url = "http://{0}/{1}".format(host, API_CONFIGURATION_URL)
     config_s_url = "http://{0}/{1}".format(host, API_SCHEDULER_CONFIGURATION_URL)
     res = requests.get(config_url)
-    res_s = requests.get(config_url)
+    res_s = requests.get(config_s_url)
     body = res.json()
     body_s = res_s.json()
     return {
