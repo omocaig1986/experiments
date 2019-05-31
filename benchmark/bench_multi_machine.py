@@ -341,9 +341,9 @@ def main(argv):
         sys.exit(1)
 
     if not skip_check:
-        if not checkHosts(hosts, scheduler_port):
-            print("Preliminary hosts check not passed!")
-            sys.exit(1)
+        # if not checkHosts(hosts, scheduler_port):
+        #     print("Preliminary hosts check not passed!")
+        #     sys.exit(1)
 
         if not checkDiscoveryLists(hosts, discovery_port):
             print("Preliminary discovery check not passed!")
