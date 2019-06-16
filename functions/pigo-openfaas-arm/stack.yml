@@ -6,7 +6,7 @@ functions:
   pigo-face-detector:
     lang: go-armhf
     handler: ./src/pigo-openfaas
-    image: esimov/pigo-openfaas:0.1
+    image: esimov/pigo-openfaas-arm:0.1
     labels:
       # disable auto-scaling
       com.openfaas.scale.min: 1
