@@ -49,3 +49,5 @@ def generateDelayArrayNew(lambda_array, k, mi):
     for l in lambda_array:
         out.append(newDelay(l, mi, k))
     return out
+
+# print(P_B(0.8, 1, 10))

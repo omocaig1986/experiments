@@ -8,13 +8,18 @@ import model_mm1k
 import numpy as np
 import model_mm1k
 
+markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
 USE_TEX = True
 
 if USE_TEX:
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['text.usetex'] = True
     plt.rcParams['text.latex.preamble'] = [
-        r'\DeclareUnicodeCharacter{03BB}{$\lambda$}\DeclareUnicodeCharacter{03BC}{$\mu$}\usepackage[utf8]{inputenc}']
+        r"\DeclareUnicodeCharacter{03BB}{$\lambda$}"
+        + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
+        + r"\usepackage[utf8]{inputenc}"
+        # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
+        + ""]
 
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"
@@ -167,8 +172,9 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         plt.clf()
         plt.close()
         fig, ax = plt.subplots()
-        ax.plot(to_plot_x, to_plot_y, marker="x", markersize=3.0,
-                markeredgewidth=1, linewidth=0.7, label="λ = {:.2f}".format(l))
+
+        ax.plot(to_plot_x, to_plot_y, marker=markers[0], markersize=4.0,
+                markeredgewidth=0.4, linewidth=0.7, label="λ = {:.2f}".format(l))
 
         # add model
         model_values = []
@@ -179,8 +185,8 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
             for t in range(from_t, to_t + 1):
                 model_values.append(model_mm1k.delay(l, mi, k))
         if len(model_values) > 0:
-            ax.plot(to_plot_x, model_values, markersize=4.0,
-                    markeredgewidth=0.3, linewidth=1.2, label="M/M/1/K Model")
+            ax.plot(to_plot_x, model_values, marker=markers[1], markersize=4.0,
+                    markeredgewidth=0.4, linewidth=0.7, label="M/M/1/K Model")
 
         ax.set_xlabel("T")
         ax.set_ylabel(labels[feature])

@@ -14,7 +14,11 @@ if USE_TEX:
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['text.usetex'] = True
     plt.rcParams['text.latex.preamble'] = [
-        r'\DeclareUnicodeCharacter{03BB}{$\lambda$}\DeclareUnicodeCharacter{03BC}{$\mu$}\usepackage[utf8]{inputenc}']
+        r"\DeclareUnicodeCharacter{03BB}{$\lambda$}"
+        + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
+        + r"\usepackage[utf8]{inputenc}"
+        # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
+        + ""]
 
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"

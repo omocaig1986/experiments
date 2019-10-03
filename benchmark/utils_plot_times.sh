@@ -9,7 +9,7 @@ $CURRENT_PATH/env/bin/python utils_plot_times.py --files-prefix "results-machine
                         --path "/Users/gabry3795/Coding/p2p-fog/experiments-data/BladeServers/debian/PigoFaceDetect/NS(K$k)" \
                         --function "Pigo Face Detect" \
                         --fanout "1" \
-                        --job-duration "0.28" \
+                        --job-duration "0.275" \
                         --with-model \
                         --model-name "M/M/1/$k" \
                         -k $k \
