@@ -17,8 +17,8 @@
 start_lambda = 2.00
 end_lambda = 3.40
 lambda_delta = 0.1
-requests = 5000
-thresholds = 1
+requests = 2000
+thresholds = 11
 
 l = start_lambda
 total_time = 0.0

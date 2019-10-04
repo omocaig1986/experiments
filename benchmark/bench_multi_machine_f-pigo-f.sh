@@ -6,7 +6,7 @@ source "$CURRENT_PATH"/env/bin/activate
 "$CURRENT_PATH"/env/bin/python bench_multi_machine.py \
   --hosts-file "$CURRENT_PATH/hosts.txt" \
   --function-url "function/pigo-face-detector-f" \
-  --requests "5000" \
+  --requests "2000" \
   --start-lambda "2.0" \
   --end-lambda "3.4" \
   --lambda-delta "0.1" \
