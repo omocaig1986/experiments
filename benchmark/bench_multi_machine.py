@@ -1,3 +1,23 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Benchmark N machines by using the single machine script
+#
+
 from common import cc
 from common import read_binary
 
@@ -23,7 +43,7 @@ DEAD_STR = " " + cc.FAIL + "DEAD" + cc.ENDC + " "
 MISM_STR = " " + cc.WARNING + "MISM" + cc.ENDC + " "
 WARN_STR = " " + cc.WARNING + "WARN" + cc.ENDC + " "
 
-BENCHMARK_SCRIPT = "python bench_multi_get.py"
+BENCHMARK_SCRIPT = "python bench_single_machine.py"
 SLEEP_SEC_BETWEEN_TESTS = 10
 
 API_MONITORING_LOAD_URL = "monitoring/load"
@@ -97,7 +117,7 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
     return output
 
 
-def startSuite(hosts, function_url, port, payload, requests,  poisson, start_lambda, end_lambda, lambda_delta):
+def startSuite(hosts, function_url, port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta):
     time_str = strftime("%m%d%Y-%H%M%S", localtime())
     dir_path = "./_test_multi_machine-" + time_str
     os.makedirs(dir_path, exist_ok=True)
@@ -171,7 +191,6 @@ def checkHosts(hosts, scheduler_port):
 
 
 def checkDiscoveryLists(hosts, discovery_port):
-
     print("==> Checking peers hosts configurations if matches")
     last_hosts = []
     test_passed = True
@@ -272,7 +291,9 @@ def main(argv):
     usage = "bench_multi_machine.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hf:k:", ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=", "lambda-delta=", "scheduler-port=", "discovery-port=", "check", "skip-check"])
+            argv, "hf:k:",
+            ["hosts-file=", "function-url=", "requests=", "payload=", "poisson", "start-lambda=", "end-lambda=",
+             "lambda-delta=", "scheduler-port=", "discovery-port=", "check", "skip-check"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)

@@ -1,8 +1,9 @@
-#!/bin/sh
-CURRENT_PATH=$(pwd)
+#!/bin/bash
+CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-source $CURRENT_PATH/env/bin/activate
-$CURRENT_PATH/env/bin/python bench_multi_get.py \
+# shellcheck disable=SC1090
+source "$CURRENT_PATH"/env/bin/activate
+"$CURRENT_PATH"/env/bin/python bench_single_machine.py \
                     --host "192.168.99.100:18080" \
                     --function-url "function/pigo-face-detector" \
                     --payload "$CURRENT_PATH/blobs/family.jpg" \

@@ -1,3 +1,19 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from threading import Thread
 import sys
 import getopt
@@ -104,8 +120,8 @@ def parseLogFile(file_path):
     return d
 
 
-def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name, plot_every_machine, algorithm):
-
+def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name,
+               plot_every_machine, algorithm):
     function_normalized = function.lower().replace(" ", "")
 
     def plotData(d, feature, title, filename, model=None):
@@ -186,24 +202,24 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         ax.set_title(title)
         ax.set_xlabel(labels[DICT_LAMBDA])
         ax.set_ylabel("Delay (s)")
-        y00 = [0]*len(d[DICT_LAMBDA])
+        y00 = [0] * len(d[DICT_LAMBDA])
         y0 = d[DICT_PROBE_TIME]
         y1 = sumArrays(y0, d[DICT_FORWARDING_TIME])
         y2 = sumArrays(y1, d[DICT_FAAS_EXEC_TIME])
         y3 = sumArrays(y2, diffArrays(d[DICT_EXEC_TIME], d[DICT_FAAS_EXEC_TIME]))
-        #y9 = d[DICT_DELAY]
+        # y9 = d[DICT_DELAY]
         y0p, = ax.plot(d[DICT_LAMBDA], y0, linewidth=0.5)
         y1p, = ax.plot(d[DICT_LAMBDA], y1, linewidth=0.5)
         y2p, = ax.plot(d[DICT_LAMBDA], y2, linewidth=0.5)
         y3p, = ax.plot(d[DICT_LAMBDA], y3, linewidth=0.5)
-        #y9p, = ax.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
+        # y9p, = ax.plot(d[DICT_LAMBDA], y9, linewidth=0.5)
         ax.legend([y0p, y1p, y2p, y3p], [labels[DICT_PROBE_TIME], labels[DICT_FORWARDING_TIME],
                                          labels[DICT_FAAS_EXEC_TIME], labels[DICT_EXEC_TIME]])
         ax.fill_between(d[DICT_LAMBDA], y0, y00, where=y0 >= y00, facecolor='C0', alpha=0.2)
         ax.fill_between(d[DICT_LAMBDA], y1, y0, where=y1 >= y0, facecolor='C1', alpha=0.2)
         ax.fill_between(d[DICT_LAMBDA], y2, y1, where=y1 >= y0, facecolor='C2', alpha=0.2)
         ax.fill_between(d[DICT_LAMBDA], y3, y2, where=y3 >= y3, facecolor='C3', alpha=0.2)
-        #ax.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4', alpha=0.2)
+        # ax.fill_between(d[DICT_LAMBDA], y9, y3, where=y9 >= y3, facecolor='C4', alpha=0.2)
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_dir, filename))
         plt.close(fig)
@@ -229,7 +245,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
 
 
 def do_computations(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
-    averages_filename = "{}-avg-k{}-t{}-m{}.txt".format(function.lower().replace(" ", ""), k, k-t, files_number)
+    averages_filename = "{}-avg-k{}-t{}-m{}.txt".format(function.lower().replace(" ", ""), k, k - t, files_number)
 
     def saveAverages(d):
         outfile = open("{}/{}".format(out_dir, averages_filename), "w")
@@ -284,6 +300,7 @@ def computeMeanDict(dicts):
         avg_dict[DICT_LAMBDA].append(l)
     return avg_dict
 
+
 #
 # Entrypoint
 #
@@ -306,7 +323,9 @@ def main(argv):
     usage = "utils_plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model", "model-name=", "plot-every-machine", "algorithm="])
+            argv, "hk:p:",
+            ["files-prefix=", "files-n=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "with-model",
+             "model-name=", "plot-every-machine", "algorithm="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -347,7 +366,7 @@ def main(argv):
     print("> files_path %s" % files_path)
     print("> files_prefix %s" % files_prefix)
     print("> files_number %d" % files_number)
-    print("> job_duration %f => mi %f" % (job_duration, 1.0/job_duration))
+    print("> job_duration %f => mi %f" % (job_duration, 1.0 / job_duration))
     print("> k %d" % k)
     print("> with model %s" % with_model)
     print("> model name %s" % model_name)
@@ -374,7 +393,7 @@ def main(argv):
             print("File {0}/{1}{2:02}.txt does not exist".format(files_path, files_prefix, i))
             sys.exit()
 
-    mi = 1.0/job_duration
+    mi = 1.0 / job_duration
     start_plot(files_path, files_prefix, files_number, out_plots_dir, k,
                fanout, threshold, mi, function, with_model, model_name, plot_every_machine, algorithm)
     # startSuite(cmd_lines, start_lambda, end_lambda, lambda_delta)

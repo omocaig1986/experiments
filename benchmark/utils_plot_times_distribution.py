@@ -1,3 +1,19 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import sys
 import getopt
 import os
@@ -40,7 +56,8 @@ def parseFilesList(data_files, prefix, start_lambda, end_lambda, lambda_delta, k
     return all_values
 
 
-def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f, t, k, mi, machine_id, bins, data_files):
+def start_plot(function, path, prefix, start_lambda, end_lambda, lambda_delta, f, t, k, mi, machine_id, bins,
+               data_files):
     out_plots_dir = "{0}/{1}".format(path, "_plots_distribution")
     plot_title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Machine#{}".format(function,
                                                                            f, t, k, mi, machine_id)
@@ -143,6 +160,8 @@ def matrixSym(m):
         for j in range(len(m[i])):
             out[j][i] = m[i][j]
     return out
+
+
 #
 # Entrypoint
 #
@@ -167,7 +186,9 @@ def main(argv):
     usage = "utils_plot_times_distribution.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["files-prefix=", "start-lambda=", "end-lambda=", "lambda-delta=", "path=", "function=", "fanout=", "threshold=", "job-duration=", "machine-id=", "bins=", "data-files="])
+            argv, "hk:p:",
+            ["files-prefix=", "start-lambda=", "end-lambda=", "lambda-delta=", "path=", "function=", "fanout=",
+             "threshold=", "job-duration=", "machine-id=", "bins=", "data-files="])
     except getopt.GetoptError as e:
         print(e)
         print(usage)

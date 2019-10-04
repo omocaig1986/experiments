@@ -1,3 +1,19 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import sys
 import getopt
 import os
@@ -101,7 +117,7 @@ def parseResultFile(file_path):
 
 def parseAllResultFiles(path, from_t, to_t, m, k, function):
     d_all = {}
-    for t in range(from_t, to_t+1):
+    for t in range(from_t, to_t + 1):
         filename = "{}-avg-k{}-t{}-m{}.txt".format(
             function.lower().replace(" ", ""), k, t, m)
         print("> Parsing file \"%s\"" % filename)
@@ -140,7 +156,7 @@ def plotFeaturesComparison(d_all, from_t, to_t, m, k, function, mi, f, from_l, t
         x_plot = []
         y_plots = []
         y_labels = []
-        for t in range(from_t, to_t+1):
+        for t in range(from_t, to_t + 1):
             if feature in d_all[t].keys():
                 y_plots.append(d_all[t][feature])
                 y_labels.append(t)
@@ -161,7 +177,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         return l_delta * i + from_l
 
     def getLiFromV(l):
-        return int(round(((l-from_l)/l_delta)))
+        return int(round(((l - from_l) / l_delta)))
 
     def plotData(to_plot_x, to_plot_y, l, feature):
         title = "{} - LL({},T) - (K={}, μ={:.2f}) - {}machines - λ = {:.2f}".format(function, f, k, mi, m, l)
@@ -224,7 +240,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         to_plot_y = []
         to_plot_x = []
 
-        for t in range(from_t, to_t+1):
+        for t in range(from_t, to_t + 1):
             to_plot_x.append(t)
             if feature not in d_all[t].keys():
                 to_plot_y.append(0)
@@ -289,7 +305,9 @@ def main(argv):
     usage = "utils_plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "hk:p:", ["path=", "function=", "fanout=", "from-threshold=", "to-threshold=", "job-duration=", "start-lambda=", "end-lambda=", "lambda-delta=", "n-machines="])
+            argv, "hk:p:",
+            ["path=", "function=", "fanout=", "from-threshold=", "to-threshold=", "job-duration=", "start-lambda=",
+             "end-lambda=", "lambda-delta=", "n-machines="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)

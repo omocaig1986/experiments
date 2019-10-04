@@ -1,3 +1,23 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+#  This script benchmarks a single machine by sending requests in parallel.
+# 
+
 from common import cc
 from common import read_binary
 
@@ -245,7 +265,8 @@ class FunctionTest():
                                                                str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
         f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}\n".format(self.mean_request_time, self.total_requests,
-                                                                            self.accepted_jobs, self.rejected_jobs, self.l, self.k))
+                                                                            self.accepted_jobs, self.rejected_jobs,
+                                                                            self.l, self.k))
         for i in range(len(self.timings[TIMINGS_REQUEST_TIME])):
             if self.output[i] == 200:
                 f.write("{}\n".format(self.timings[TIMINGS_REQUEST_TIME][i]))
@@ -322,7 +343,8 @@ def getSystemParameters(host):
     }
 
 
-def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir, machine_id):
+def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir,
+                machine_id):
     url = "http://{0}/{1}".format(host, function_url)
 
     pbs = []
@@ -364,7 +386,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
     def print_res(saveToFile=True):
         features = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages", "NetErrJobs")
+                    "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages",
+                    "NetErrJobs")
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
 
         out_file = open("{}/results.txt".format(out_dir), "w")
@@ -381,11 +404,15 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
 
         for i in range(len(pbs)):
             print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %d" %
-                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
-                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i], neterror_jobs[i]))
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i],
+                   timings_execution[i],
+                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i],
+                   neterror_jobs[i]))
             print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %d" %
-                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i], timings_execution[i],
-                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i], neterror_jobs[i]), file=out_file)
+                  (start_lambda + i * lambda_delta, pbs[i], timings_request[i], pes[i], timings_queue[i],
+                   timings_execution[i],
+                   timings_faas_execution[i], timings_probing[i], timings_forward[i], probe_messages[i],
+                   neterror_jobs[i]), file=out_file)
 
         out_file.close()
 
@@ -458,7 +485,7 @@ def main(argv):
         out_dir = "./_test_multi_get-" + time_str
     os.makedirs(out_dir, exist_ok=True)
 
-    print("="*10 + " Starting test suite " + "="*10)
+    print("=" * 10 + " Starting test suite " + "=" * 10)
     print("> host %s" % host)
     print("> function_url %s" % function_url)
     print("> payload %s" % payload)
@@ -476,8 +503,9 @@ def main(argv):
 
     params = getSystemParameters(host)
     k = int(params[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX])
-    print("-"*10 + " system info " + "-"*10)
-    print("> scheduler name %s:%s" % (params[RES_SCHEDULER_CONFIGURATION_NAME], params[RES_SCHEDULER_CONFIGURATION_PARAMETERS]))
+    print("-" * 10 + " system info " + "-" * 10)
+    print("> scheduler name %s:%s" % (
+        params[RES_SCHEDULER_CONFIGURATION_NAME], params[RES_SCHEDULER_CONFIGURATION_PARAMETERS]))
     print("> k %d" % k)
     print("\n")
 

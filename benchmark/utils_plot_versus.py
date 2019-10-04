@@ -1,3 +1,19 @@
+#  P2PFaaS - A framework for FaaS Load Balancing
+#  Copyright (c) 2019. Gabriele Proietti Mattia <pm.gabriele@outlook.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import subprocess
 from threading import Thread
 import re
@@ -31,7 +47,8 @@ def parseLogFile(file_path):
     return d
 
 
-def start_plot(first_file, second_file, first_title, second_title, x_axis, y_axis, out_dir, model_name, model_k, model_job_len):
+def start_plot(first_file, second_file, first_title, second_title, x_axis, y_axis, out_dir, model_name, model_k,
+               model_job_len):
     file_1 = parseLogFile(first_file)
     file_2 = parseLogFile(second_file)
 
@@ -85,7 +102,9 @@ def main(argv):
     usage = "utils_plot_versus.py"
     try:
         opts, args = getopt.getopt(
-            argv, "h", ["first-file=", "second-file=", "first-title=", "second-title=", "x-axis=", "y-axis=", "out-dir=", "model-name=", "model-k=", "model-job-len="])
+            argv, "h",
+            ["first-file=", "second-file=", "first-title=", "second-title=", "x-axis=", "y-axis=", "out-dir=",
+             "model-name=", "model-k=", "model-job-len="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -94,25 +113,25 @@ def main(argv):
         if opt == '-h':
             print(usage)
             sys.exit()
-        elif opt in ("--first-file"):
+        elif opt in "--first-file":
             first_file = arg
-        elif opt in ("--second-file"):
+        elif opt in "--second-file":
             second_file = arg
-        elif opt in ("--first-title"):
+        elif opt in "--first-title":
             first_title = arg
-        elif opt in ("--second-title"):
+        elif opt in "--second-title":
             second_title = arg
-        elif opt in ("--x-axis"):
+        elif opt in "--x-axis":
             x_axis = arg
-        elif opt in ("--y-axis"):
+        elif opt in "--y-axis":
             y_axis = arg
-        elif opt in ("--out-dir"):
+        elif opt in "--out-dir":
             out_dir = arg
-        elif opt in ("--model-name"):
+        elif opt in "--model-name":
             model_name = arg
-        elif opt in ("--model-k"):
+        elif opt in "--model-k":
             model_k = int(arg)
-        elif opt in ("--model-job-len"):
+        elif opt in "--model-job-len":
             model_job_len = float(arg)
 
     if first_file == "":
