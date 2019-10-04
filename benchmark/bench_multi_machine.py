@@ -35,6 +35,8 @@ import time
 import json
 import mimetypes
 
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+
 # r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
 # r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
 CHECK_STR = " " + cc.WARNING + "CHCK" + cc.ENDC + " "
@@ -304,27 +306,27 @@ def main(argv):
             sys.exit()
         elif opt in ("-f", "--hosts-file"):
             hosts_file_path = arg
-        elif opt in ("--scheduler-port"):
+        elif opt in "--scheduler-port":
             scheduler_port = int(arg)
-        elif opt in ("--discovery-port"):
+        elif opt in "--discovery-port":
             discovery_port = int(arg)
-        elif opt in ("--requests"):
+        elif opt in "--requests":
             requests = int(arg)
-        elif opt in ("--poisson"):
+        elif opt in "--poisson":
             poisson = True
-        elif opt in ("--function-url"):
+        elif opt in "--function-url":
             function_url = arg
-        elif opt in ("--payload"):
+        elif opt in "--payload":
             payload = arg
         elif opt in ("-q", "--lambda-delta"):
             lambda_delta = float(arg)
-        elif opt in ("--start-lambda"):
+        elif opt in "--start-lambda":
             start_lambda = float(arg)
-        elif opt in ("--end-lambda"):
+        elif opt in "--end-lambda":
             end_lambda = float(arg)
-        elif opt in ("--check"):
+        elif opt in "--check":
             check = True
-        elif opt in ("--skip-check"):
+        elif opt in "--skip-check":
             skip_check = True
 
     my_file = Path(hosts_file_path)

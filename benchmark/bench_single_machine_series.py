@@ -27,6 +27,8 @@ import math
 import getopt
 import sys
 
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+
 
 def bench_rtt(host, function, payload, requests_num):
     url = "http://{}/{}".format(host, function)
@@ -93,13 +95,13 @@ def main(argv):
         if opt == '-h':
             print(usage)
             sys.exit()
-        elif opt in ("--host"):
+        elif opt in "--host":
             host = arg
-        elif opt in ("--function"):
+        elif opt in "--function":
             function = arg
-        elif opt in ("--payload"):
+        elif opt in "--payload":
             payload = arg
-        elif opt in ("--requests"):
+        elif opt in "--requests":
             requests = int(arg)
 
     print("====== P2P-FOG Compute mean delay of function ======")

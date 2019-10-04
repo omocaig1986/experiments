@@ -36,6 +36,8 @@ import random
 import json
 from time import localtime, strftime
 
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+
 RES_API_MONITORING_LOAD_SCHEDULER_NAME = "scheduler_name"
 RES_API_MONITORING_LOAD_K = "functions_running_max"
 
@@ -459,30 +461,30 @@ def main(argv):
             sys.exit()
         elif opt in ("-d", "--debug"):
             debug = True
-        elif opt in ("--host"):
+        elif opt in "--host":
             host = arg
-        elif opt in ("--function-url"):
+        elif opt in "--function-url":
             function_url = arg
-        elif opt in ("--lambda-delta"):
+        elif opt in "--lambda-delta":
             lambda_delta = float(arg)
-        elif opt in ("--start-lambda"):
+        elif opt in "--start-lambda":
             start_lambda = float(arg)
-        elif opt in ("--end-lambda"):
+        elif opt in "--end-lambda":
             end_lambda = float(arg)
         elif opt in ("-p", "--payload"):
             payload = arg
-        elif opt in ("--poisson"):
+        elif opt in "--poisson":
             poisson = True
-        elif opt in ("-t", "--requests"):
+        elif opt in ("-t", '--requests'):
             requests = int(arg)
-        elif opt in ("--out-dir"):
+        elif opt in "--out-dir":
             out_dir = arg
-        elif opt in ("--machine-id"):
+        elif opt in "--machine-id":
             machine_id = int(arg)
 
     if out_dir == "":
         time_str = strftime("%m%d%Y-%H%M%S", localtime())
-        out_dir = "./_test_multi_get-" + time_str
+        out_dir = "./_{}-{}".format(SCRIPT_NAME, time_str)
     os.makedirs(out_dir, exist_ok=True)
 
     print("=" * 10 + " Starting test suite " + "=" * 10)
