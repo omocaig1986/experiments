@@ -430,7 +430,7 @@ def main(argv):
     debug = False
     payload = ""
     poisson = False
-    requests = 500
+    requests_n = 500
     out_dir = ""
     machine_id = 0
 
@@ -476,7 +476,7 @@ def main(argv):
         elif opt in "--poisson":
             poisson = True
         elif opt in ("-t", '--requests'):
-            requests = int(arg)
+            requests_n = int(arg)
         elif opt in "--out-dir":
             out_dir = arg
         elif opt in "--machine-id":
@@ -492,11 +492,11 @@ def main(argv):
     print("> function_url %s" % function_url)
     print("> payload %s" % payload)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
-    print("> lambda_delta %.2f" % (lambda_delta))
-    print("> requests %d" % (requests))
+    print("> lambda_delta %.2f" % lambda_delta)
+    print("> requests_n %d" % requests_n)
     print("> use poisson %s" % ("yes" if poisson else "no"))
-    print("> out_dir %s" % (out_dir))
-    print("> machine_id %d" % (machine_id))
+    print("> out_dir %s" % out_dir)
+    print("> machine_id %d" % machine_id)
 
     if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
         print("Some needed parameter was not given")
@@ -517,7 +517,7 @@ def main(argv):
         sys.exit()
 
     start_suite(host, function_url, payload, start_lambda, end_lambda,
-                lambda_delta, poisson, k, requests, out_dir, machine_id)
+                lambda_delta, poisson, k, requests_n, out_dir, machine_id)
 
 
 if __name__ == "__main__":

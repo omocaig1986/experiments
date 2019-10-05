@@ -119,16 +119,15 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
     return output
 
 
-def startSuite(hosts, function_url, port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta):
-    time_str = strftime("%m%d%Y-%H%M%S", localtime())
-    dir_path = "./_test_multi_machine-" + time_str
-    os.makedirs(dir_path, exist_ok=True)
+def startSuite(hosts, function_url, port, payload, requests_n, poisson, start_lambda, end_lambda, lambda_delta,
+               out_dir):
+    os.makedirs(out_dir, exist_ok=True)
 
     l = start_lambda
     results = ["" for i in range(len(hosts))]
 
     while True:
-        lines = doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_path)
+        lines = doBenchmark(l, hosts, function_url, port, payload, requests_n, poisson, out_dir)
         i = 0
         for line in lines:
             results[i] += line
@@ -145,7 +144,7 @@ def startSuite(hosts, function_url, port, payload, requests, poisson, start_lamb
     # save results
     i = 0
     for result in results:
-        out_f = open(getResTxtOutput(i, dir_path), "w")
+        out_f = open(getResTxtOutput(i, out_dir), "w")
         out_f.write(result)
         out_f.close()
         i += 1
@@ -280,9 +279,10 @@ def main(argv):
     hosts_file_path = ""
     scheduler_port = 18080
     discovery_port = 19000
-    requests = 200
+    requests_n = 200
     poisson = False
     function_url = ""
+    out_dir = ""
     payload = ""
     start_lambda = 1.0
     end_lambda = 1.1
@@ -311,7 +311,7 @@ def main(argv):
         elif opt in "--discovery-port":
             discovery_port = int(arg)
         elif opt in "--requests":
-            requests = int(arg)
+            requests_n = int(arg)
         elif opt in "--poisson":
             poisson = True
         elif opt in "--function-url":
@@ -335,6 +335,10 @@ def main(argv):
         print(usage)
         sys.exit()
 
+    if out_dir == "":
+        time_str = strftime("%m%d%Y-%H%M%S", localtime())
+        out_dir = "./_{}-{}".format(SCRIPT_NAME, time_str)
+
     hosts_file_f = open(hosts_file_path, "r")
     hosts = []
     for line in hosts_file_f:
@@ -344,17 +348,17 @@ def main(argv):
         hosts.append(line.strip())
     hosts_file_f.close()
 
-    print("====== P2P-FOG Multimachine benchmark ======")
+    print("====== P2P-FOG Multi-Machine benchmark ======")
     print("> file %s" % hosts_file_path)
     print("> scheduler_port %d" % scheduler_port)
     print("> discovery_port %d" % discovery_port)
     print("> hosts %d" % len(hosts))
     print("> function_url %s" % function_url)
-    print("> requests %d" % requests)
+    print("> requests %d" % requests_n)
     print("> payload %s" % payload)
     print("> poisson %s" % poisson)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
-    print("> lambda_delta %.2f" % (lambda_delta))
+    print("> lambda_delta %.2f" % lambda_delta)
     print("> check %s" % check)
     print("> skip_check %s" % skip_check)
     print("")
@@ -379,7 +383,8 @@ def main(argv):
         if check:
             sys.exit(0)
 
-    startSuite(hosts, function_url, scheduler_port, payload, requests, poisson, start_lambda, end_lambda, lambda_delta)
+    startSuite(hosts, function_url, scheduler_port, payload, requests_n, poisson, start_lambda, end_lambda,
+               lambda_delta, out_dir)
     sys.exit(0)
 
 
