@@ -99,7 +99,7 @@ def main(argv):
     model_k = 10
     model_job_len = 1
 
-    usage = "utils_plot_versus.py"
+    usage = "plot_versus.py"
     try:
         opts, args = getopt.getopt(
             argv, "h",

@@ -10,9 +10,9 @@ f=1
 for i in {0..10}; do
 
   # source $CURRENT_PATH/env/bin/activate
-  # $CURRENT_PATH/env/bin/python utils_plot_times.py --files-prefix "results-machine-" \
+  # $CURRENT_PATH/env/bin/python plot_times.py --files-prefix "results-machine-" \
   #
-  python3 utils_plot_times.py --files-prefix "results-machine-" \
+  python3 plot_times.py --files-prefix "results-machine-" \
     --files-n "5" \
     --path "/Users/gabry3795/Coding/p2p-fog/experiments-data/Raspberries/PigoFaceDetect/LL-PS($f,K)/25000reqs/LL($f,K-$i)-5machines" \
     --function "Pigo Face Detect" \

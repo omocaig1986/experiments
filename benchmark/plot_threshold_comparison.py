@@ -302,7 +302,7 @@ def main(argv):
     k = 10
     m = 8
 
-    usage = "utils_plot_times.py"
+    usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
             argv, "hk:p:",

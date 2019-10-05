@@ -183,7 +183,7 @@ def main(argv):
     bins = 10
     data_files = []
 
-    usage = "utils_plot_times_distribution.py"
+    usage = "plot_times_distribution.py"
     try:
         opts, args = getopt.getopt(
             argv, "hk:p:",

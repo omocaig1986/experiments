@@ -164,7 +164,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         elif algorithm == "LL-PS(F,T)":
             chart_title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Average of {}".format(function,
                                                                                        f, t, k, mi, files_number)
-        d = computeMeanDict(dicts)
+        d = mean_dict(dicts)
         plotFeatures(d, chart_title)
 
         stacked_filename = "{}-avg-timingsStacked-k{}.pdf".format(function_normalized, k)
@@ -258,7 +258,7 @@ def do_computations(files_path, files_prefix, files_number, out_dir, k, f, t, mi
         d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         dicts.append(d)
 
-    d = computeMeanDict(dicts)
+    d = mean_dict(dicts)
     saveAverages(d)
 
     #
@@ -284,7 +284,8 @@ def diffArrays(array1, array2):
     return out
 
 
-def computeMeanDict(dicts):
+def mean_dict(dicts):
+    """Computer the average dict of an array of dicts passed"""
     avg_dict = getBaseDict()
     features = getFeaturesArray()
     n = len(dicts)
@@ -320,7 +321,7 @@ def main(argv):
     plot_every_machine = False
     algorithm = ""
 
-    usage = "utils_plot_times.py"
+    usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
             argv, "hk:p:",
@@ -336,7 +337,7 @@ def main(argv):
             sys.exit()
         elif opt in ("-p", "--path"):
             files_path = arg
-        elif opt in ("--files-prefix"):
+        elif opt in "--files-prefix":
             files_prefix = arg
         elif opt in ("--function"):
             function = arg

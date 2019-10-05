@@ -3,7 +3,7 @@ CURRENT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # shellcheck disable=SC1090
 source "$CURRENT_PATH"/env/bin/activate
-"$CURRENT_PATH"/env/bin/python utils_plot_times_distribution.py --files-prefix "req-times-" \
+"$CURRENT_PATH"/env/bin/python plot_times_distribution.py --files-prefix "req-times-" \
   --path "/Users/gabry3795/Cloud/Google Drive/Università/Magistrale/Thesis/Experiments/BladeServers/PigoFaceDetect/MultiNode/LL(1,K-9)-8machines/_test_multi_machine-04072019-085332" \
   --function "Pigo Face Detect" \
   --fanout "1" \

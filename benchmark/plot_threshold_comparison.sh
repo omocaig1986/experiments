@@ -6,7 +6,7 @@ source "$CURRENT_PATH"/env/bin/activate
 
 f=1
 
-python utils_plot_threshold_comparison.py \
+python plot_threshold_comparison.py \
   --path "/Users/gabry3795/Coding/p2p-fog/experiments-data/Raspberries/PigoFaceDetect/LL-PS($f,K)/25000reqs/_5machines" \
   --function "Pigo Face Detect" \
   --fanout $f \

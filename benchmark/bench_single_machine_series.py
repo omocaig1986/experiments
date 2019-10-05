@@ -83,7 +83,7 @@ def main(argv):
     payload = ""
     requests = 200
 
-    usage = "utils_plot_times.py"
+    usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
             argv, "h", ["host=", "function=", "payload=", "requests="])
