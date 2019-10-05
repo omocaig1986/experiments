@@ -18,7 +18,7 @@
 #  This script benchmarks a single machine by sending requests in parallel.
 # 
 
-from common import cc
+from common import CC
 from common import read_binary
 
 import requests
@@ -151,7 +151,7 @@ class FunctionTest():
             self.timings[TIMINGS_REQUEST_TIME][arg] = total_time
 
             if not net_error:
-                self.external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) != None
+                self.external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
                 self.output[arg] = res.status_code
                 # parse headers if request is successful
                 if res.status_code == 200:
@@ -310,9 +310,9 @@ class FunctionTest():
 
         if not net_error:
             if res.status_code == 200:
-                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (cc.OKGREEN, i, res.status_code, time, cc.ENDC))
+                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.OKGREEN, i, res.status_code, time, CC.ENDC))
             else:
-                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (cc.FAIL, i, res.status_code, time, cc.ENDC))
+                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.FAIL, i, res.status_code, time, CC.ENDC))
                 print(str(res.content))
 
     def parseTimingsFromHeaders(self, headers, i):

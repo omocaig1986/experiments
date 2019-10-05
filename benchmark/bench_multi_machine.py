@@ -18,7 +18,7 @@
 # Benchmark N machines by using the single machine script
 #
 
-from common import cc
+from common import CC
 from common import read_binary
 
 import subprocess
@@ -39,11 +39,11 @@ SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
 # r_mean_time = r"mean_time is [0-9 ^\.]*\.[0-9]*"
 # r_pb = r"pB is [0-9 ^\.]*\.[0-9]*"
-CHECK_STR = " " + cc.WARNING + "CHCK" + cc.ENDC + " "
-OK_STR = "  " + cc.OKGREEN + "OK" + cc.ENDC + "  "
-DEAD_STR = " " + cc.FAIL + "DEAD" + cc.ENDC + " "
-MISM_STR = " " + cc.WARNING + "MISM" + cc.ENDC + " "
-WARN_STR = " " + cc.WARNING + "WARN" + cc.ENDC + " "
+CHECK_STR = " " + CC.WARNING + "CHCK" + CC.ENDC + " "
+OK_STR = "  " + CC.OKGREEN + "OK" + CC.ENDC + "  "
+DEAD_STR = " " + CC.FAIL + "DEAD" + CC.ENDC + " "
+MISM_STR = " " + CC.WARNING + "MISM" + CC.ENDC + " "
+WARN_STR = " " + CC.WARNING + "WARN" + CC.ENDC + " "
 
 BENCHMARK_SCRIPT = "python bench_single_machine.py"
 SLEEP_SEC_BETWEEN_TESTS = 10

@@ -20,7 +20,7 @@
 
 import requests
 import time
-from common import cc
+from common import CC
 from common import read_binary
 import os
 import math
@@ -48,11 +48,11 @@ def bench_rtt(host, function, payload, requests_num):
         total_time = end_time - start_time
 
         if res.status_code == 200:
-            print(cc.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
-                  str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+            print(CC.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
+                  str(res.status_code) + " Time " + str(total_time) + CC.ENDC)
         else:
-            print(cc.FAIL + "==> [RES] Status " +
-                  str(res.status_code) + " Time " + str(total_time) + cc.ENDC)
+            print(CC.FAIL + "==> [RES] Status " +
+                  str(res.status_code) + " Time " + str(total_time) + CC.ENDC)
 
         return total_time
 

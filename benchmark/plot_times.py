@@ -23,18 +23,11 @@ import time
 import matplotlib.pyplot as plt
 import model_mm1k
 import numpy as np
+from common import PlotUtils
 
-USE_TEX = True
-
-if USE_TEX:
-    plt.rcParams['font.family'] = 'serif'
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams['text.latex.preamble'] = [
-        r"\DeclareUnicodeCharacter{03BB}{$\lambda$}"
-        + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
-        + r"\usepackage[utf8]{inputenc}"
-        # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
-        + ""]
+# LaTex plot init
+# USE_TEX = PlotUtils.use_tex()
+USE_TEX = False
 
 DICT_LAMBDA = "lambda"
 DICT_PB = "pb"
@@ -61,15 +54,15 @@ labels = {
 }
 
 
-def getBaseDict():
-    features = getFeaturesArray()
+def get_base_dict():
+    features = get_features_array()
     d = {DICT_LAMBDA: []}
     for f in features:
         d[f] = []
     return d
 
 
-def getFeaturesArray():
+def get_features_array():
     return [DICT_PB,
             DICT_DELAY,
             DICT_PE,
@@ -81,8 +74,8 @@ def getFeaturesArray():
             DICT_PROBE_MESSAGES]
 
 
-def printDict(d, outfile):
-    features = getFeaturesArray()
+def print_dict(d, outfile):
+    features = get_features_array()
     features_t = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
                   "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages")
     print("# %s %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
@@ -96,9 +89,9 @@ def printDict(d, outfile):
         print("\n", end="", file=outfile)
 
 
-def parseLogFile(file_path):
+def parse_log_file(file_path):
     in_file = open(file_path, "r")
-    d = getBaseDict()
+    d = get_base_dict()
 
     for line in in_file:
         if line[0] == "#" or line.strip() == "":
@@ -145,7 +138,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         plt.close(fig)
 
     def plotFeatures(d, title):
-        features = getFeaturesArray()
+        features = get_features_array()
         for f in features:
             filename = "{}-avg-{}-k{}.pdf".format(function_normalized, f, k)
             print("Plotting %s to \"%s\"" % (f, filename))
@@ -183,7 +176,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         plotData(d, feature, chart_title, filename, model)
 
     def plotFeaturesForMachine(i, d):
-        features = getFeaturesArray()
+        features = get_features_array()
         for f in features:
             if f == DICT_PB and with_model:
                 plotDataForMachine(i, d, f, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
@@ -193,7 +186,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
                 plotDataForMachine(i, d, f)
 
     def plotStackedTimings(d, title, filename):
-        for f in getFeaturesArray():
+        for f in get_features_array():
             if len(d[f]) == 0:
                 return
 
@@ -235,7 +228,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
     os.makedirs(out_dir, exist_ok=True)
     dicts = []
     for i in range(files_number):
-        d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
+        d = parse_log_file("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         dicts.append(d)
 
         if plot_every_machine:
@@ -249,13 +242,13 @@ def do_computations(files_path, files_prefix, files_number, out_dir, k, f, t, mi
 
     def saveAverages(d):
         outfile = open("{}/{}".format(out_dir, averages_filename), "w")
-        printDict(d, outfile)
+        print_dict(d, outfile)
         outfile.close()
 
     os.makedirs(out_dir, exist_ok=True)
     dicts = []
     for i in range(files_number):
-        d = parseLogFile("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
+        d = parse_log_file("{0}/{1}{2:02}.txt".format(files_path, files_prefix, i))
         dicts.append(d)
 
     d = mean_dict(dicts)
@@ -286,8 +279,8 @@ def diffArrays(array1, array2):
 
 def mean_dict(dicts):
     """Computer the average dict of an array of dicts passed"""
-    avg_dict = getBaseDict()
-    features = getFeaturesArray()
+    avg_dict = get_base_dict()
+    features = get_features_array()
     n = len(dicts)
     print("Computing mean dict of %d dicts" % n)
     for f in features:
@@ -339,25 +332,25 @@ def main(argv):
             files_path = arg
         elif opt in "--files-prefix":
             files_prefix = arg
-        elif opt in ("--function"):
+        elif opt in "--function":
             function = arg
-        elif opt in ("--files-n"):
+        elif opt in "--files-n":
             files_number = int(arg)
-        elif opt in ("--fanout"):
+        elif opt in "--fanout":
             fanout = int(arg)
-        elif opt in ("--threshold"):
+        elif opt in "--threshold":
             threshold = int(arg)
-        elif opt in ("--job-duration"):
+        elif opt in "--job-duration":
             job_duration = float(arg)
-        elif opt in ("-k"):
+        elif opt in "-k":
             k = int(arg)
-        elif opt in ("--with-model"):
+        elif opt in "--with-model":
             with_model = True
-        elif opt in ("--model-name"):
+        elif opt in "--model-name":
             model_name = arg
-        elif opt in ("--plot-every-machine"):
+        elif opt in "--plot-every-machine":
             plot_every_machine = True
-        elif opt in ("--algorithm"):
+        elif opt in "--algorithm":
             algorithm = arg
 
     out_plots_dir = "{0}/{1}".format(files_path, "_plots")

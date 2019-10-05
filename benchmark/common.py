@@ -14,7 +14,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-class cc:
+import matplotlib.pyplot as plt
+
+
+class CC:
+    """Class which holds terminal colors"""
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -25,8 +29,24 @@ class cc:
     UNDERLINE = '\033[4m'
 
 
+class PlotUtils:
+    """Plot utilities"""
+
+    @staticmethod
+    def use_tex():
+        plt.rcParams['font.family'] = 'serif'
+        plt.rcParams['text.usetex'] = True
+        plt.rcParams['text.latex.preamble'] = [
+            r"\DeclareUnicodeCharacter{03BB}{$\lambda$}"
+            + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
+            + r"\usepackage[utf8]{inputenc}"
+            # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
+            + ""]
+        return True
+
+
 def read_binary(uri):
-    if uri == "" or uri == None:
+    if uri == "" or uri is None:
         return None
 
     in_file = open(uri, "rb")  # opening for [r]eading as [b]inary
