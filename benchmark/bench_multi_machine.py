@@ -361,6 +361,7 @@ def main(argv):
     print("> lambda_delta %.2f" % lambda_delta)
     print("> check %s" % check)
     print("> skip_check %s" % skip_check)
+    print("> out_dir %s" % out_dir)
     print("")
 
     if len(hosts) == 0:
