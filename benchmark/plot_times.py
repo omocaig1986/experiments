@@ -13,26 +13,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import getopt
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
-from plot import model_mm1k
+from model_mm1k import MM1K
 
 # LaTex plot init
 # USE_TEX = PlotUtils.use_tex()
@@ -153,9 +140,9 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
             print("Plotting %s to \"%s\"" % (f, filename))
 
             if f == DICT_PB and with_model:
-                plotData(d, f, title, filename, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
+                plotData(d, f, title, filename, MM1K.generatePbArray(d[DICT_LAMBDA], k, mi))
             elif f == DICT_DELAY and with_model:
-                plotData(d, f, title, filename, model_mm1k.generateDelayArray(d[DICT_LAMBDA], k, mi))
+                plotData(d, f, title, filename, MM1K.generateDelayArray(d[DICT_LAMBDA], k, mi))
             else:
                 plotData(d, f, title, filename)
 
@@ -188,9 +175,9 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         features = get_features_array()
         for f in features:
             if f == DICT_PB and with_model:
-                plotDataForMachine(i, d, f, model_mm1k.generatePbArray(d[DICT_LAMBDA], k, mi))
+                plotDataForMachine(i, d, f, MM1K.generatePbArray(d[DICT_LAMBDA], k, mi))
             elif f == DICT_DELAY and with_model:
-                plotDataForMachine(i, d, f, model_mm1k.generateDelayArray(d[DICT_LAMBDA], k, mi))
+                plotDataForMachine(i, d, f, MM1K.generateDelayArray(d[DICT_LAMBDA], k, mi))
             else:
                 plotDataForMachine(i, d, f)
 
