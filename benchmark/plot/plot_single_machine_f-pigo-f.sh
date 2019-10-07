@@ -1,5 +1,5 @@
 #!/bin/bash
-CURRENT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+CURRENT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)/.."
 FUNCTION_NAME="PigoFaceDetectF"
 SERVER_DIR="BladeServers/debian"
 
