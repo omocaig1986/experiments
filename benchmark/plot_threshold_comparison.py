@@ -19,7 +19,7 @@ import getopt
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
-import model_mm1k
+from model_mm1k import MM1K
 
 markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
 USE_TEX = True
@@ -31,6 +31,7 @@ if USE_TEX:
         r"\DeclareUnicodeCharacter{03BB}{$\lambda$}"
         + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
         + r"\usepackage[utf8]{inputenc}"
+        + r"\usepackage{amssymb}"
         # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
         + ""]
 
@@ -193,10 +194,10 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         model_values = []
         if feature == DICT_PB:
             for t in range(from_t, to_t + 1):
-                model_values.append(model_mm1k.P_B(l, mi, k))
+                model_values.append(MM1K.P_B(l, mi, k))
         elif feature == DICT_DELAY:
             for t in range(from_t, to_t + 1):
-                model_values.append(model_mm1k.delay(l, mi, k))
+                model_values.append(MM1K.delay(l, mi, k))
         if len(model_values) > 0:
             ax.plot(to_plot_x, model_values, marker=markers[1], markersize=4.0,
                     markeredgewidth=0.4, linewidth=0.7, label="M/M/1/K Model")
@@ -315,25 +316,25 @@ def main(argv):
             sys.exit()
         elif opt in ("-p", "--path"):
             path = arg
-        elif opt in ("-k"):
+        elif opt in "-k":
             k = int(arg)
-        elif opt in ("--n-machines"):
+        elif opt in "--n-machines":
             m = int(arg)
-        elif opt in ("--function"):
+        elif opt in "--function":
             function = arg
-        elif opt in ("--fanout"):
+        elif opt in "--fanout":
             fanout = int(arg)
-        elif opt in ("--from-threshold"):
+        elif opt in "--from-threshold":
             from_t = int(arg)
-        elif opt in ("--to-threshold"):
+        elif opt in "--to-threshold":
             to_t = int(arg)
-        elif opt in ("--job-duration"):
+        elif opt in "--job-duration":
             job_duration = float(arg)
-        elif opt in ("--start-lambda"):
+        elif opt in "--start-lambda":
             start_lambda = float(arg)
-        elif opt in ("--end-lambda"):
+        elif opt in "--end-lambda":
             end_lambda = float(arg)
-        elif opt in ("--lambda-delta"):
+        elif opt in "--lambda-delta":
             lambda_delta = float(arg)
 
     if path == "":
