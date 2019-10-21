@@ -14,11 +14,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import sys
 import getopt
 import os
+import sys
 from pathlib import Path
+
 import matplotlib.pyplot as plt
+
 from model_mm1k import MM1K
 
 markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
@@ -53,13 +55,13 @@ labels = {
     DICT_LAMBDA: "λ" if not USE_TEX else r"$\lambda$",
     DICT_PB: "pb" if not USE_TEX else r"$P_B$",
     DICT_DELAY: "Delay (s)" if not USE_TEX else r"$W$ (s)",
-    DICT_PE: "pe",
-    DICT_QUEUE_TIME: "timeQueue",
-    DICT_EXEC_TIME: "timeExec",
-    DICT_FAAS_EXEC_TIME: "timeFaasExec",
-    DICT_PROBE_TIME: "timeProbing",
-    DICT_FORWARDING_TIME: "timeForwarding",
-    DICT_PROBE_MESSAGES: "probeMessages"
+    DICT_PE: "pe" if not USE_TEX else r"$P_E$",
+    DICT_QUEUE_TIME: "Queue Time",
+    DICT_EXEC_TIME: "Execution Time",
+    DICT_FAAS_EXEC_TIME: "FaaS Execution Time",
+    DICT_PROBE_TIME: "Probing Time (s)",
+    DICT_FORWARDING_TIME: "Forwarding Time",
+    DICT_PROBE_MESSAGES: "Probe Messages"
 }
 
 
@@ -205,7 +207,7 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         ax.set_xlabel("T")
         ax.set_ylabel(labels[feature])
         ax.set_title(title)
-        ax.legend()
+        # ax.legend()
         fig.tight_layout()
         plt.savefig("{}/{}".format(out_plots_dir, filename))
 
@@ -268,8 +270,14 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         plotData(x, y, l_value, DICT_PB)
         x, y = retrievePlotData(l_index, DICT_DELAY)
         plotData(x, y, l_value, DICT_DELAY)
+        x, y = retrievePlotData(l_index, DICT_PE)
+        plotData(x, y, l_value, DICT_PE)
+        x, y = retrievePlotData(l_index, DICT_PROBE_MESSAGES)
+        plotData(x, y, l_value, DICT_PROBE_MESSAGES)
+        x, y = retrievePlotData(l_index, DICT_PROBE_TIME)
+        plotData(x, y, l_value, DICT_PROBE_TIME)
 
-    select = [getLiFromV(3.15), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
+    select = [getLiFromV(3.00), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
     x, y, l = retrieveAllData(DICT_PB, select=select)
     plotAllData(x, y, l, DICT_PB, select=True)
     x, y, l = retrieveAllData(DICT_DELAY, select=select)

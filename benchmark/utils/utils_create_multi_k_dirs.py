@@ -69,7 +69,7 @@ def main(argv):
         sys.exit()
 
     for i in range(threshold_from, threshold_to + 1):
-        to_make_dir = "{}/{}({},K-{})-{}machines".format(out_dir, algorithm_name, fanout, i, machines_n)
+        to_make_dir = "{}/{}({},{})-{}machines".format(out_dir, algorithm_name, fanout, i, machines_n)
         print("> Creating dir %s" % to_make_dir)
         os.makedirs(to_make_dir, exist_ok=True)
 

@@ -234,7 +234,7 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
 
 
 def do_computations(files_path, files_prefix, files_number, out_dir, k, f, t, mi, function, with_model, model_name):
-    averages_filename = "{}-avg-k{}-t{}-m{}.txt".format(function.lower().replace(" ", ""), k, k - t, files_number)
+    averages_filename = "{}-avg-k{}-t{}-m{}.txt".format(function.lower().replace(" ", ""), k, t, files_number)
 
     def saveAverages(d):
         outfile = open("{}/{}".format(out_dir, averages_filename), "w")
