@@ -48,6 +48,8 @@ DICT_PROBE_TIME = "timeProbing"
 DICT_FORWARDING_TIME = "timeForwarding"
 DICT_PROBE_MESSAGES = "probeMessages"
 
+DICT_PROBINGS_OVER_REQUESTS = "probingsOverRequests"
+
 PLOT_MARKERS = ".,ov^<>x12348s"
 PLOT_LINES = ['-', '--', '-.', ':']
 
@@ -61,7 +63,9 @@ labels = {
     DICT_FAAS_EXEC_TIME: "FaaS Execution Time",
     DICT_PROBE_TIME: "Probing Time (s)",
     DICT_FORWARDING_TIME: "Forwarding Time",
-    DICT_PROBE_MESSAGES: "Probe Messages"
+    DICT_PROBE_MESSAGES: "Probe Messages",
+
+    DICT_PROBINGS_OVER_REQUESTS: "Probe Messages per Request"
 }
 
 
@@ -276,6 +280,17 @@ def plotFixedLambdaFeatures(d_all, from_t, to_t, m, k, function, mi, from_l, to_
         plotData(x, y, l_value, DICT_PROBE_MESSAGES)
         x, y = retrievePlotData(l_index, DICT_PROBE_TIME)
         plotData(x, y, l_value, DICT_PROBE_TIME)
+        # prepare probings over requests
+        x, y = retrievePlotData(l_index, DICT_PROBE_MESSAGES)
+        x_e, y_e = retrievePlotData(l_index, DICT_PE)
+        # print(y)
+        # print(y_e)
+        # y = list(map(lambda v: (v * 2) / 20000, y))
+        # for i in range(len(y)):
+        #     forwarded = y_e[i] * 20000
+        #     y[i] = ((y[i] + forwarded) * 2) / 20000
+        # print(y)
+        # plotData(x, y, l_value, DICT_PROBINGS_OVER_REQUESTS)
 
     select = [getLiFromV(3.00), getLiFromV(3.30), getLiFromV(3.50), getLiFromV(3.60)]
     x, y, l = retrieveAllData(DICT_PB, select=select)

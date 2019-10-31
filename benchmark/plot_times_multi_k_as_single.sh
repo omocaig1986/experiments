@@ -10,7 +10,7 @@ source "$CURRENT_PATH"/env/bin/activate
 f=1
 
 #!/bin/bash
-for i in {0..10}; do
+for i in {0..11}; do
 
   "$CURRENT_PATH"/env/bin/python plot_times.py --files-prefix "results-machine-" \
     --files-n "8" \
@@ -23,6 +23,6 @@ for i in {0..10}; do
     --model-name "M/M/1/10" \
     -k "10" \
     --algorithm "LL-PS(F,T)"
-  # --plot-every-machine
+  # --plot-every-machine
 
 done

@@ -36,6 +36,8 @@ DICT_PROBE_TIME = "timeProbing"
 DICT_FORWARDING_TIME = "timeForwarding"
 DICT_PROBE_MESSAGES = "probeMessages"
 
+DICT_PROBINGS_OVER_REQUESTS = "probingsOverRequests"
+
 labels = {
     DICT_LAMBDA: "λ" if not USE_TEX else r"$\lambda$",
     DICT_PB: "pb" if not USE_TEX else r"$P_B$",
@@ -46,7 +48,9 @@ labels = {
     DICT_FAAS_EXEC_TIME: "OpenFaaS Exec Delay (s)",
     DICT_PROBE_TIME: "Probing Delay (s)",
     DICT_FORWARDING_TIME: "Forwarding Delay (s)",
-    DICT_PROBE_MESSAGES: "probeMessages"
+    DICT_PROBE_MESSAGES: "probeMessages",
+
+    DICT_PROBINGS_OVER_REQUESTS: "Probe Messages per Request"
 }
 
 
@@ -70,11 +74,25 @@ def get_features_array():
             DICT_PROBE_MESSAGES]
 
 
+def get_features_to_print_array():
+    return [DICT_PB,
+            DICT_DELAY,
+            DICT_PE,
+            DICT_QUEUE_TIME,
+            DICT_EXEC_TIME,
+            DICT_FAAS_EXEC_TIME,
+            DICT_PROBE_TIME,
+            DICT_FORWARDING_TIME,
+            DICT_PROBE_MESSAGES,
+            DICT_PROBINGS_OVER_REQUESTS]
+
+
 def print_dict(d, outfile):
-    features = get_features_array()
+    features = get_features_to_print_array()
     features_t = ("lambda", "pB", "MeanReqTime", "pE", "MeanQueueTime",
-                  "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages")
-    print("# %s %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
+                  "MeanExecTime", "MeanFaasExecTime", "MeanProbeTime", "MeanForwardingTime", "ProbeMessages",
+                  "ProbesOverRequests")
+    print("# %s %s %s %s %s %s %s %s %s %s %s" % features_t, file=outfile)
     for i in range(len(d[DICT_LAMBDA])):
         print("%.2f" % d[DICT_LAMBDA][i], end="", file=outfile)
         for f in features:
@@ -288,6 +306,12 @@ def mean_dict(dicts):
     # copy lambda
     for l in dicts[0][DICT_LAMBDA]:
         avg_dict[DICT_LAMBDA].append(l)
+
+    # add probing messages per requests
+    avg_dict[DICT_PROBINGS_OVER_REQUESTS] = []
+    for i in range(len(dicts[0][DICT_PE])):
+        avg_dict[DICT_PROBINGS_OVER_REQUESTS].append(avg_dict[DICT_PROBE_MESSAGES][i] + avg_dict[DICT_PE][i] * 20000)
+
     return avg_dict
 
 
