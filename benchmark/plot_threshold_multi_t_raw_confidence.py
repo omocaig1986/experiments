@@ -17,6 +17,7 @@
 from scipy import stats
 import math
 from matplotlib import pyplot as plt
+from pathlib import Path
 
 markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
 USE_TEX = True
@@ -29,7 +30,7 @@ if USE_TEX:
         + r"\DeclareUnicodeCharacter{03BC}{$\mu$}"
         + r"\usepackage[utf8]{inputenc}"
         + r"\usepackage{amssymb}"
-        # + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
+        + r"\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage[T1]{fontenc}"
         + ""]
 
 WORKING_DIR = "/Users/gabrielepmattia/Coding/p2p-faas/experiments-data/BladeServers/PigoFaceDetectF/LL-PS(1,K)"
@@ -73,16 +74,26 @@ def plot_confidence(x_arr, y_arr, x_label, y_label, filename):
     plt.close(fig)
 
 
-pbs = [[] for i in range(N_THRESHOLDS)]
-delays = [[] for i in range(N_THRESHOLDS)]
+pbs = [[] for _ in range(N_THRESHOLDS)]
+delays = [[] for _ in range(N_THRESHOLDS)]
+accepted = [[] for _ in range(N_THRESHOLDS)]
+rejected = [[] for _ in range(N_THRESHOLDS)]
 
 for i in range(1, N_TESTS):
-    values_file = open("{}/{}-{}/multi_t.txt".format(WORKING_DIR, DIR_PREFIX, i), "r")
+    file_path = Path("{}/{}-{}/multi_t.txt".format(WORKING_DIR, DIR_PREFIX, i))
+    if not file_path.is_file():
+        continue
+
+    print("> Parsing %s" % file_path)
+    values_file = open(file_path, "r")
+
     line_n = 0
     for line in values_file:
         values = line.split(" ")
         pbs[line_n].append(float(values[1]))
         delays[line_n].append(float(values[2]))
+        accepted[line_n].append(float(values[3]))
+        rejected[line_n].append(float(values[4]))
         line_n += 1
     values_file.close()
 
@@ -96,21 +107,47 @@ delays_vars = []
 delays_upper = []
 delays_lower = []
 
+accepted_avgs = []
+accepted_vars = []
+accepted_upper = []
+accepted_lower = []
+
+rejected_avgs = []
+rejected_vars = []
+rejected_upper = []
+rejected_lower = []
+
+
+def computeValues(i, arr, avgs, vars, upper, lower):
+    avgs.append(arr_average(arr[i]))
+    vars.append(arr_variance(arr[i], avgs[i]))
+    t_value = stats.t.ppf(1 - (ALFA_VALUE / 2), N_TESTS - 1) * math.sqrt(vars[i] / N_TESTS)
+
+    lower_value = avgs[i] - t_value
+
+    upper.append(avgs[i] + t_value)
+    lower.append(0.0 if lower_value < 0 else lower_value)
+
+
 for i in range(N_THRESHOLDS):
-    pbs_avgs.append(arr_average(pbs[i]))
-    pbs_vars.append(arr_variance(pbs[i], pbs_avgs[i]))
-    tValuePb = stats.t.ppf(1 - (ALFA_VALUE / 2), N_TESTS - 1) * math.sqrt(pbs_vars[i] / N_TESTS)
+    print("> Computing values for pb, T=%d" % i)
+    computeValues(i, pbs, pbs_avgs, pbs_vars, pbs_upper, pbs_lower)
+    print("> Computing values for delays, T=%d" % i)
+    computeValues(i, delays, delays_avgs, delays_vars, delays_upper, delays_lower)
+    print("> Computing values for accepted, T=%d" % i)
+    computeValues(i, accepted, accepted_avgs, accepted_vars, accepted_upper, accepted_lower)
+    print("> Computing values for rejected, T=%d" % i)
+    computeValues(i, rejected, rejected_avgs, rejected_vars, rejected_upper, rejected_lower)
 
-    pbs_upper.append(pbs_avgs[i] + tValuePb)
-    pbs_lower.append(pbs_avgs[i] - tValuePb)
-
-    delays_avgs.append(arr_average(delays[i]))
-    delays_vars.append(arr_variance(delays[i], delays_avgs[i]))
-    tValueDelay = stats.t.ppf(1 - ALFA_VALUE / 2, N_TESTS - 1) * math.sqrt(delays_vars[i] / N_TESTS)
-
-    delays_upper.append(delays_avgs[i] + tValueDelay)
-    delays_lower.append(delays_avgs[i] - tValueDelay)
-
+print("> Plotting pb")
 plot_confidence([i for i in range(N_THRESHOLDS)], [pbs_lower, pbs_avgs, pbs_upper], "T", "$P_B$", "pbs_confidence")
+print("> Plotting delays")
 plot_confidence([i for i in range(N_THRESHOLDS)], [delays_lower, delays_avgs, delays_upper], "T", "Delay (s)",
                 "delay_confidence")
+
+print("> Plotting accepted")
+plot_confidence([i for i in range(N_THRESHOLDS)], [accepted_lower, accepted_avgs, accepted_upper], "T",
+                "Accepted Requests", "accepted_confidence")
+print("> Plotting rejected")
+plot_confidence([i for i in range(N_THRESHOLDS)], [rejected_lower, rejected_avgs, rejected_upper], "T",
+                "Rejected Requests", "rejected_confidence")

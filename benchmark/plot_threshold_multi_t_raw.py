@@ -17,6 +17,7 @@
 import os
 from pathlib import Path
 from matplotlib import pyplot as plt
+import math
 
 markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
 USE_TEX = True
@@ -46,10 +47,11 @@ def plot(x_arr, y_arr, x_label, y_label, filename):
     plt.close(fig)
 
 
-WORKING_DIR = "/Users/gabrielepmattia/Coding/p2p-faas/experiments-data/BladeServers/PigoFaceDetectF/LL-PS(1,K)/20000reqs-1"
+WORKING_DIR = "/Users/gabrielepmattia/Coding/p2p-faas/experiments-data/BladeServers/PigoFaceDetectF/LL-PS(1,K)/20000reqs-4"
 N_MACHINES = 8
 MAX_T = 11
 MIN_T = 0
+N_REQUESTS = 20000
 
 working_path = Path(WORKING_DIR)
 dirs_list = sorted([f for f in working_path.glob('*') if f.is_dir()])
@@ -83,7 +85,9 @@ print("> Saving to out file")
 out_file = open("{}/{}".format(WORKING_DIR, "multi_t.txt"), "w")
 # print to file the list
 for i in range(len(dirs_list)):
-    print("%d %.6f %.6f" % (i, pb_list[i], delays_list[i]), file=out_file)
+    accepted = math.ceil(N_REQUESTS * (1 - pb_list[i]))
+    rejected = math.floor(N_REQUESTS * pb_list[i])
+    print("%d %.6f %.6f %d %d" % (i, pb_list[i], delays_list[i], accepted, rejected), file=out_file)
 out_file.close()
 
 # plot
