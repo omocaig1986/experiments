@@ -11,17 +11,17 @@ consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
 hosts = []
 commands = [
-    # "docker system prune -f --volumes",
-    # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    "docker system prune -f --volumes",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
     # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
     "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
-    # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./update_faas.sh\"",
-    # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
     # "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
     "\"cd ~/code/p2p-fog/experiments/machines-setup ; bash -c ./deploy_pigo_f.sh\"",
-    # "docker system prune -f --volumes",
-    # "sudo reboot"
+    "docker system prune -f --volumes",
+    "sudo reboot"
 ]
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
