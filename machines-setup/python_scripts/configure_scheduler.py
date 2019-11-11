@@ -2,6 +2,7 @@ import requests
 import json
 from common import status_str
 import sys
+import getopt
 
 SERVICE_PORT = 18080
 API_CONFIGURATION_URL = "configuration/scheduler"
@@ -20,7 +21,8 @@ def setConfiguration(host_ip, scheduler_line):
     scheduler_name = scheduler_line[0]
     scheduler_parameters = scheduler_line[1:]
     # prepare request
-    url = "http://{0}:{1}/{2}".format(host_ip, SERVICE_PORT, API_CONFIGURATION_URL)
+    url = "http://{0}:{1}/{2}".format(host_ip,
+                                      SERVICE_PORT, API_CONFIGURATION_URL)
     headers = {'Content-Type': "application/json"}
     ok = True
 
@@ -41,23 +43,59 @@ def setConfiguration(host_ip, scheduler_line):
               (print_str, host_ip, scheduler_name, scheduler_parameters, res.status_code))
 
 
-conf_file = open("hosts.txt", "r")
+def main(argv):
+    hosts_file_path = ""
+    host = ""
+    scheduler = ""
 
-for line in conf_file:
-    if line[0] == "#":
-        continue
-    ips.append(line.strip())
+    usage = "configure_scheduler.py"
 
-conf_file.close()
+    try:
+        opts, args = getopt.getopt(
+            argv, "h", ["hosts-file=", "host=", "scheduler="])
+    except getopt.GetoptError as e:
+        print(e)
+        sys.exit(2)
+    for opt, arg in opts:
+        # print(opt + " -> " + arg)
+        if opt == '-h':
+            print(usage)
+            sys.exit()
+        elif opt in "--hosts-file":
+            hosts_file_path = arg
+        elif opt in "--scheduler":
+            scheduler = arg
+        elif opt in "--host":
+            host = arg
 
-if sys.argv[1] != "--scheduler":
-    sys.exit(1)
+    print("====== P2P-FAAS Machines Setup ======")
+    print("> hosts-file %s" % hosts_file_path)
+    print("> host %s" % host)
+    print("> scheduler_params %s" % scheduler)
 
-print("> got %d hosts\n" % len(ips))
-print("> got scheduler \"%s\"" % sys.argv[2])
+    if host != "" and hosts_file_path != "":
+        print("Please specify host or hosts file")
+        sys.exit(2)
 
-# start requests
-for i in range(len(ips)):
-    setConfiguration(ips[i], sys.argv[2].split())
+    if hosts_file_path != "":
+        conf_file = open(hosts_file_path, "r")
 
-print("\n> Done!")
+        for line in conf_file:
+            if line[0] == "#":
+                continue
+            ips.append(line.strip())
+
+        conf_file.close()
+
+        # start requests
+        for i in range(len(ips)):
+            setConfiguration(ips[i], scheduler.split())
+
+    if host != "":
+        setConfiguration(ips[i], scheduler.split())
+
+    print("\n> Done!")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
