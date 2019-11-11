@@ -47,7 +47,7 @@ def plot(x_arr, y_arr, x_label, y_label, filename):
     plt.close(fig)
 
 
-WORKING_DIR = "/Users/gabrielepmattia/Coding/p2p-faas/experiments-data/BladeServers/PigoFaceDetectF/LL-PS(1,K)/20000reqs-4"
+WORKING_DIR = "/Users/gabrielepmattia/Coding/p2p-faas/experiments-data/BladeServers/PigoFaceDetectF/LL-PS(1,K)/20000reqs-8"
 N_MACHINES = 8
 MAX_T = 11
 MIN_T = 0
