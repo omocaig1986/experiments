@@ -43,7 +43,7 @@ def threaded_fun(host, i):
     for cmd in commands:
         consumer_sem.acquire()
         j += 1
-        command = "ssh -o ConnectTimeout=5 {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
+        command = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
         print("[%2d/%2d] Executing %s" % (i, len(hosts), command))
         (status, output) = subprocess.getstatusoutput(command)
 
