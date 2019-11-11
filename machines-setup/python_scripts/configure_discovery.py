@@ -1,6 +1,7 @@
 import requests
 import json
 from common import status_str
+import sys
 
 SERVICE_PORT = 19000
 API_CONFIGURATION_URL = "configuration"
@@ -43,7 +44,12 @@ def setConfiguration(host_id, host_ip, init_servers):
               (print_str, host_ip, host_id, res.status_code))
 
 
-conf_file = open("configure_discovery-rpi.txt", "r")
+conf_file_path = sys.argv[1]
+if conf_file_path == "":
+    print("Configuration path is empty")
+    sys.exit(1)
+
+conf_file = open(conf_file_path, "r")
 
 for line in conf_file:
     if line[0] == "#":
