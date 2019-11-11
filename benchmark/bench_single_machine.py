@@ -44,11 +44,14 @@ RES_API_MONITORING_LOAD_K = "functions_running_max"
 API_MONITORING_LOAD_URL = "monitoring/load"
 API_SCHEDULER_CONFIGURATION_URL = "configuration/scheduler"
 API_CONFIGURATION_URL = "configuration"
+API_HELLO_URL = ""
 
 RES_SCHEDULER_CONFIGURATION_NAME = "name"
 RES_SCHEDULER_CONFIGURATION_PARAMETERS = "parameters"
 
 RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX = "running_functions_max"
+
+RES_HELLO_VERSION = "version"
 
 TIMEOUT = 120
 
@@ -70,8 +73,9 @@ RES_HEADER_PROBE_MESSAGES = "X-PFog-Timing-Probe-Messages"
 
 class FunctionTest():
 
-    def __init__(self, url, payload, l, k, poisson, requests, out_dir, machine_id):
+    def __init__(self, url, payload, l, k, poisson, requests, out_dir, machine_id, verbose):
         self.debug_print = False
+        self.verbose = verbose
         self.url = url
         self.payload = payload
         self.l = l
@@ -123,7 +127,7 @@ class FunctionTest():
             self.payload_mime = mimetypes.guess_type(self.payload)[0]
             print("[INIT] Loaded payload of mime " + self.payload_mime)
 
-    def executeTest(self):
+    def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
 
         print("[TEST] Starting with l = %.2f, k = %d, Poisson = %s" % (self.l, self.k, self.poisson))
@@ -183,8 +187,9 @@ class FunctionTest():
             for i in range(self.total_requests):
                 wait_for = random.expovariate(self.l)
 
-                print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" %
-                      (req_n + 1, self.total_requests, elapsed, wait_for), end='')
+                if self.verbose:
+                    print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" %
+                          (req_n + 1, self.total_requests, elapsed, wait_for), end='')
                 thread = Thread(target=get_request, args=(i,))
                 self.threads.append(thread)
 
@@ -202,9 +207,9 @@ class FunctionTest():
         else:
             burst_requests()
 
-        self.computeStats()
+        self.compute_stats()
 
-    def computeStats(self):
+    def compute_stats(self):
         timings_request_sum = 0.0
         timings_queue_sum = 0.0
         timings_execution_sum = 0.0
@@ -250,9 +255,7 @@ class FunctionTest():
         print("[TEST] %.6f%% jobs externally executed, forward and probing times are %.6fs %.6fs\n" %
               (self.pe, self.mean_forwarding_time, self.mean_probing_time))
 
-        # self.plotTimings()
-
-    def plotTimings(self):
+    def plot_timings(self):
         plt.clf()
         plt.plot(self.timings)
         plt.ylabel('Response time')
@@ -260,7 +263,7 @@ class FunctionTest():
         # plt.show()
         plt.savefig(self.out_dir + "/" + self.test_name + "_job_timings")
 
-    def saveRequestTimings(self):
+    def save_request_timings(self):
         if self.out_dir == "":
             return
         file_path = "{}/req-times-l{}-machine{:02}.txt".format(self.out_dir,
@@ -334,19 +337,23 @@ class FunctionTest():
 def getSystemParameters(host):
     config_url = "http://{0}/{1}".format(host, API_CONFIGURATION_URL)
     config_s_url = "http://{0}/{1}".format(host, API_SCHEDULER_CONFIGURATION_URL)
+    config_h_url = "http://{0}/{1}".format(host, API_HELLO_URL)
     res = requests.get(config_url)
     res_s = requests.get(config_s_url)
+    res_h = requests.get(config_h_url)
     body = res.json()
     body_s = res_s.json()
+    body_h = res_h.json()
     return {
         RES_SCHEDULER_CONFIGURATION_NAME: body_s[RES_SCHEDULER_CONFIGURATION_NAME],
         RES_SCHEDULER_CONFIGURATION_PARAMETERS: body_s[RES_SCHEDULER_CONFIGURATION_PARAMETERS],
-        RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX: body[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX]
+        RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX: body[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX],
+        RES_HELLO_VERSION: body_h[RES_HELLO_VERSION]
     }
 
 
 def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir,
-                machine_id):
+                machine_id, save_req_times, verbose):
     url = "http://{0}/{1}".format(host, function_url)
 
     pbs = []
@@ -362,8 +369,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     l = start_lambda
     # test all ros
     while True:
-        test = FunctionTest(url, payload, l, k, poisson, requests, out_dir, machine_id)
-        test.executeTest()
+        test = FunctionTest(url, payload, l, k, poisson, requests, out_dir, machine_id, verbose)
+        test.execute_test()
         pbs.append(test.getPb())
         pes.append(test.getPe())
         timings_request.append(test.getTimings()[TIMINGS_REQUEST_TIME])
@@ -375,7 +382,8 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         probe_messages.append(test.getProbeMessagesCount())
         neterror_jobs.append(test.getNetErrorJobs())
 
-        test.saveRequestTimings()
+        if save_req_times:
+            test.save_request_timings()
 
         if start_lambda > end_lambda:
             l = round(l - lambda_delta, 2)
@@ -433,6 +441,8 @@ def main(argv):
     requests_n = 500
     out_dir = ""
     machine_id = 0
+    save_req_times = False
+    verbose = False
 
     usage = "multi_get.py"
     try:
@@ -449,7 +459,9 @@ def main(argv):
                                    "config-url=",
                                    "payload=",
                                    "out-dir=",
-                                   "machine-id="
+                                   "machine-id=",
+                                   "save-req-timings",
+                                   "verbose"
                                    ])
     except getopt.GetoptError:
         print(usage)
@@ -481,6 +493,10 @@ def main(argv):
             out_dir = arg
         elif opt in "--machine-id":
             machine_id = int(arg)
+        elif opt in "--save-req-timings":
+            save_req_times = True
+        elif opt in "--verbose":
+            verbose = True
 
     if out_dir == "":
         time_str = strftime("%m%d%Y-%H%M%S", localtime())
@@ -497,6 +513,7 @@ def main(argv):
     print("> use poisson %s" % ("yes" if poisson else "no"))
     print("> out_dir %s" % out_dir)
     print("> machine_id %d" % machine_id)
+    print("> save_req_times %s" % ("yes" if save_req_times else "no"))
 
     if start_lambda < 0 or end_lambda < 0 or lambda_delta < 0 or function_url == "" or host == "":
         print("Some needed parameter was not given")
@@ -508,6 +525,7 @@ def main(argv):
     print("-" * 10 + " system info " + "-" * 10)
     print("> scheduler name %s:%s" % (
         params[RES_SCHEDULER_CONFIGURATION_NAME], params[RES_SCHEDULER_CONFIGURATION_PARAMETERS]))
+    print("> version %s" % params[RES_HELLO_VERSION])
     print("> k %d" % k)
     print("\n")
 
@@ -517,7 +535,7 @@ def main(argv):
         sys.exit()
 
     start_suite(host, function_url, payload, start_lambda, end_lambda,
-                lambda_delta, poisson, k, requests_n, out_dir, machine_id)
+                lambda_delta, poisson, k, requests_n, out_dir, machine_id, save_req_times, verbose)
 
 
 if __name__ == "__main__":
