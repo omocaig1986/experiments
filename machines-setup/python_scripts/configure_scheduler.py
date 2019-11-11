@@ -61,11 +61,11 @@ def main(argv):
         if opt == '-h':
             print(usage)
             sys.exit()
-        elif opt in "--hosts-file":
+        elif opt in ["--hosts-file"]:
             hosts_file_path = arg
-        elif opt in "--scheduler":
+        elif opt in ["--scheduler"]:
             scheduler = arg
-        elif opt in "--host":
+        elif opt in ["--host"]:
             host = arg
 
     print("====== P2P-FAAS Machines Setup ======")
