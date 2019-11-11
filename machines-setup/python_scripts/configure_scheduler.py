@@ -92,7 +92,7 @@ def main(argv):
             setConfiguration(ips[i], scheduler.split())
 
     if host != "":
-        setConfiguration(ips[i], scheduler.split())
+        setConfiguration(host, scheduler.split())
 
     print("\n> Done!")
 
