@@ -14,11 +14,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-start_lambda = 1.70
-end_lambda = 1.70
+start_lambda = 2.00
+end_lambda = 3.00
 lambda_delta = 0.1
 requests = 20000
-thresholds = 4
+thresholds = 1
 
 l = start_lambda
 total_time = 0.0
