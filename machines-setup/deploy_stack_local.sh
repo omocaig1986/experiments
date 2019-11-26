@@ -1,6 +1,6 @@
 #!/bin/bash
 # create dirs
-mkdir -p ~/.config/p2pfog
+mkdir -p ~/.config/p2pfaas
 # deploy the stack
 cd ../../
 cd stack-discovery
