@@ -13,6 +13,6 @@ functions:
       com.openfaas.scale.max: 1
     environment:
       input_mode: "image"
-      output_mode: "image"
+      output_mode: "values"
       write_timeout: "100"
       read_timeout: "100"

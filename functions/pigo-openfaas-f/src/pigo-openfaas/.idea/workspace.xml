@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="44bbe5b7-e482-4903-b1c7-2f513b395d20" name="Default Changelist" comment="" />
+    <list default="true" id="44bbe5b7-e482-4903-b1c7-2f513b395d20" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../../benchmark/plot/model_mm1k.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../benchmark/plot/model_mm1k.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../benchmark/plot/plot_single_machine_f-pigo-f.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../benchmark/plot/plot_single_machine_f-pigo-f.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../machines-setup/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../machines-setup/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/configure_scheduler_rr_master.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/configure_scheduler_rr_master.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/configure_scheduler_rr_node.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/configure_scheduler_rr_node.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/hosts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../machines-setup/python_scripts/hosts.txt" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>pigo</find>
-    </findStrings>
-  </component>
-  <component name="GOROOT" path="/usr/local/Cellar/go/1.12.5/libexec" />
+  <component name="GOROOT" path="/usr/local/Cellar/go/1.13.4/libexec" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
   </component>
@@ -81,7 +83,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

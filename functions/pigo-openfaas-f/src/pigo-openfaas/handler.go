@@ -23,17 +23,13 @@
 package function
 
 import (
-	"bytes"
-	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
-	"io"
 	"io/ioutil"
-	"log"
 	"math"
-	"net/url"
 	"os"
 	"time"
 
@@ -62,14 +58,12 @@ type DetectionResult struct {
 // Handle a serverless request
 func Handle(req []byte) string {
 	var (
-		// resp  DetectionResult
+		// resp     DetectionResult
 		rects []image.Rectangle
-		data  []byte
-		image []byte
+		// data     []byte
+		imageOut []byte
 	)
-
 	/*
-
 		if val, exists := os.LookupEnv("input_mode"); exists && val == "url" {
 			inputURL := strings.TrimSpace(string(req))
 
@@ -95,66 +89,62 @@ func Handle(req []byte) string {
 				return fmt.Sprintf("Only jpeg or png images, either raw uncompressed bytes or base64 encoded are acceptable inputs, you uploaded: %s", contentType)
 			}
 		}
+		tmpfile, err := ioutil.TempFile("/tmp", "image")
+		if err != nil {
+			log.Fatalf("Unable to create temporary file: %v", err)
+		}
+		defer os.Remove(tmpfile.Name())
+
+		_, err = io.Copy(tmpfile, bytes.NewBuffer(data))
+		if err != nil {
+			return fmt.Sprintf("Unable to copy the source URI to the destionation file")
+		}
+
+		var output string
+		query, err := url.ParseQuery(os.Getenv("Http_Query"))
+		if err == nil {
+			output = query.Get("output")
+		}
+
 	*/
-
-	tmpfile, err := ioutil.TempFile("/tmp", "image")
-	if err != nil {
-		log.Fatalf("Unable to create temporary file: %v", err)
-	}
-	defer os.Remove(tmpfile.Name())
-
-	data, err = ioutil.ReadFile("./samples/monarchy.jpg")
-
-	_, err = io.Copy(tmpfile, bytes.NewBuffer(data))
-	if err != nil {
-		return fmt.Sprintf("Unable to copy the source URI to the destionation file")
-	}
-
 	var output string
-	query, err := url.ParseQuery(os.Getenv("Http_Query"))
-	if err == nil {
-		output = query.Get("output")
-	}
-
 	if val, exists := os.LookupEnv("output_mode"); exists {
 		output = val
 	}
 
 	fd := NewFaceDetector("./data/facefinder", 20, 2000, 0.1, 1.1, 0.18)
-	faces, err := fd.DetectFaces(tmpfile.Name())
+	faces, err := fd.DetectFaces("./samples/monarchy.jpg")
 
 	if err != nil {
 		return fmt.Sprintf("Error on face detection: %v", err)
 	}
 
-	if output == "image" || output == "json_image" {
-		var err error
-		rects, image, err = fd.DrawFaces(faces, false)
-		if err != nil {
-			return fmt.Sprintf("Error creating image output: %s", err)
-		}
-
-		_ = DetectionResult{
-			Faces:       rects,
-			ImageBase64: base64.StdEncoding.EncodeToString(image),
-		}
+	// draw rects
+	rects, imageOut, err = fd.DrawFaces(faces, false)
+	if err != nil {
+		return fmt.Sprintf("Error creating image output: %s", err)
 	}
 
-	return "OK"
-
 	/*
-		if output == "image" {
-			return string(image)
+		if output == "image" || output == "json_image" {
+			resp = DetectionResult{
+				Faces:       rects,
+				ImageBase64: base64.StdEncoding.EncodeToString(imageOut),
+			}
 		}
-
-		j, err := json.Marshal(resp)
-		if err != nil {
-			return fmt.Sprintf("Error encoding output: %s", err)
-		}
-
-		// Return face rectangle coordinates
-		return string(j)
 	*/
+
+	if output == "image" {
+		return string(imageOut)
+	}
+
+	j, err := json.Marshal(rects)
+	if err != nil {
+		return fmt.Sprintf("Error encoding output: %s", err)
+	}
+
+	// Return face rectangle coordinates
+	return string(j)
 }
 
 // NewFaceDetector initialises the constructor function.
@@ -200,10 +190,10 @@ func (fd *FaceDetector) DetectFaces(source string) ([]pigo.Detection, error) {
 		return nil, err
 	}
 
-	pigoLib := pigo.NewPigo()
+	pigo := pigo.NewPigo()
 	// Unpack the binary file. This will return the number of cascade trees,
 	// the tree depth, the threshold and the prediction from tree's leaf nodes.
-	classifier, err := pigoLib.Unpack(cascadeFile)
+	classifier, err := pigo.Unpack(cascadeFile)
 	if err != nil {
 		return nil, err
 	}
