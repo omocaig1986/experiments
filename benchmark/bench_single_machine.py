@@ -18,23 +18,21 @@
 #  This script benchmarks a single machine by sending requests in parallel.
 # 
 
+import getopt
+import json
+import mimetypes
+import os
+import random
+import sys
+import time
+from threading import Thread
+from time import localtime, strftime
+
+import matplotlib.pyplot as plt
+import requests
+
 from common import CC
 from common import read_binary
-
-import requests
-from threading import Thread
-import time
-import math
-import os
-import matplotlib.pyplot as plt
-import sys
-import getopt
-import uuid
-import numpy as np
-import mimetypes
-import random
-import json
-from time import localtime, strftime
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -159,7 +157,8 @@ class FunctionTest():
                 self.output[arg] = res.status_code
                 # parse headers if request is successful
                 if res.status_code == 200:
-                    self.probe_messages[arg] = int(res.headers.get(RES_HEADER_PROBE_MESSAGES))
+                    if res.headers.get(RES_HEADER_PROBE_MESSAGES) is not None:
+                        self.probe_messages[arg] = int(res.headers.get(RES_HEADER_PROBE_MESSAGES))
                     self.parseTimingsFromHeaders(res.headers, arg)
                 else:
                     self.output[arg] = res.status_code
@@ -319,9 +318,16 @@ class FunctionTest():
                 print(str(res.content))
 
     def parseTimingsFromHeaders(self, headers, i):
-        queue_time = float(headers.get(RES_HEADER_TIMING_QUEUE))
-        execution_time = float(headers.get(RES_HEADER_TIMING_EXECUTION))
-        faas_execution_time = float(headers.get(RES_HEADER_TIMING_FAAS_EXECUTION))
+        queue_time = 0.0
+        execution_time = 0.0
+        faas_execution_time = 0.0
+
+        if headers.get(RES_HEADER_TIMING_QUEUE) is not None:
+            queue_time = float(headers.get(RES_HEADER_TIMING_QUEUE))
+        if headers.get(RES_HEADER_TIMING_EXECUTION) is not None:
+            execution_time = float(headers.get(RES_HEADER_TIMING_EXECUTION))
+        if headers.get(RES_HEADER_TIMING_FAAS_EXECUTION) is not None:
+            faas_execution_time = float(headers.get(RES_HEADER_TIMING_FAAS_EXECUTION))
 
         if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) != None:
             probing_times = json.loads(headers.get(RES_HEADER_TIMING_PROBING_LIST))
