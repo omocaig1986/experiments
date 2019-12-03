@@ -18,22 +18,20 @@
 # Benchmark N machines by using the single machine script
 #
 
+import getopt
+import mimetypes
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+from threading import Thread
+from time import localtime, strftime
+
+import requests
+
 from common import CC
 from common import read_binary
-
-import subprocess
-from threading import Thread
-import re
-import sys
-import uuid
-import getopt
-import os
-from pathlib import Path
-from time import localtime, strftime
-import requests
-import time
-import json
-import mimetypes
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -56,15 +54,15 @@ API_DISCOVERY_PORT = 19000
 API_DISCOVERY_LIST_URL = "list"
 
 
-def getTxtOutput(num_thread, l, dir_path):
+def get_txt_out_full_path(num_thread, l, dir_path):
     return "{0}/lambda{1}-machine-{2:02}.txt".format(dir_path, str(round(l, 2)).replace(".", "_"), num_thread)
 
 
-def getResTxtOutput(num_thread, dir_path):
+def get_res_txt_out_full_path(num_thread, dir_path):
     return "{0}/results-machine-{1:02}.txt".format(dir_path, num_thread)
 
 
-def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_path):
+def do_benchmark(l, hosts, function_url, port, payload, requests, poisson, dir_path):
     print("[START] Starting test suite with l = %.2f" % l)
     processes = []
     threads = []
@@ -89,11 +87,11 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
         out, err = process.communicate()
         print("[TEST] Terminated thread#%d" % i)
 
-        out_f = open(getTxtOutput(i, l, dir_path), "w")
+        out_f = open(get_txt_out_full_path(i, l, dir_path), "w")
         out_f.write(str(out))
         out_f.close()
 
-        out_f = open(getTxtOutput(i, l, dir_path), "r")
+        out_f = open(get_txt_out_full_path(i, l, dir_path), "r")
         last_line = out_f.readlines()[-1]
         out_f.close()
 
@@ -104,7 +102,7 @@ def doBenchmark(l, hosts, function_url, port, payload, requests, poisson, dir_pa
 
     i = 0
     for host in hosts:
-        processes.append(subprocess.Popen(build_cmdline(host, i), stdout=subprocess.PIPE, text=True, shell=True))
+        processes.append(subprocess.Popen(build_cmdline(host, i), stdout=subprocess.PIPE, shell=True, text=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
         i += 1
 
@@ -127,7 +125,7 @@ def startSuite(hosts, function_url, port, payload, requests_n, poisson, start_la
     results = ["" for i in range(len(hosts))]
 
     while True:
-        lines = doBenchmark(l, hosts, function_url, port, payload, requests_n, poisson, out_dir)
+        lines = do_benchmark(l, hosts, function_url, port, payload, requests_n, poisson, out_dir)
         i = 0
         for line in lines:
             results[i] += line
@@ -144,7 +142,7 @@ def startSuite(hosts, function_url, port, payload, requests_n, poisson, start_la
     # save results
     i = 0
     for result in results:
-        out_f = open(getResTxtOutput(i, out_dir), "w")
+        out_f = open(get_res_txt_out_full_path(i, out_dir), "w")
         out_f.write(result)
         out_f.close()
         i += 1

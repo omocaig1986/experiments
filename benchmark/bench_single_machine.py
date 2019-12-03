@@ -60,7 +60,8 @@ TIMINGS_EXECUTION_TIME = "execution_time"
 TIMINGS_FAAS_EXECUTION_TIME = "faas_execution_time"
 TIMINGS_PROBING_TIME = "probing_time"
 
-RES_HEADER_EXTERNALLY_EXECUTED = "X-PFog-Externally-Executed"
+RES_HEADER_EXTERNALLY_EXECUTED = "X-P2pfaas-Externally-Executed"
+RES_HEADER_HOPS = "X-P2pfaas-Hops"
 RES_HEADER_TIMING_PROBING_LIST = "X-PFog-Timing-Probing-Seconds-List"
 RES_HEADER_TIMING_FORWARDING_LIST = "X-PFog-Timing-Forwarding-Seconds-List"
 RES_HEADER_TIMING_QUEUE = "X-Pfog-Timing-Queue-Seconds"
@@ -160,8 +161,6 @@ class FunctionTest():
                     if res.headers.get(RES_HEADER_PROBE_MESSAGES) is not None:
                         self.probe_messages[arg] = int(res.headers.get(RES_HEADER_PROBE_MESSAGES))
                     self.parseTimingsFromHeaders(res.headers, arg)
-                else:
-                    self.output[arg] = res.status_code
             else:
                 self.output[arg] = 999
 
