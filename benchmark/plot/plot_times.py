@@ -171,6 +171,9 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
         elif algorithm == "LL-PS(F,T)":
             chart_title = "{} - LL({}, K-{}) - (K={},μ={:.4f}) - Average of {}".format(function,
                                                                                        f, t, k, mi, files_number)
+        elif algorithm == "RR(K)":
+            chart_title = "{0} - RR(K) - (K={1},μ={2:.4f}) - Average of {3}".format(function, k, mi, files_number)
+
         d = mean_dict(dicts)
         plotFeatures(d, chart_title)
 
@@ -184,6 +187,8 @@ def start_plot(files_path, files_prefix, files_number, out_dir, k, f, t, mi, fun
             chart_title = "{0} - NS({1}) - (μ={2:.4f}) - Machine{3}".format(function, k, mi, i)
         elif algorithm == "LL-PS(F,T)":
             chart_title = "{0} - LL({1}, K-{2}) - (K={3},μ={4:.4f}) - Machine{5}".format(function, f, t, k, mi, i)
+        elif algorithm == "RR(K)":
+            chart_title = "{0} - RR(K) - (K={1},μ={2:.4f}) - Machine{3}".format(function, k, mi, i)
 
         filename = "{}-machine{:02}-k{}.pdf".format(feature, i, k)
         print("[MACHINE#%02d] Plotting %s to \"%s-machine%02d-k%d\"" % (i, feature, feature, i, k))
@@ -396,7 +401,7 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    if not (algorithm == "NS(K)" or algorithm == "LL-PS(F,T)"):
+    if not (algorithm == "NS(K)" or algorithm == "LL-PS(F,T)" or algorithm == "RR(K)"):
         print("Given algorithm is not supported")
         print(usage)
         sys.exit()
