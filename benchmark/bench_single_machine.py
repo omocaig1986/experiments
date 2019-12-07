@@ -346,7 +346,7 @@ class FunctionTest():
                 else float(headers.get(RES_HEADER_ARRIVED_TIME))
             scheduled_time = 0.0 if headers.get(RES_HEADER_SCHEDULED_TIME) is None \
                 else float(headers.get(RES_HEADER_SCHEDULED_TIME))
-            scheduling_time = scheduled_time - arrived_time
+            scheduling_time = arrived_time - scheduled_time
             self.timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
 
         self.timings[TIMING_EXECUTION_TIME][i] = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None \
