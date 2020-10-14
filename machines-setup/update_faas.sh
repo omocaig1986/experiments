@@ -11,10 +11,13 @@ git pull
 docker stack rm func
 sleep 5
 
+# re-deploy faas
+./deploy_stack.sh
+
+# install faas-cli
 echo "==> Downloading faas-cli"
 rm -rfv ~/bin/faas-cli
 
-# install faas-cli
 mkdir ~/bin
 if [ $(uname -m | cut -b 1-3) == "arm" ]
 then
@@ -23,5 +26,8 @@ then
 else
     wget https://github.com/openfaas/faas-cli/releases/download/0.12.14/faas-cli -O ~/bin/faas-cli
 fi
+
+# make runnable
+chmod +x ~/bin/faas-cli
 
 echo "==> Done"
