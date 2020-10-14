@@ -13,7 +13,7 @@ host_username = sys.argv[1]
 hosts_file_path = sys.argv[2]
 deploy_token = sys.argv[3]
 
-THREAD_POOL_N = 16
+THREAD_POOL_N = 4
 SSH_USERNAME = host_username
 
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
