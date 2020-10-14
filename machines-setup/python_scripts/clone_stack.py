@@ -5,7 +5,7 @@ import threading
 import time
 import sys
 
-if(len(sys.argv) != 2):
+if(len(sys.argv) != 3):
     print("usage: clone_stack.py host-username hosts.txt deploy_token_user:pass")
     exit(1)
 
