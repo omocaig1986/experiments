@@ -2,11 +2,24 @@
 # Update the openfaas distribution
 cd ../../../
 cd faas
+
 # update
 git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
+
 # undeploy
 docker stack rm func
 sleep 5
-# re-reploy
-./deploy_stack.sh
+
+echo "==> Downloading faas-cli"
+# install faas-cli
+mkdir ~/bin
+if [ $(uname -m | cut -b 1-3) == "arm" ]
+then
+    echo "==> ARM architecture detected"
+    wget https://github.com/openfaas/faas-cli/releases/download/0.12.14/faas-cli-armhf -O ~/bin/faas-cli
+else
+    wget https://github.com/openfaas/faas-cli/releases/download/0.12.14/faas-cli -O ~/bin/faas-cli
+fi
+
+echo "==> Done"
