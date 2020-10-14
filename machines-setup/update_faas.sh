@@ -12,6 +12,8 @@ docker stack rm func
 sleep 5
 
 echo "==> Downloading faas-cli"
+rm -rfv ~/bin/faas-cli
+
 # install faas-cli
 mkdir ~/bin
 if [ $(uname -m | cut -b 1-3) == "arm" ]
