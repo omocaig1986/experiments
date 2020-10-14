@@ -22,11 +22,12 @@ DEPLOY_TOKEN = deploy_token
 
 hosts = []
 commands = [
+    "rm -rfv ~/code/p2p-faas",
     "mkdir -p ~/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/experiments.git ~/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack.git ~/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-scheduler.git ~/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-discovery.git ~/code/p2p-faas"
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/experiments.git ~/code/p2p-faas/experiments",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack.git ~/code/p2p-faas/stack",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-scheduler.git ~/code/p2p-faas/stack-scheduler",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-discovery.git ~/code/p2p-faas/stack-discovery"
 ]
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
