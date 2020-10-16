@@ -1,6 +1,8 @@
 #!/bin/bash
 # create dirs
-mkdir -p ~/.config/p2pfaas
+mkdir -p ~/.config/p2pfaas/discovery
+mkdir -p ~/.config/p2pfaas/scheduler
+
 # deploy the stack
 cd ../../
 cd stack-discovery
