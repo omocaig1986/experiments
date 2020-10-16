@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+FAAS_CLI=~/bin/faas-cli
+
 # deploy pigo fake function
 cd ../functions/pigo-openfaas-f-double
-faas-cli login -u admin --password admin
-faas-cli build
-faas-cli deploy
-docker system prune -f --volumes
+$FAAS_CLI login -u admin --password admin
+$FAAS_CLI build
+$FAAS_CLI deploy

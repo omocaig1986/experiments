@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+FAAS_CLI=~/bin/faas-cli
+
 cd ../functions/pigo-openfaas
-faas-cli login -u admin --password admin
-faas-cli remove pigo-face-detector
-docker system prune -f --volumes
+$FAAS_CLI login -u admin --password admin
+$FAAS_CLI remove pigo-face-detector

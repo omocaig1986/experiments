@@ -23,6 +23,3 @@ then
 else 
     docker stack deploy -c docker-compose-local.yml p2p-faas
 fi
-
-# remove unused images and containers
-docker system prune -f --volumes

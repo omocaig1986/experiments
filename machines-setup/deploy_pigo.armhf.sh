@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+FAAS_CLI=~/bin/faas-cli
+
 cd ../functions/pigo-openfaas-arm
-faas-cli login -u admin --password admin
-faas-cli build
-faas-cli deploy
-docker system prune -f --volumes
+$FAAS_CLI login -u admin --password admin
+$FAAS_CLI build
+$FAAS_CLI deploy

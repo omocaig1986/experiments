@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Update the openfaas distribution
 cd ../../../
 cd faas
