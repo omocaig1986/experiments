@@ -50,19 +50,17 @@ def threaded_fun(host, i):
     for cmd in commands:
         consumer_sem.acquire()
         j += 1
-        command = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 {0}@{1} {2}".format(
-            SSH_USERNAME, host, cmd)
-        print("[%2d/%2d] Executing %s" % (i, len(hosts), command))
+        command = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
+        print("[%2d/%2d][CMD#%d] Executing %s" % (i, len(hosts), j ,command))
         (status, output) = subprocess.getstatusoutput(command)
 
         # print the output to file
-        file_path = "{0}/machine-{1:02}-command-{2}-res-{3}.txt".format(
-            dir_path, i, j, status)
+        file_path = "{0}/machine-{1:02}-command-{2}-res-{3}.txt".format(dir_path, i, j, status)
         outfile = open(file_path, "w")
         outfile.write(output)
         outfile.close()
 
-        print("[%2d/%2d] Command #%d Done! [%s]" % (i, len(hosts), j, status))
+        print("[%2d/%2d][CMD#%d] Done! [%s]" % (i, len(hosts), j, status))
         consumer_sem.release()
 
         time.sleep(5)
