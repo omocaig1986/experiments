@@ -1,2 +1,2 @@
 #!/bin/bash
-docker stack rm p2p-fog
+docker stack rm p2p-faas

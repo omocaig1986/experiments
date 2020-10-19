@@ -11,6 +11,13 @@ git pull
 docker stack rm func
 sleep 5
 
+# create simple secrets
+docker secret rm basic-auth-password
+docker secret rm basic-auth-user
+
+echo "admin" | docker secret create basic-auth-password -
+echo "admin" | docker secret create basic-auth-user -
+
 # re-deploy faas
 ./deploy_stack.sh
 
