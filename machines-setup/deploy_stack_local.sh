@@ -1,4 +1,7 @@
 #!/bin/bash
+# remove the stack if already present
+docker stack rm p2p-faas
+
 # create dirs
 mkdir -p ~/.config/p2pfaas/discovery
 mkdir -p ~/.config/p2pfaas/scheduler
