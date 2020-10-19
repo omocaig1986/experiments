@@ -4,7 +4,7 @@ provider:
 
 functions:
   pigo-face-detector:
-    lang: go-armhf
+    lang: go
     handler: ./src/pigo-openfaas
     image: esimov/pigo-openfaas-arm:0.1
     labels:
