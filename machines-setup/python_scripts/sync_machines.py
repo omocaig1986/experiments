@@ -35,12 +35,13 @@ commands = [
 """
 
 commands = [
-    # "docker system prune -f --volumes",
+   # "docker system prune -f --volumes",
      "docker swarm leave",
      "docker swarm init",
     "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
     # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
     # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.armhf.sh\"",
     "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
     "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
     "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
