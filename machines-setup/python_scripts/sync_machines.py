@@ -18,6 +18,7 @@ SSH_USERNAME = host_username
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
 hosts = []
+"""
 commands = [
     "docker system prune -f --volumes",
     "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
@@ -31,6 +32,24 @@ commands = [
     "docker system prune -f --volumes",
     "sudo reboot"
 ]
+"""
+
+commands = [
+    # "docker system prune -f --volumes",
+     "docker swarm leave",
+     "docker swarm init",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
+    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.armhf.sh\"",
+    # "docker system prune -f --volumes",
+    # "sudo reboot"
+]
+
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
 dir_path = "./_sync-" + time_str

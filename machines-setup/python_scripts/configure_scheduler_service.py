@@ -15,8 +15,8 @@ def preparePayload(k):
     return json.dumps(payload)
 
 
-def setConfiguration(host_ip, scheduler_line):
-    k = int(scheduler_line[0])
+def setConfiguration(host_ip, max_functions):
+    k = int(max_functions)
     # prepare request
     url = "http://{0}:{1}/{2}".format(host_ip, SERVICE_PORT, API_CONFIGURATION_URL)
     headers = {'Content-Type': "application/json"}
@@ -37,7 +37,14 @@ def setConfiguration(host_ip, scheduler_line):
         print("\r[%s] %s set with k=%d [%s]" % (print_str, host_ip, k, res.status_code))
 
 
-conf_file = open("hosts.txt", "r")
+if len(sys.argv) != 3:
+    print("usage: configure_scheduler_service hosts-file.txt 10")
+    sys.exit(1)
+
+hosts_file = sys.argv[1]
+max_functions = sys.argv[2]
+
+conf_file = open(hosts_file, "r")
 
 for line in conf_file:
     if line[0] == "#":
@@ -46,14 +53,11 @@ for line in conf_file:
 
 conf_file.close()
 
-if sys.argv[1] != "--scheduler":
-    sys.exit(1)
-
 print("> got %d hosts\n" % len(ips))
-print("> got scheduler \"%s\"" % sys.argv[2])
+print("> got max_functions \"%s\"" % max_functions)
 
 # start requests
 for i in range(len(ips)):
-    setConfiguration(ips[i], sys.argv[2].split())
+    setConfiguration(ips[i], max_functions)
 
 print("\n> Done!")
