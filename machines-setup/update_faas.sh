@@ -9,7 +9,7 @@ git pull
 
 # undeploy
 docker stack rm func
-sleep 5
+sleep 30
 
 # create simple secrets
 docker secret rm basic-auth-password
