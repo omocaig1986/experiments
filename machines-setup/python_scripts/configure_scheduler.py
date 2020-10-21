@@ -21,15 +21,13 @@ def setConfiguration(host_ip, scheduler_line):
     scheduler_name = scheduler_line[0]
     scheduler_parameters = scheduler_line[1:]
     # prepare request
-    url = "http://{0}:{1}/{2}".format(host_ip,
-                                      SERVICE_PORT, API_CONFIGURATION_URL)
+    url = "http://{0}:{1}/{2}".format(host_ip, SERVICE_PORT, API_CONFIGURATION_URL)
     headers = {'Content-Type': "application/json"}
     ok = True
 
     print("\r[%s] %s configuring..." % (status_str.CHECK_STR, host_ip), end="")
     try:
-        res = requests.post(url, data=preparePayload(scheduler_name, scheduler_parameters
-                                                     ), headers=headers, timeout=5)
+        res = requests.post(url, data=preparePayload(scheduler_name, scheduler_parameters), headers=headers, timeout=5)
     except (requests.Timeout, requests.ConnectionError):
         print("\r[%s] %s is not responding" % (status_str.DEAD_STR, host_ip))
         ok = False
