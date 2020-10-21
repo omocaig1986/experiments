@@ -9,7 +9,8 @@ git pull
 
 # undeploy
 docker stack rm func
-sleep 30
+# wait stack to be deleted completely
+until [[ -z $(docker stack ps func -q) ]]; do sleep 1; done
 
 # create simple secrets
 docker secret rm basic-auth-password
