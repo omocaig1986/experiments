@@ -69,8 +69,8 @@ TIMING_FORWARDING_TIME = "forwarding_time"  # total time for the job to be forwa
 RES_HEADER_EXTERNALLY_EXECUTED = "X-P2pfaas-Externally-Executed"
 RES_HEADER_HOPS = "X-P2pfaas-Hops"
 
-RES_HEADER_EXECUTION_TIME = "X-P2PfaaS-Timing-Execution-Time-Seconds"
-RES_HEADER_TOTAL_TIME = "X-P2PfaaS-Timing-Total-Time-Seconds"
+RES_HEADER_EXECUTION_TIME = "X-P2pfaas-Timing-Execution-Time-Seconds"
+RES_HEADER_TOTAL_TIME = "X-P2pfaas-Timing-Total-Time-Seconds"
 RES_HEADER_SCHEDULING_TIME = "X-P2pfaas-Timing-Scheduling-Time-Seconds"
 RES_HEADER_PROBING_TIME = "X-P2pfaas-Timing-Probing-Time-Seconds"
 
