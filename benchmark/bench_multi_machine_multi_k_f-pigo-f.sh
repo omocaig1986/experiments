@@ -11,6 +11,6 @@ for ((i = $1; i <= $2; i++)); do
   "$CURRENT_PATH"/../machines-setup/python_scripts/configure_scheduler.sh $i
   sleep 30
   echo "=> Starting test with T=$i"
-  "$CURRENT_PATH"/bench_multi_machine_f-pigo-f.sh
+  "$CURRENT_PATH"/bench_multi_machine_f-pigo.sh
   sleep 300
 done

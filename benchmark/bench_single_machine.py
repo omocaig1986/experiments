@@ -144,7 +144,8 @@ class FunctionTest:
     @staticmethod
     def get_features():
         return [FEATURE_LAMBDA, FEATURE_PB, FEATURE_PE, TIMING_TOTAL_TIME, TIMING_TOTAL_SRV_TIME,
-                TIMING_SCHEDULING_TIME, TIMING_EXECUTION_TIME, TIMING_PROBING_TIME, TIMING_FORWARDING_TIME]
+                TIMING_SCHEDULING_TIME, TIMING_EXECUTION_TIME, TIMING_PROBING_TIME, TIMING_FORWARDING_TIME,
+                FEATURE_NET_ERRORS]
 
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
