@@ -15,7 +15,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #
-#  This script benchmarks a single machine by sending requests in parallel.
+# This script benchmarks a single machine by sending requests in parallel.
 # 
 
 import getopt
@@ -53,28 +53,35 @@ RES_HELLO_VERSION = "version"
 
 TIMEOUT = 120
 
-# Timings
-TIMING_REQUEST_TIME = "request_time"  # total time for executing a job (total request time or delay)
+# features
+FEATURE_LAMBDA = "lambda"
+FEATURE_PB = "pb"
+FEATURE_PE = "pe"
+FEATURE_NET_ERRORS = "net_errors"
+TIMING_TOTAL_TIME = "total_time"  # total time for the request to be completed from client
+TIMING_TOTAL_SRV_TIME = "total_srv_time"  # total time for the request to be completed when arrived to server
 TIMING_SCHEDULING_TIME = "scheduling_time"  # time between a job arrives and it is decided where it should be executed
-TIMING_SCHEDULING_EXTERNAL_TIME = "scheduling_external_time"  # time between a job arrives and it is decided to be externally executed
 TIMING_EXECUTION_TIME = "execution_time"  # pure time for executing a job
-TIMING_FORWARDING_TIME = "forwarding_time"  # time for forwarding and receveing the result of a job
+TIMING_PROBING_TIME = "probing_time"  # total time for the request to be completed
+TIMING_FORWARDING_TIME = "forwarding_time"  # total time for the job to be forwarded
 
-# Headers
+# headers
 RES_HEADER_EXTERNALLY_EXECUTED = "X-P2pfaas-Externally-Executed"
 RES_HEADER_HOPS = "X-P2pfaas-Hops"
 
-RES_HEADER_ARRIVED_TIME = "X-P2pfaas-Timing-Arrived-Time-Seconds"
-RES_HEADER_EXECUTION_TIME = "X-P2pfaas-Timing-Execution-Time-Seconds"
-RES_HEADER_SCHEDULED_TIME = "X-P2pfaas-Timing-Scheduled-Time-Seconds"
+RES_HEADER_EXECUTION_TIME = "X-P2PfaaS-Timing-Execution-Time-Seconds"
+RES_HEADER_TOTAL_TIME = "X-P2PfaaS-Timing-Total-Time-Seconds"
+RES_HEADER_SCHEDULING_TIME = "X-P2pfaas-Timing-Scheduling-Time-Seconds"
+RES_HEADER_PROBING_TIME = "X-P2pfaas-Timing-Probing-Time-Seconds"
 
-RES_HEADER_ARRIVED_TIME_LIST = "X-P2pfaas-Timing-Arrived-Seconds-List"
-RES_HEADER_SCHEDULED_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
+RES_HEADER_SCHEDULING_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
+RES_HEADER_TOTAL_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
+RES_HEADER_PROBING_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
 
 
-class FunctionTest():
+class FunctionTest:
 
-    def __init__(self, url, payload, l, k, poisson, requests, out_dir, machine_id, verbose):
+    def __init__(self, url, payload, l, k, poisson, n_requests, out_dir, machine_id, verbose):
         self.debug_print = False
         self.verbose = verbose
         self.url = url
@@ -89,7 +96,7 @@ class FunctionTest():
         self.payload_mime = None
 
         # prepare suite parameters
-        self.total_requests = requests  # to be updated after test
+        self.total_requests = n_requests  # to be updated after test
         self.wait_time = 1 / self.l
 
         self.threads = []
@@ -97,26 +104,33 @@ class FunctionTest():
         self.rejected_jobs = 0  # jobs with response code == 500
         self.external_jobs = 0
         self.neterr_jobs = 0  # jobs that had a network error
+        self.probed_jobs = 0  # jobs for which probing has been done
+
+        # final metrics
+        self.mean_total_time = 0.0
+        self.mean_total_srv_time = 0.0
+        self.mean_scheduling_time = 0.0
+        self.mean_execution_time = 0.0
+        self.mean_probing_time = 0.0
+        self.mean_forwarding_time = 0.0
         self.pa = 0.0
         self.pb = 0.0
         self.pe = 0.0
-        self.mean_request_time = 0.0
-        self.mean_scheduling_time = 0.0
-        self.mean_execution_time = 0.0
-        self.mean_scheduling_external_time = 0.0
-        self.mean_forwarding_time = 0.0
+
         self.total_probe_messages = 0
+
         # per-thread variables
-        self.timings = {
-            TIMING_REQUEST_TIME: [0.0] * self.total_requests,
-            TIMING_SCHEDULING_TIME: [0.0] * self.total_requests,
-            TIMING_SCHEDULING_EXTERNAL_TIME: [0.0] * self.total_requests,
+        self._timings = {
+            TIMING_TOTAL_TIME: [0.0] * self.total_requests,
+            TIMING_TOTAL_SRV_TIME: [0.0] * self.total_requests,
             TIMING_EXECUTION_TIME: [0.0] * self.total_requests,
-            TIMING_FORWARDING_TIME: [0.0] * self.total_requests
+            TIMING_PROBING_TIME: [0.0] * self.total_requests,
+            TIMING_SCHEDULING_TIME: [0.0] * self.total_requests,
         }
-        self.output = [None] * self.total_requests
-        self.external = [None] * self.total_requests
-        self.probe_messages = [0] * self.total_requests
+        self._req_output = [None] * self.total_requests
+        self._req_external = [None] * self.total_requests
+        self._req_did_probing = [None] * self.total_requests
+        self._req_probe_messages = [0] * self.total_requests
 
         print("[INIT] Starting test")
 
@@ -126,12 +140,17 @@ class FunctionTest():
             self.payload_mime = mimetypes.guess_type(self.payload)[0]
             print("[INIT] Loaded payload of mime " + self.payload_mime)
 
+    @staticmethod
+    def get_features():
+        return [FEATURE_LAMBDA, FEATURE_PB, FEATURE_PE, TIMING_TOTAL_TIME, TIMING_TOTAL_SRV_TIME,
+                TIMING_SCHEDULING_TIME, TIMING_EXECUTION_TIME, TIMING_PROBING_TIME, TIMING_FORWARDING_TIME]
+
     def execute_test(self):
         """ Execute test by passing ro and mi as average execution time """
 
         print("[TEST] Starting with l = %.2f, k = %d, Poisson = %s" % (self.l, self.k, self.poisson))
 
-        def get_request(arg):
+        def get_request(arg: int):
             start_time = time.time()
             net_error = False
             res = None
@@ -148,19 +167,20 @@ class FunctionTest():
 
             end_time = time.time()
             total_time = end_time - start_time
-            self.printReqResLine(arg, res, net_error, total_time)
+            self.print_req_res_line(arg, res, net_error, total_time)
 
             # update timings
-            self.timings[TIMING_REQUEST_TIME][arg] = total_time
+            self._timings[TIMING_TOTAL_TIME][arg] = total_time
 
             if not net_error:
-                self.external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
-                self.output[arg] = res.status_code
+                self._req_external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
+                self._req_output[arg] = res.status_code
+                self._req_did_probing = res.headers.get(RES_HEADER_PROBING_TIME) is not None
                 # parse headers if request is successful
                 if res.status_code == 200:
                     self.parse_timings_headers(res.headers, arg)
             else:
-                self.output[arg] = 999
+                self._req_output[arg] = 999
 
         def burst_requests():
             if not self.debug_print:
@@ -184,8 +204,8 @@ class FunctionTest():
                 wait_for = random.expovariate(self.l)
 
                 if self.verbose:
-                    print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" %
-                          (req_n + 1, self.total_requests, elapsed, wait_for), end='')
+                    print("\r[TEST] Request %4d/%4d | Elapsed Sec. %4.2f | Next in %.2fs" % (
+                        req_n + 1, self.total_requests, elapsed, wait_for), end='')
                 thread = Thread(target=get_request, args=(i,))
                 self.threads.append(thread)
 
@@ -206,55 +226,59 @@ class FunctionTest():
         self.compute_stats()
 
     def compute_stats(self):
-        timings_request_sum = 0.0
+        timings_total_sum = 0.0
+        timings_total_srv_sum = 0.0
         timings_execution_sum = 0.0
         timings_scheduling_sum = 0.0
-        timings_scheduling_external_sum = 0.0
+        timings_probing_sum = 0.0
         timings_forwarding_sum = 0.0
 
-        for i in range(len(self.output)):
-            self.total_probe_messages += self.probe_messages[i]
-            if self.output[i] == 200:
+        for i in range(len(self._req_output)):
+            self.total_probe_messages += self._req_probe_messages[i]
+            if self._req_output[i] == 200:
                 self.accepted_jobs += 1
-                timings_request_sum += self.timings[TIMING_REQUEST_TIME][i]
-                timings_execution_sum += self.timings[TIMING_EXECUTION_TIME][i]
-                timings_scheduling_sum += self.timings[TIMING_SCHEDULING_TIME][i]
-                timings_scheduling_external_sum += self.timings[TIMING_SCHEDULING_EXTERNAL_TIME][i]
-                timings_forwarding_sum += self.timings[TIMING_FORWARDING_TIME][i]
-            elif self.output[i] == 500:
+                timings_total_sum += self._timings[TIMING_TOTAL_TIME][i]
+                timings_total_srv_sum += self._timings[TIMING_TOTAL_SRV_TIME][i]
+                timings_execution_sum += self._timings[TIMING_EXECUTION_TIME][i]
+                timings_scheduling_sum += self._timings[TIMING_SCHEDULING_TIME][i]
+                timings_probing_sum += self._timings[TIMING_PROBING_TIME][i]
+                timings_forwarding_sum += self._timings[TIMING_FORWARDING_TIME][i]
+
+            elif self._req_output[i] == 500:
                 self.rejected_jobs += 1
             else:
                 self.neterr_jobs += 1
 
-            if self.external[i]:
+            if self._req_external[i]:
                 self.external_jobs += 1
 
         self.pb = self.rejected_jobs / float(self.total_requests)
         self.pa = self.accepted_jobs / float(self.total_requests)
 
         if self.accepted_jobs > 0:
-            internal_jobs = self.accepted_jobs - self.external_jobs
-            self.mean_request_time = timings_request_sum / float(self.accepted_jobs)
+            # internal_jobs = self.accepted_jobs - self.external_jobs
+            self.mean_total_time = timings_total_sum / float(self.accepted_jobs)
+            self.mean_total_srv_time = timings_total_srv_sum / float(self.accepted_jobs)
             self.mean_execution_time = timings_execution_sum / float(self.accepted_jobs)
-            self.mean_scheduling_time = timings_scheduling_sum / float(
-                self.accepted_jobs - self.external_jobs
-            ) if internal_jobs > 0 else 0.0
+            self.mean_scheduling_time = timings_scheduling_sum / float(self.accepted_jobs)
             self.pe = self.external_jobs / float(self.accepted_jobs)
 
         if self.external_jobs > 0:
-            self.mean_scheduling_external_time = timings_scheduling_external_sum / float(self.external_jobs)
             self.mean_forwarding_time = timings_forwarding_sum / float(self.external_jobs)
+
+        if self.probed_jobs > 0:
+            self.mean_probing_time = timings_probing_sum / float(self.probed_jobs)
 
         print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d had network error." %
               (self.total_requests, self.accepted_jobs, self.rejected_jobs, self.neterr_jobs))
-        print("[TEST] pB is %.6f, mean_request_time is %.6f" % (self.pb, self.mean_request_time))
-        print("[TEST] %.6f%% jobs externally executed, forwarding, scheduling and scheduling external times "
-              "are %.6fs %.6fs %.6fs\n" % (self.pe, self.mean_forwarding_time, self.mean_scheduling_time,
-                                           self.mean_scheduling_external_time))
+        print("[TEST] pB is %.6f, mean_request_time is %.6f, mean_probing_time is %.6f" % (
+            self.pb, self.mean_total_time, self.mean_probing_time))
+        print("[TEST] %.6f%% jobs externally executed, forwarding, scheduling and scheduling external times are "
+              "%.6fs %.6fs\n" % (self.pe, self.mean_forwarding_time, self.mean_scheduling_time))
 
     def plot_timings(self):
         plt.clf()
-        plt.plot(self.timings)
+        plt.plot(self._timings)
         plt.ylabel('Response time')
         plt.xlabel('Request number')
         # plt.show()
@@ -266,94 +290,89 @@ class FunctionTest():
         file_path = "{}/req-times-l{}-machine{:02}.txt".format(self.out_dir,
                                                                str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
-        f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}\n".format(self.mean_request_time, self.total_requests,
+        f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}\n".format(self.mean_total_time, self.total_requests,
                                                                             self.accepted_jobs, self.rejected_jobs,
                                                                             self.l, self.k))
-        for i in range(len(self.timings[TIMING_REQUEST_TIME])):
-            if self.output[i] == 200:
-                f.write("{}\n".format(self.timings[TIMING_REQUEST_TIME][i]))
+        for i in range(len(self._timings[TIMING_TOTAL_TIME])):
+            if self._req_output[i] == 200:
+                f.write("{}\n".format(self._timings[TIMING_TOTAL_TIME][i]))
         f.close()
 
     #
     # Getters
     #
 
-    def getPb(self):
+    def get_pb(self):
         return self.pb
 
-    def getPe(self):
+    def get_pe(self):
         return self.pe
 
-    def getProbeMessagesCount(self):
+    def get_probe_messages(self):
         return self.total_probe_messages
 
-    def getTimings(self):
+    def get_timings(self):
         return {
-            TIMING_REQUEST_TIME: self.mean_request_time,
+            TIMING_TOTAL_TIME: self.mean_total_time,
+            TIMING_TOTAL_SRV_TIME: self.mean_total_srv_time,
             TIMING_EXECUTION_TIME: self.mean_execution_time,
-            TIMING_FORWARDING_TIME: self.mean_forwarding_time,
             TIMING_SCHEDULING_TIME: self.mean_scheduling_time,
-            TIMING_SCHEDULING_EXTERNAL_TIME: self.mean_scheduling_external_time
+            TIMING_PROBING_TIME: self.mean_scheduling_time,
+            TIMING_FORWARDING_TIME: self.mean_forwarding_time,
         }
 
-    def getNetErrorJobs(self):
+    def get_net_errors(self):
         return self.neterr_jobs
 
     #
     # Utils
     #
 
-    def printReqResLine(self, i, res, net_error, time):
+    def print_req_res_line(self, i, res, net_error, time_s):
         if not self.debug_print:
             return
 
         if not net_error:
             if res.status_code == 200:
-                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.OKGREEN, i, res.status_code, time, CC.ENDC))
+                print(
+                    "%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.OKGREEN, i, res.status_code, time_s, CC.ENDC))
             else:
-                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.FAIL, i, res.status_code, time, CC.ENDC))
+                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.FAIL, i, res.status_code, time_s, CC.ENDC))
                 print(str(res.content))
 
     def parse_timings_headers(self, headers, i):
         # we have arrays of timings if job is externally executed
         if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None:
-            scheduling_external_time = 0.0
-            forwarding_time = 0.0
-            try:
-                arriving_array = json.loads(headers.get(RES_HEADER_ARRIVED_TIME_LIST))
-                scheduled_array = json.loads(headers.get(RES_HEADER_SCHEDULED_TIME_LIST))
+            total_times_array = json.loads(headers.get(RES_HEADER_TOTAL_TIME_LIST))
+            scheduling_time_array = json.loads(headers.get(RES_HEADER_SCHEDULING_TIME_LIST))
+            probing_time_array = json.loads(headers.get(RES_HEADER_PROBING_TIME_LIST))
 
-                if len(arriving_array) != len(scheduled_array) and len(arriving_array) == 0:
-                    raise ValueError()
+            # if len(total_times_array) == len(scheduling_time_array) == len(probing_time_array):
+            #    for i in range(len(total_times_array)):
+            probing_time = probing_time_array[0]
+            scheduling_time = scheduling_time_array[0]
+            total_time = total_times_array[0]
 
-                scheduling_external_time_list = [(arriving_array[i] - scheduled_array[i]) for i in
-                                                 range(len(arriving_array) - 1)]  # last element is executed internally
-                forwarding_time_list = [(arriving_array[i] - arriving_array[i + 1]) for i in
-                                        range(len(arriving_array) - 1)]
-
-                # compute the average of all the hops
-                scheduling_external_time = sum(scheduling_external_time_list) / float(
-                    len(scheduling_external_time_list))
-                forwarding_time = sum(forwarding_time_list) / float(len(forwarding_time_list))
-
-            finally:
-                self.timings[TIMING_SCHEDULING_EXTERNAL_TIME][i] = scheduling_external_time
-                self.timings[TIMING_FORWARDING_TIME][i] = forwarding_time
-
+            self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
         else:
             # we have single values
-            arrived_time = 0.0 if headers.get(RES_HEADER_ARRIVED_TIME) is None \
-                else float(headers.get(RES_HEADER_ARRIVED_TIME))
-            scheduled_time = 0.0 if headers.get(RES_HEADER_SCHEDULED_TIME) is None \
-                else float(headers.get(RES_HEADER_SCHEDULED_TIME))
-            scheduling_time = arrived_time - scheduled_time
-            self.timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
+            scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
+                headers.get(RES_HEADER_SCHEDULING_TIME))
+            probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
+                headers.get(RES_HEADER_PROBING_TIME))
+            total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
+                headers.get(RES_HEADER_TOTAL_TIME))
 
-        self.timings[TIMING_EXECUTION_TIME][i] = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None \
-            else float(headers.get(RES_HEADER_EXECUTION_TIME))
+        execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
+            headers.get(RES_HEADER_EXECUTION_TIME))
+
+        self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
+        self._timings[TIMING_PROBING_TIME][i] = probing_time
+        self._timings[TIMING_TOTAL_TIME][i] = total_time
+        self._timings[TIMING_EXECUTION_TIME][i] = execution_time
 
 
-def getSystemParameters(host):
+def get_system_params(host):
     config_url = "http://{0}/{1}".format(host, API_CONFIGURATION_URL)
     config_s_url = "http://{0}/{1}".format(host, API_SCHEDULER_CONFIGURATION_URL)
     config_h_url = "http://{0}/{1}".format(host, API_HELLO_URL)
@@ -371,49 +390,53 @@ def getSystemParameters(host):
     }
 
 
-def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, requests, out_dir,
+def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, n_requests, out_dir,
                 machine_id, save_req_times, verbose):
     url = "http://{0}/{1}".format(host, function_url)
 
     pbs = []
     pes = []
-    timings_request = []
+    timings_total_time = []
+    timings_srv_total_time = []
     timings_execution = []
-    timings_forward = []
     timings_scheduling = []
-    timings_scheduling_external = []
+    timings_probing = []
+    timings_forwarding = []
     probe_messages = []
     neterror_jobs = []
-    l = start_lambda
-    # test all ros
+
+    current_lambda = start_lambda
+
     while True:
-        test = FunctionTest(url, payload, l, k, poisson, requests, out_dir, machine_id, verbose)
+        test = FunctionTest(url, payload, current_lambda, k, poisson, n_requests, out_dir, machine_id, verbose)
         test.execute_test()
-        pbs.append(test.getPb())
-        pes.append(test.getPe())
-        timings_request.append(test.getTimings()[TIMING_REQUEST_TIME])
-        timings_execution.append(test.getTimings()[TIMING_EXECUTION_TIME])
-        timings_forward.append(test.getTimings()[TIMING_FORWARDING_TIME])
-        timings_scheduling.append(test.getTimings()[TIMING_SCHEDULING_TIME])
-        timings_scheduling_external.append(test.getTimings()[TIMING_SCHEDULING_EXTERNAL_TIME])
-        probe_messages.append(test.getProbeMessagesCount())
-        neterror_jobs.append(test.getNetErrorJobs())
+        pbs.append(test.get_pb())
+        pes.append(test.get_pe())
+
+        timings_total_time.append(test.get_timings()[TIMING_TOTAL_TIME])
+        timings_srv_total_time.append(test.get_timings()[TIMING_TOTAL_SRV_TIME])
+        timings_execution.append(test.get_timings()[TIMING_EXECUTION_TIME])
+        timings_scheduling.append(test.get_timings()[TIMING_SCHEDULING_TIME])
+        timings_probing.append(test.get_timings()[TIMING_PROBING_TIME])
+        timings_forwarding.append(test.get_timings()[TIMING_FORWARDING_TIME])
+
+        probe_messages.append(test.get_probe_messages())
+        neterror_jobs.append(test.get_net_errors())
 
         if save_req_times:
             test.save_request_timings()
 
         if start_lambda > end_lambda:
-            l = round(l - lambda_delta, 2)
-            if l < end_lambda:
+            current_lambda = round(current_lambda - lambda_delta, 2)
+            if current_lambda < end_lambda:
                 break
         else:
-            l = round(l + lambda_delta, 2)
-            if l > end_lambda:
+            current_lambda = round(current_lambda + lambda_delta, 2)
+            if current_lambda > end_lambda:
                 break
 
-    def print_res(saveToFile=True):
-        features = ("lambda", "pb", "pe", "req_time", "exec_time", "forward_time", "sched_time", "sched_ex_time",
-                    "net_errs")
+    def print_res():
+        features = FunctionTest.get_features()
 
         print("\n[RESULTS] From lambda = %.2f to lambda = %.2f:" % (start_lambda, end_lambda))
 
@@ -427,12 +450,14 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
         print("\n", file=out_file)
 
         for i in range(len(pbs)):
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
-                  (start_lambda + i * lambda_delta, pbs[i], pes[i], timings_request[i], timings_execution[i],
-                   timings_forward[i], timings_scheduling[i], timings_scheduling_external[i], neterror_jobs[i]))
-            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
-                  (start_lambda + i * lambda_delta, pbs[i], pes[i], timings_request[i], timings_execution[i],
-                   timings_forward[i], timings_scheduling[i], timings_scheduling_external[i], neterror_jobs[i]),
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
+                  (start_lambda + i * lambda_delta, pbs[i], pes[i], timings_total_time[i], timings_srv_total_time[i],
+                   timings_scheduling[i], timings_execution[i], timings_probing[i], timings_forwarding[i],
+                   neterror_jobs[i]))
+            print("%.2f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d" %
+                  (start_lambda + i * lambda_delta, pbs[i], pes[i], timings_total_time[i], timings_srv_total_time[i],
+                   timings_scheduling[i], timings_execution[i], timings_probing[i], timings_forwarding[i],
+                   neterror_jobs[i]),
                   file=out_file)
 
         out_file.close()
@@ -531,7 +556,7 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    params = getSystemParameters(host)
+    params = get_system_params(host)
     k = int(params[RES_CONFIGURATION_RUNNING_FUNCTIONS_MAX])
     print("-" * 10 + " system info " + "-" * 10)
     print("> scheduler name %s:%s" % (
