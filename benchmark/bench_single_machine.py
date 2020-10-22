@@ -126,6 +126,7 @@ class FunctionTest:
             TIMING_EXECUTION_TIME: [0.0] * self.total_requests,
             TIMING_PROBING_TIME: [0.0] * self.total_requests,
             TIMING_SCHEDULING_TIME: [0.0] * self.total_requests,
+            TIMING_FORWARDING_TIME: [0.0] * self.total_requests,
         }
         self._req_output = [None] * self.total_requests
         self._req_external = [None] * self.total_requests
