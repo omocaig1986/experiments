@@ -19,16 +19,17 @@ SSH_USERNAME = host_username
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
 DEPLOY_TOKEN = deploy_token
+HOME_PATH = f"/home/{host_username}"
 
 hosts = []
 commands = [
-    "rm -rfv ~/code",
-    "mkdir -p ~/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/experiments.git ~/code/p2p-faas/experiments",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack.git ~/code/p2p-faas/stack",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-scheduler.git ~/code/p2p-faas/stack-scheduler",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-discovery.git ~/code/p2p-faas/stack-discovery",
-    "git clone https://github.com/openfaas/faas.git ~/code/faas"
+    f"rm -rfv {HOME_PATH}/code",
+    f"mkdir -p {HOME_PATH}/code/p2p-faas",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/experiments.git {HOME_PATH}/code/p2p-faas/experiments",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack.git {HOME_PATH}/code/p2p-faas/stack",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-scheduler.git {HOME_PATH}/code/p2p-faas/stack-scheduler",
+    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-discovery.git {HOME_PATH}/code/p2p-faas/stack-discovery",
+    f"git clone https://github.com/openfaas/faas.git {HOME_PATH}/code/faas"
 ]
 
 time_str = strftime("%m%d%Y-%H%M%S", localtime())
