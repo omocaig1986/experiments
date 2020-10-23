@@ -14,6 +14,7 @@ hosts_file_path = sys.argv[2]
 
 THREAD_POOL_N = 4
 SSH_USERNAME = host_username
+HOME_PATH = f"/home/{host_username}"
 
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
@@ -21,32 +22,32 @@ hosts = []
 """
 commands = [
     "docker system prune -f --volumes",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
-    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
-    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo_f.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    # "\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo_f.sh\"",
     "docker system prune -f --volumes",
     "sudo reboot"
 ]
 """
 
 commands = [
-   # "docker system prune -f --volumes",
-     "docker swarm leave",
-     "docker swarm init",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
-    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
-    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.armhf.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
-    # "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
-    "\"cd ~/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.armhf.sh\"",
+    # "docker system prune -f --volumes",
+    "docker swarm leave",
+    "docker swarm init",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    # f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
+    # f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.armhf.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    # f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.armhf.sh\"",
     # "docker system prune -f --volumes",
     # "sudo reboot"
 ]
@@ -72,7 +73,7 @@ def threaded_fun(host, i):
         consumer_sem.acquire()
         j += 1
         command = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 {0}@{1} {2}".format(SSH_USERNAME, host, cmd)
-        print("[%2d/%2d][CMD#%d] Executing %s" % (i, len(hosts), j ,command))
+        print("[%2d/%2d][CMD#%d] Executing %s" % (i, len(hosts), j, command))
         (status, output) = subprocess.getstatusoutput(command)
 
         # print the output to file
