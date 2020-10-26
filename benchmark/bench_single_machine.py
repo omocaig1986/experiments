@@ -75,7 +75,7 @@ RES_HEADER_PROBING_TIME = "X-P2pfaas-Timing-Probing-Time-Seconds"
 
 RES_HEADER_SCHEDULING_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
 RES_HEADER_TOTAL_TIME_LIST = "X-P2pfaas-Timing-Total-Seconds-List"
-RES_HEADER_PROBING_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
+RES_HEADER_PROBING_TIME_LIST = "X-P2pfaas-Timing-Probing-Seconds-List"
 
 
 class FunctionTest:
