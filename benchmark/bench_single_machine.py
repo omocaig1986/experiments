@@ -365,7 +365,8 @@ class FunctionTest:
             self._timings[TIMING_TOTAL_TIME][i] = total_time
             self._timings[TIMING_EXECUTION_TIME][i] = execution_time
         except Exception as e:
-            print(f"{CC.FAIL}Cannot parse timing for req #{i}: {e}{CC.ENDC}")
+            print(f"{CC.FAIL}==> [ERR] Cannot parse timing for req #{i}: {e}{CC.ENDC}")
+            print(f"{CC.FAIL}==> [ERR] Cannot parse timing for req #{i}: {headers}{CC.ENDC}")
 
 
 def get_system_params(host):
