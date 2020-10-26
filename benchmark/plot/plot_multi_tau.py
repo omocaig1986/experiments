@@ -60,11 +60,14 @@ def plot(x_arr, y_arr, x_label, y_label, filename):
     plt.close(fig)
 
 
-WORKING_DIR = "/home/gabrielepmattia/Coding/rpi-cluster-results/results1"
+WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data/6rpi-2000req-th-6-tau-0-1000-100"
 N_MACHINES = 6
-MAX_T = 11
-MIN_T = 0
-N_REQUESTS = 1000
+
+TAU_MAX = 1000
+TAU_MIN = 0
+TAU_STP = 100
+
+N_REQUESTS = 2000
 
 working_path = Path(WORKING_DIR)
 dirs_list = sorted([f for f in working_path.glob('*') if f.is_dir()])
@@ -75,8 +78,8 @@ probing_time_list = []
 
 # loop over all values of T
 for i in range(len(dirs_list)):
-    t = MAX_T - i
-    print("> Parsing T=%d in %s" % (t, dirs_list[i]))
+    tau = i * TAU_STP
+    print("> Parsing tau=%d in %s" % (tau, dirs_list[i]))
     print(">> Average of %d machines" % N_MACHINES)
     total_pb = 0.0
     total_delay = 0.0
@@ -112,6 +115,6 @@ print(len(pb_list))
 print(len(delays_list))
 print(len(probing_time_list))
 # plot
-plot([i for i in range(MAX_T)], pb_list, "T", "$P_B$", "multi_t_pb")
-plot([i for i in range(MAX_T)], delays_list, "T", "Delay", "multi_t_delay")
-plot([i for i in range(MAX_T)], probing_time_list, "T", "Probing Time", "multi_t_probing")
+plot([i*TAU_STP for i in range(len(dirs_list))], pb_list, "tau (ms)", "$P_B$", "multi_t_pb")
+plot([i*TAU_STP for i in range(len(dirs_list))], delays_list, "tau (ms)", "Delay (s)", "multi_t_delay")
+plot([i*TAU_STP for i in range(len(dirs_list))], probing_time_list, "tau (ms)", "Probing Time (s)", "multi_t_probing")
