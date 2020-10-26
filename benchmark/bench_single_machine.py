@@ -80,8 +80,8 @@ RES_HEADER_PROBING_TIME_LIST = "X-P2pfaas-Timing-Scheduled-Seconds-List"
 
 class FunctionTest:
 
-    def __init__(self, url, payload, l, k, poisson, n_requests, out_dir, machine_id, verbose):
-        self.debug_print = False
+    def __init__(self, url, payload, l, k, poisson, n_requests, out_dir, machine_id, verbose, debug=False):
+        self.debug_print = debug
         self.verbose = verbose
         self.url = url
         self.payload = payload
@@ -334,35 +334,38 @@ class FunctionTest:
                 print(str(res.content))
 
     def parse_timings_headers(self, headers, i):
-        # we have arrays of timings if job is externally executed
-        if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None:
-            total_times_array = json.loads(headers.get(RES_HEADER_TOTAL_TIME_LIST))
-            scheduling_time_array = json.loads(headers.get(RES_HEADER_SCHEDULING_TIME_LIST))
-            probing_time_array = json.loads(headers.get(RES_HEADER_PROBING_TIME_LIST))
+        try:
+            # we have arrays of timings if job is externally executed
+            if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None:
+                total_times_array = json.loads(headers.get(RES_HEADER_TOTAL_TIME_LIST))
+                scheduling_time_array = json.loads(headers.get(RES_HEADER_SCHEDULING_TIME_LIST))
+                probing_time_array = json.loads(headers.get(RES_HEADER_PROBING_TIME_LIST))
 
-            # if len(total_times_array) == len(scheduling_time_array) == len(probing_time_array):
-            #    for i in range(len(total_times_array)):
-            probing_time = probing_time_array[0]
-            scheduling_time = scheduling_time_array[0]
-            total_time = total_times_array[0]
+                # if len(total_times_array) == len(scheduling_time_array) == len(probing_time_array):
+                #    for i in range(len(total_times_array)):
+                probing_time = probing_time_array[0]
+                scheduling_time = scheduling_time_array[0]
+                total_time = total_times_array[0]
 
-            self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
-        else:
-            # we have single values
-            scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
-                headers.get(RES_HEADER_SCHEDULING_TIME))
-            probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
-                headers.get(RES_HEADER_PROBING_TIME))
-            total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
-                headers.get(RES_HEADER_TOTAL_TIME))
+                self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
+            else:
+                # we have single values
+                scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
+                    headers.get(RES_HEADER_SCHEDULING_TIME))
+                probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
+                    headers.get(RES_HEADER_PROBING_TIME))
+                total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
+                    headers.get(RES_HEADER_TOTAL_TIME))
 
-        execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
-            headers.get(RES_HEADER_EXECUTION_TIME))
+            execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
+                headers.get(RES_HEADER_EXECUTION_TIME))
 
-        self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
-        self._timings[TIMING_PROBING_TIME][i] = probing_time
-        self._timings[TIMING_TOTAL_TIME][i] = total_time
-        self._timings[TIMING_EXECUTION_TIME][i] = execution_time
+            self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
+            self._timings[TIMING_PROBING_TIME][i] = probing_time
+            self._timings[TIMING_TOTAL_TIME][i] = total_time
+            self._timings[TIMING_EXECUTION_TIME][i] = execution_time
+        except Exception as e:
+            print(f"=> [R#{i}] Cannot parse timings: {e}")
 
 
 def get_system_params(host):
@@ -384,7 +387,7 @@ def get_system_params(host):
 
 
 def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_delta, poisson, k, n_requests, out_dir,
-                machine_id, save_req_times, verbose):
+                machine_id, save_req_times, verbose, debug=False):
     url = "http://{0}/{1}".format(host, function_url)
 
     pbs = []
@@ -401,7 +404,7 @@ def start_suite(host, function_url, payload, start_lambda, end_lambda, lambda_de
     current_lambda = start_lambda
 
     while True:
-        test = FunctionTest(url, payload, current_lambda, k, poisson, n_requests, out_dir, machine_id, verbose)
+        test = FunctionTest(url, payload, current_lambda, k, poisson, n_requests, out_dir, machine_id, verbose, debug)
         test.execute_test()
         pbs.append(test.get_pb())
         pes.append(test.get_pe())
@@ -534,6 +537,7 @@ def main(argv):
 
     print("=" * 10 + " Starting test suite " + "=" * 10)
     print("> host %s" % host)
+    print("> debug %s" % debug)
     print("> function_url %s" % function_url)
     print("> payload %s" % payload)
     print("> lambda [%.2f,%.2f]" % (start_lambda, end_lambda))
@@ -564,7 +568,7 @@ def main(argv):
         sys.exit()
 
     start_suite(host, function_url, payload, start_lambda, end_lambda,
-                lambda_delta, poisson, k, requests_n, out_dir, machine_id, save_req_times, verbose)
+                lambda_delta, poisson, k, requests_n, out_dir, machine_id, save_req_times, verbose, debug=debug)
 
 
 if __name__ == "__main__":
