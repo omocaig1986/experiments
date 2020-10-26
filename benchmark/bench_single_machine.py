@@ -334,35 +334,38 @@ class FunctionTest:
                 print(str(res.content))
 
     def parse_timings_headers(self, headers, i):
-        # we have arrays of timings if job is externally executed
-        if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None:
-            total_times_array = json.loads(headers.get(RES_HEADER_TOTAL_TIME_LIST))
-            scheduling_time_array = json.loads(headers.get(RES_HEADER_SCHEDULING_TIME_LIST))
-            probing_time_array = json.loads(headers.get(RES_HEADER_PROBING_TIME_LIST))
+        try:
+            # we have arrays of timings if job is externally executed
+            if headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None:
+                total_times_array = json.loads(headers.get(RES_HEADER_TOTAL_TIME_LIST))
+                scheduling_time_array = json.loads(headers.get(RES_HEADER_SCHEDULING_TIME_LIST))
+                probing_time_array = json.loads(headers.get(RES_HEADER_PROBING_TIME_LIST))
 
-            # if len(total_times_array) == len(scheduling_time_array) == len(probing_time_array):
-            #    for i in range(len(total_times_array)):
-            probing_time = probing_time_array[0]
-            scheduling_time = scheduling_time_array[0]
-            total_time = total_times_array[0]
+                # if len(total_times_array) == len(scheduling_time_array) == len(probing_time_array):
+                #    for i in range(len(total_times_array)):
+                probing_time = probing_time_array[0]
+                scheduling_time = scheduling_time_array[0]
+                total_time = total_times_array[0]
 
-            self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
-        else:
-            # we have single values
-            scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
-                headers.get(RES_HEADER_SCHEDULING_TIME))
-            probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
-                headers.get(RES_HEADER_PROBING_TIME))
-            total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
-                headers.get(RES_HEADER_TOTAL_TIME))
+                self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
+            else:
+                # we have single values
+                scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
+                    headers.get(RES_HEADER_SCHEDULING_TIME))
+                probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
+                    headers.get(RES_HEADER_PROBING_TIME))
+                total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
+                    headers.get(RES_HEADER_TOTAL_TIME))
 
-        execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
-            headers.get(RES_HEADER_EXECUTION_TIME))
+            execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
+                headers.get(RES_HEADER_EXECUTION_TIME))
 
-        self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
-        self._timings[TIMING_PROBING_TIME][i] = probing_time
-        self._timings[TIMING_TOTAL_TIME][i] = total_time
-        self._timings[TIMING_EXECUTION_TIME][i] = execution_time
+            self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
+            self._timings[TIMING_PROBING_TIME][i] = probing_time
+            self._timings[TIMING_TOTAL_TIME][i] = total_time
+            self._timings[TIMING_EXECUTION_TIME][i] = execution_time
+        except Exception as e:
+            print(f"{CC.FAIL}Cannot parse timing for req #{i}: {e}{CC.ENDC}")
 
 
 def get_system_params(host):
@@ -482,7 +485,7 @@ def main(argv):
                                    "start-lambda=",
                                    "end-lambda=",
                                    "mi=",
-                                   "debug=",
+                                   "debug",
                                    "poisson",
                                    "requests=",
                                    "config-url=",
