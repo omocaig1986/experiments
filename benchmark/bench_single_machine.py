@@ -28,7 +28,6 @@ import time
 from threading import Thread
 from time import localtime, strftime
 
-import matplotlib.pyplot as plt
 import requests
 
 from common import CC
@@ -277,14 +276,6 @@ class FunctionTest:
             self.pb, self.mean_total_time, self.mean_probing_time))
         print("[TEST] %.6f%% jobs externally executed, forwarding, scheduling and scheduling external times are "
               "%.6fs %.6fs\n" % (self.pe, self.mean_forwarding_time, self.mean_scheduling_time))
-
-    def plot_timings(self):
-        plt.clf()
-        plt.plot(self._timings)
-        plt.ylabel('Response time')
-        plt.xlabel('Request number')
-        # plt.show()
-        plt.savefig(self.out_dir + "/" + self.test_name + "_job_timings")
 
     def save_request_timings(self):
         if self.out_dir == "":
