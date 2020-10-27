@@ -19,6 +19,8 @@ import math
 from matplotlib import pyplot as plt
 from pathlib import Path
 
+from plot.utils import Plot
+
 markers = [r"$\triangle$", r"$\square$", r"$\diamondsuit$", r"$\otimes$", r"$\oslash$"]
 USE_TEX = True
 
@@ -44,6 +46,7 @@ ALFA_VALUE = 0.10
 
 TAU_STEP = 100
 
+
 def arr_average(arr):
     total = 0.0
     for v in arr:
@@ -58,7 +61,7 @@ def arr_variance(arr, avg):
     return total / (len(arr) - 1)
 
 
-def plot_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, y_limits=None):
+def plot_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, title=None, y_limits=None):
     plt.clf()
     fig, ax = plt.subplots()
 
@@ -71,6 +74,8 @@ def plot_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, y_limits
 
     if y_limits is not None:
         plt.ylim(y_limits)
+    if title is not None:
+        plt.title(title)
 
     # ax.set_title(title)
     ax.set_xlabel(x_label)
@@ -152,15 +157,35 @@ for i in range(N_THRESHOLDS):
     computeValues(i, rejected, rejected_avgs, rejected_vars, rejected_upper, rejected_lower, rejected_errors)
 
 print("> Plotting pb")
-plot_confidence([i*TAU_STEP for i in range(N_THRESHOLDS)], [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "tau (ms)", "$P_B$",
-                "pbs_confidence", [0.46, 0.56])
+TITLE = "6rpi - T=6 - 2000reqs"
+plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "tau (ms)",
+                "$P_B$", "pbs_confidence", TITLE, [0.46, 0.56])
 print("> Plotting delays")
-plot_confidence([i*TAU_STEP for i in range(N_THRESHOLDS)], [delays_lower, delays_avgs, delays_upper], delays_errors, "tau (ms)",
-                "Delay (s)", "delay_confidence")
+plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [delays_lower, delays_avgs, delays_upper], delays_errors,
+                "tau (ms)", "Delay (s)", "delay_confidence", TITLE)
 
 print("> Plotting accepted")
-plot_confidence([i*TAU_STEP for i in range(N_THRESHOLDS)], [accepted_lower, accepted_avgs, accepted_upper], accepted_errors, "tau (ms)",
-                "Accepted Requests", "accepted_confidence")
+plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [accepted_lower, accepted_avgs, accepted_upper],
+                accepted_errors, "tau (ms)", "Accepted Requests", "accepted_confidence", TITLE)
 print("> Plotting rejected")
-plot_confidence([i*TAU_STEP for i in range(N_THRESHOLDS)], [rejected_lower, rejected_avgs, rejected_upper], rejected_errors, "tau (ms)",
-                "Rejected Requests", "rejected_confidence")
+plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [rejected_lower, rejected_avgs, rejected_upper],
+                rejected_errors, "tau (ms)", "Rejected Requests", "rejected_confidence", TITLE)
+
+# print pb with model
+MODEL_DATA = ""  # "/home/gabrielepmattia/Coding/papers/paper-2020-unk-deadline/model-kolm/raw/20201027-095621-mswim_final_kolm_new_2_pb_log.txt"
+if MODEL_DATA == "":
+    exit(0)
+
+data_file = open(MODEL_DATA, "r")
+data_x = []
+data_y = []
+for line in data_file:
+    values = line.split(" ")
+    data_x.append(int(float(values[0]) * 1000))
+    data_y.append(float(values[1]))
+
+print(data_x)
+print(data_y)
+
+Plot.multi_plot([[i * TAU_STEP for i in range(N_THRESHOLDS)], data_x], [pbs_avgs, data_y], "tau (ms)", "PB",
+                "pbs_model_comparison", legend=["Experiment", "Model"])
