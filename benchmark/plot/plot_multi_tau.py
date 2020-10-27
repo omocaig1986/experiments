@@ -60,7 +60,7 @@ def plot(x_arr, y_arr, x_label, y_label, filename):
     plt.close(fig)
 
 
-WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data/6rpi-2000req-th-6-tau-0-1000-100"
+WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data/6rpi-2000req-th-6-tau-0-1000-100-run-3"
 N_MACHINES = 6
 
 TAU_MAX = 1000
