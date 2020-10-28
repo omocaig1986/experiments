@@ -36,8 +36,8 @@ if USE_TEX:
         + r"\usepackage[T1]{fontenc}"
         + ""]
 
-WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data"
-DIR_PREFIX = "6rpi-2000req-th-6-tau-0-1000-100-run"
+WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data-rpi-cluster"
+DIR_PREFIX = "6rpi-2000req-th-6-tau-0-1000-100-k-4-pigo/6rpi-2000req-th-6-tau-0-1000-100-k-4-pigo-run"
 
 N_TESTS = 3
 N_THRESHOLDS = 11
@@ -83,6 +83,14 @@ def plot_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, title=No
     fig.tight_layout()
     plt.savefig("{}/{}.pdf".format(WORKING_DIR, filename))
     plt.close(fig)
+
+
+def save_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, title=None, y_limits=None):
+    outfile = open("{}/{}.txt".format(WORKING_DIR, filename), "w")
+    print("# x y_lower y_avg y_upper", file=outfile)
+    for i in range(len(x_arr)):
+        print(f"{x_arr[i]} {y_arr[0][i]:.6f} {y_arr[1][i]:.6f} {y_arr[2][i]:.6f}", file=outfile)
+    outfile.close()
 
 
 pbs = [[] for _ in range(N_THRESHOLDS)]
@@ -157,22 +165,30 @@ for i in range(N_THRESHOLDS):
     computeValues(i, rejected, rejected_avgs, rejected_vars, rejected_upper, rejected_lower, rejected_errors)
 
 print("> Plotting pb")
-TITLE = "6rpi - T=6 - 2000reqs"
+TITLE = "6rpi - T=6 - 2000reqs - K=4"
 plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "tau (ms)",
-                "$P_B$", "pbs_confidence", TITLE, [0.46, 0.56])
+                "$P_B$", "pbs_confidence", TITLE)
+save_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "tau (ms)",
+                "$P_B$", "pbs_confidence", TITLE)
 print("> Plotting delays")
 plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [delays_lower, delays_avgs, delays_upper], delays_errors,
+                "tau (ms)", "Delay (s)", "delay_confidence", TITLE)
+save_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [delays_lower, delays_avgs, delays_upper], delays_errors,
                 "tau (ms)", "Delay (s)", "delay_confidence", TITLE)
 
 print("> Plotting accepted")
 plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [accepted_lower, accepted_avgs, accepted_upper],
                 accepted_errors, "tau (ms)", "Accepted Requests", "accepted_confidence", TITLE)
+save_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [accepted_lower, accepted_avgs, accepted_upper],
+                accepted_errors, "tau (ms)", "Accepted Requests", "accepted_confidence", TITLE)
 print("> Plotting rejected")
 plot_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [rejected_lower, rejected_avgs, rejected_upper],
                 rejected_errors, "tau (ms)", "Rejected Requests", "rejected_confidence", TITLE)
+save_confidence([i * TAU_STEP for i in range(N_THRESHOLDS)], [rejected_lower, rejected_avgs, rejected_upper],
+                rejected_errors, "tau (ms)", "Rejected Requests", "rejected_confidence", TITLE)
 
 # print pb with model
-MODEL_DATA = ""  # "/home/gabrielepmattia/Coding/papers/paper-2020-unk-deadline/model-kolm/raw/20201027-095621-mswim_final_kolm_new_2_pb_log.txt"
+MODEL_DATA = ""  "/home/gabrielepmattia/Coding/papers/paper-2020-unk-deadline/model-kolm/raw/20201028-154703-mswim_final_kolm_new_2_pb_log.txt"
 if MODEL_DATA == "":
     exit(0)
 
@@ -188,4 +204,4 @@ print(data_x)
 print(data_y)
 
 Plot.multi_plot([[i * TAU_STEP for i in range(N_THRESHOLDS)], data_x], [pbs_avgs, data_y], "tau (ms)", "PB",
-                "pbs_model_comparison", legend=["Experiment", "Model"])
+                "pbs_model_comparison", legend=["Experiment", "Model"], title=TITLE)
