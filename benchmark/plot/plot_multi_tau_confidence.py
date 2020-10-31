@@ -39,7 +39,7 @@ if USE_TEX:
 WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data-rpi-cluster"
 DIR_PREFIX = "6rpi-2000req-th-6-tau-0-1000-100-k-4-pigo/6rpi-2000req-th-6-tau-0-1000-100-k-4-pigo-run"
 
-N_TESTS = 3
+N_TESTS = 5
 N_THRESHOLDS = 11
 
 ALFA_VALUE = 0.10

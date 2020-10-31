@@ -347,7 +347,7 @@ class FunctionTest:
                 scheduling_time = scheduling_time_array[0]
                 total_time = total_times_array[0]
 
-                self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[1] - total_times_array[0]
+                self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[0] - total_times_array[1]
             else:
                 # we have single values
                 scheduling_time = 0.0 if headers.get(RES_HEADER_SCHEDULING_TIME) is None else float(
