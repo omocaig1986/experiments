@@ -22,14 +22,6 @@ def gen(size):
         blob_file.write(b'0')
     blob_file.close()
 
-
-gen(500000) # 500kb
-gen(1000000) # 1mb
-gen(5000000) # 5mb
-gen(8000000) # 8mb
-gen(10000000) # 10mb
-gen(13000000) # 10mb
-gen(15000000) # 10mb
-gen(20000000) # 20mb
-
-
+gen(50000)  # 50kb
+for i in range(1, 10):
+    gen(i*100000)  # 100kb
