@@ -168,7 +168,6 @@ class FunctionTest:
 
             end_time = time.time()
             total_time = end_time - start_time
-            self.print_req_res_line(arg, res, net_error, total_time)
 
             # update timings
             self._timings[TIMING_TOTAL_TIME][arg] = total_time
@@ -182,6 +181,9 @@ class FunctionTest:
                     self.parse_timings_headers(res.headers, arg)
             else:
                 self._req_output[arg] = 999
+
+            # print debug res line
+            self.print_req_res_line(arg, res, net_error, total_time)
 
         def burst_requests():
             if not self.debug_print:
