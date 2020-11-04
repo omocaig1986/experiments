@@ -276,7 +276,7 @@ class FunctionTest:
         print("[TEST] pB is %.6f, mean_request_time is %.6f, mean_probing_time is %.6f" % (
             self._metric_pb, self._metric_mean_total_time, self._metric_mean_probing_time))
         print("[TEST] %.6f%% jobs externally executed, forwarding and scheduling times are %.6fs %.6fs\n" % (
-        self._metric_pe, self._metric_mean_forwarding_time, self._metric_mean_scheduling_time))
+            self._metric_pe, self._metric_mean_forwarding_time, self._metric_mean_scheduling_time))
 
     def save_request_timings(self):
         if self.out_dir == "":
@@ -331,9 +331,13 @@ class FunctionTest:
         if not net_error:
             if res.status_code == 200:
                 print(
-                    "%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.OKGREEN, i, res.status_code, time_s, CC.ENDC))
+                    "%s ==> [RES] Status to #%d is %d Time %.6f, external=%s, did_probing=%s %s" % (
+                        CC.OKGREEN, i, res.status_code, time_s, self._req_external[i], self._req_did_probing[i],
+                        CC.ENDC))
             else:
-                print("%s ==> [RES] Status to #%d is %d Time %.6f %s" % (CC.FAIL, i, res.status_code, time_s, CC.ENDC))
+                print(
+                    "%s ==> [RES] Status to #%d is %d Time %.6f, external=%s, did_probing=%s %s" % (
+                        CC.FAIL, i, res.status_code, time_s, self._req_external[i], self._req_did_probing[i], CC.ENDC))
                 print(str(res.content))
 
     def parse_timings_headers(self, headers, i):
