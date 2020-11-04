@@ -355,7 +355,7 @@ class FunctionTest:
                 #    for i in range(len(total_times_array)):
                 probing_time = probing_time_array[0]
                 scheduling_time = scheduling_time_array[0]
-                total_time = total_times_array[0]
+                total_srv_time = total_times_array[0]
 
                 self._timings[TIMING_FORWARDING_TIME][i] = total_times_array[0] - total_times_array[1]
             else:
@@ -364,7 +364,7 @@ class FunctionTest:
                     headers.get(RES_HEADER_SCHEDULING_TIME))
                 probing_time = 0.0 if headers.get(RES_HEADER_PROBING_TIME) is None else float(
                     headers.get(RES_HEADER_PROBING_TIME))
-                total_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
+                total_srv_time = 0.0 if headers.get(RES_HEADER_TOTAL_TIME) is None else float(
                     headers.get(RES_HEADER_TOTAL_TIME))
 
             execution_time = 0.0 if headers.get(RES_HEADER_EXECUTION_TIME) is None else float(
@@ -372,7 +372,7 @@ class FunctionTest:
 
             self._timings[TIMING_SCHEDULING_TIME][i] = scheduling_time
             self._timings[TIMING_PROBING_TIME][i] = probing_time
-            self._timings[TIMING_TOTAL_TIME][i] = total_time
+            self._timings[TIMING_TOTAL_SRV_TIME][i] = total_srv_time
             self._timings[TIMING_EXECUTION_TIME][i] = execution_time
         except Exception as e:
             print(f"{CC.FAIL}==> [ERR] Cannot parse timing for req #{i}: {e}{CC.ENDC}")
