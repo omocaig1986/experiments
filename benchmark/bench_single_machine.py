@@ -257,6 +257,7 @@ class FunctionTest:
 
         self._metric_pb = self._n_rejected_jobs / float(self.total_requests)
         self._metric_pa = self._n_accepted_jobs / float(self.total_requests)
+        self._metric_pe = self._n_external_jobs / float(self.total_requests)
 
         if self._n_accepted_jobs > 0:
             # internal_jobs = self.accepted_jobs - self.external_jobs
@@ -264,7 +265,6 @@ class FunctionTest:
             self._metric_mean_total_srv_time = timings_total_srv_sum / float(self._n_accepted_jobs)
             self._metric_mean_execution_time = timings_execution_sum / float(self._n_accepted_jobs)
             self._metric_mean_scheduling_time = timings_scheduling_sum / float(self._n_accepted_jobs)
-        self._metric_pe = self._n_external_jobs / float(self.total_requests)
 
         if self._n_external_jobs > 0:
             self._metric_mean_forwarding_time = timings_forwarding_sum / float(self._n_external_jobs)
