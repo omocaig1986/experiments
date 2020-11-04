@@ -4,11 +4,11 @@ CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck disable=SC1090
 source "$CURRENT_PATH"/env/bin/activate
 "$CURRENT_PATH"/env/bin/python bench_single_machine.py \
-                    --host "192.168.99.100:18080" \
+                    --host "192.168.50.100:18080" \
                     --function-url "function/pigo-face-detector" \
                     --payload "$CURRENT_PATH/blobs/family.jpg" \
-                    --start-lambda "1" \
-                    --end-lambda "10" \
+                    --start-lambda "5.50" \
+                    --end-lambda "5.5" \
                     --lambda-delta "0.1" \
                     --requests "200" \
                     --poisson
