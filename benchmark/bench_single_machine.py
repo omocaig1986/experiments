@@ -175,7 +175,7 @@ class FunctionTest:
             if not net_error:
                 self._req_external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
                 self._req_output[arg] = res.status_code
-                self._req_did_probing = res.headers.get(RES_HEADER_PROBING_TIME) is not None
+                self._req_did_probing[arg] = res.headers.get(RES_HEADER_PROBING_TIME) is not None
                 # parse headers if request is successful
                 if res.status_code == 200:
                     self.parse_timings_headers(res.headers, arg)
