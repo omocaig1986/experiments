@@ -99,22 +99,22 @@ class FunctionTest:
         self.wait_time = 1 / self.l
 
         self.threads = []
-        self.accepted_jobs = 0  # jobs with response code == 200
-        self.rejected_jobs = 0  # jobs with response code == 500
-        self.external_jobs = 0
-        self.neterr_jobs = 0  # jobs that had a network error
-        self.probed_jobs = 0  # jobs for which probing has been done
+        self._n_accepted_jobs = 0  # jobs with response code == 200
+        self._n_rejected_jobs = 0  # jobs with response code == 500
+        self._n_external_jobs = 0
+        self._n_neterr_jobs = 0  # jobs that had a network error
+        self._n_probed_jobs = 0  # jobs for which probing has been done
 
         # final metrics
-        self.mean_total_time = 0.0
-        self.mean_total_srv_time = 0.0
-        self.mean_scheduling_time = 0.0
-        self.mean_execution_time = 0.0
-        self.mean_probing_time = 0.0
-        self.mean_forwarding_time = 0.0
-        self.pa = 0.0
-        self.pb = 0.0
-        self.pe = 0.0
+        self._metric_mean_total_time = 0.0
+        self._metric_mean_total_srv_time = 0.0
+        self._metric_mean_scheduling_time = 0.0
+        self._metric_mean_execution_time = 0.0
+        self._metric_mean_probing_time = 0.0
+        self._metric_mean_forwarding_time = 0.0
+        self._metric_pa = 0.0
+        self._metric_pb = 0.0
+        self._metric_pe = 0.0
 
         self.total_probe_messages = 0
 
@@ -237,7 +237,7 @@ class FunctionTest:
         for i in range(len(self._req_output)):
             self.total_probe_messages += self._req_probe_messages[i]
             if self._req_output[i] == 200:
-                self.accepted_jobs += 1
+                self._n_accepted_jobs += 1
                 timings_total_sum += self._timings[TIMING_TOTAL_TIME][i]
                 timings_total_srv_sum += self._timings[TIMING_TOTAL_SRV_TIME][i]
                 timings_execution_sum += self._timings[TIMING_EXECUTION_TIME][i]
@@ -246,36 +246,37 @@ class FunctionTest:
                 timings_forwarding_sum += self._timings[TIMING_FORWARDING_TIME][i]
 
             elif self._req_output[i] == 500:
-                self.rejected_jobs += 1
+                self._n_rejected_jobs += 1
             else:
-                self.neterr_jobs += 1
+                self._n_neterr_jobs += 1
 
             if self._req_external[i]:
-                self.external_jobs += 1
+                self._n_external_jobs += 1
 
-        self.pb = self.rejected_jobs / float(self.total_requests)
-        self.pa = self.accepted_jobs / float(self.total_requests)
+        self._metric_pb = self._n_rejected_jobs / float(self.total_requests)
+        self._metric_pa = self._n_accepted_jobs / float(self.total_requests)
 
-        if self.accepted_jobs > 0:
+        if self._n_accepted_jobs > 0:
             # internal_jobs = self.accepted_jobs - self.external_jobs
-            self.mean_total_time = timings_total_sum / float(self.accepted_jobs)
-            self.mean_total_srv_time = timings_total_srv_sum / float(self.accepted_jobs)
-            self.mean_execution_time = timings_execution_sum / float(self.accepted_jobs)
-            self.mean_scheduling_time = timings_scheduling_sum / float(self.accepted_jobs)
-            self.pe = self.external_jobs / float(self.accepted_jobs)
+            self._metric_mean_total_time = timings_total_sum / float(self._n_accepted_jobs)
+            self._metric_mean_total_srv_time = timings_total_srv_sum / float(self._n_accepted_jobs)
+            self._metric_mean_execution_time = timings_execution_sum / float(self._n_accepted_jobs)
+            self._metric_mean_scheduling_time = timings_scheduling_sum / float(self._n_accepted_jobs)
+            self._metric_pe = self._n_external_jobs / float(self._n_accepted_jobs)
 
-        if self.external_jobs > 0:
-            self.mean_forwarding_time = timings_forwarding_sum / float(self.external_jobs)
+        if self._n_external_jobs > 0:
+            self._metric_mean_forwarding_time = timings_forwarding_sum / float(self._n_external_jobs)
 
-        if self.probed_jobs > 0:
-            self.mean_probing_time = timings_probing_sum / float(self.probed_jobs)
+        if self._n_probed_jobs > 0:
+            self._metric_mean_probing_time = timings_probing_sum / float(self._n_probed_jobs)
 
-        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d had network error." %
-              (self.total_requests, self.accepted_jobs, self.rejected_jobs, self.neterr_jobs))
+        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d externally executed, %d had network error." %
+              (self.total_requests, self._n_accepted_jobs, self._n_rejected_jobs, self._n_external_jobs,
+               self._n_neterr_jobs))
         print("[TEST] pB is %.6f, mean_request_time is %.6f, mean_probing_time is %.6f" % (
-            self.pb, self.mean_total_time, self.mean_probing_time))
-        print("[TEST] %.6f%% jobs externally executed, forwarding, scheduling and scheduling external times are "
-              "%.6fs %.6fs\n" % (self.pe, self.mean_forwarding_time, self.mean_scheduling_time))
+            self._metric_pb, self._metric_mean_total_time, self._metric_mean_probing_time))
+        print("[TEST] %.6f%% jobs externally executed, forwarding and scheduling times are %.6fs %.6fs\n" % (
+        self._metric_pe, self._metric_mean_forwarding_time, self._metric_mean_scheduling_time))
 
     def save_request_timings(self):
         if self.out_dir == "":
@@ -283,8 +284,10 @@ class FunctionTest:
         file_path = "{}/req-times-l{}-machine{:02}.txt".format(self.out_dir,
                                                                str(round(self.l, 3)).replace(".", "_"), self.machine_id)
         f = open(file_path, "w")
-        f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}\n".format(self.mean_total_time, self.total_requests,
-                                                                            self.accepted_jobs, self.rejected_jobs,
+        f.write("# mean={} - {} jobs {}/{} (a/r) - l={:.2} - k={}\n".format(self._metric_mean_total_time,
+                                                                            self.total_requests,
+                                                                            self._n_accepted_jobs,
+                                                                            self._n_rejected_jobs,
                                                                             self.l, self.k))
         for i in range(len(self._timings[TIMING_TOTAL_TIME])):
             if self._req_output[i] == 200:
@@ -296,26 +299,26 @@ class FunctionTest:
     #
 
     def get_pb(self):
-        return self.pb
+        return self._metric_pb
 
     def get_pe(self):
-        return self.pe
+        return self._metric_pe
 
     def get_probe_messages(self):
         return self.total_probe_messages
 
     def get_timings(self):
         return {
-            TIMING_TOTAL_TIME: self.mean_total_time,
-            TIMING_TOTAL_SRV_TIME: self.mean_total_srv_time,
-            TIMING_EXECUTION_TIME: self.mean_execution_time,
-            TIMING_SCHEDULING_TIME: self.mean_scheduling_time,
-            TIMING_PROBING_TIME: self.mean_scheduling_time,
-            TIMING_FORWARDING_TIME: self.mean_forwarding_time,
+            TIMING_TOTAL_TIME: self._metric_mean_total_time,
+            TIMING_TOTAL_SRV_TIME: self._metric_mean_total_srv_time,
+            TIMING_EXECUTION_TIME: self._metric_mean_execution_time,
+            TIMING_SCHEDULING_TIME: self._metric_mean_scheduling_time,
+            TIMING_PROBING_TIME: self._metric_mean_scheduling_time,
+            TIMING_FORWARDING_TIME: self._metric_mean_forwarding_time,
         }
 
     def get_net_errors(self):
-        return self.neterr_jobs
+        return self._n_neterr_jobs
 
     #
     # Utils
