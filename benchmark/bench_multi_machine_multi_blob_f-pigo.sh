@@ -41,7 +41,7 @@ BLOBS_SIZES=(
 BLOBS_SIZES_LEN=${#BLOBS_SIZES[@]}
 
 echo "=== Set scheduler to LL(1,6)"
-"$CURRENT_PATH"/../machines-setup/python_scripts/configure_pwr_n_scheduler.sh 2
+"$CURRENT_PATH"/../machines-setup/python_scripts/configure_scheduler_pwr_n.sh 2
 
 echo "=== Starting loop for blob sizes ==="
 for ((i = 0; i < BLOBS_SIZES_LEN; i++)); do
