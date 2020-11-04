@@ -272,9 +272,10 @@ class FunctionTest:
         if self._n_probed_jobs > 0:
             self._metric_mean_probing_time = timings_probing_sum / float(self._n_probed_jobs)
 
-        print("\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d externally executed, %d had network error." %
-              (self.total_requests, self._n_accepted_jobs, self._n_rejected_jobs, self._n_external_jobs,
-               self._n_neterr_jobs))
+        print(
+            "\n[TEST] Done. Of %d jobs, %d accepted, %d rejected, %d externally executed, %d probed jobs, %d had network error." %
+            (self.total_requests, self._n_accepted_jobs, self._n_rejected_jobs, self._n_external_jobs,
+             self._n_probed_jobs, self._n_neterr_jobs))
         print("[TEST] pB is %.6f, mean_request_time is %.6f, mean_probing_time is %.6f" % (
             self._metric_pb, self._metric_mean_total_time, self._metric_mean_probing_time))
         print("[TEST] %.6f%% jobs externally executed, forwarding and scheduling times are %.6fs %.6fs\n" % (
@@ -315,7 +316,7 @@ class FunctionTest:
             TIMING_TOTAL_SRV_TIME: self._metric_mean_total_srv_time,
             TIMING_EXECUTION_TIME: self._metric_mean_execution_time,
             TIMING_SCHEDULING_TIME: self._metric_mean_scheduling_time,
-            TIMING_PROBING_TIME: self._metric_mean_scheduling_time,
+            TIMING_PROBING_TIME: self._metric_mean_probing_time,
             TIMING_FORWARDING_TIME: self._metric_mean_forwarding_time,
         }
 
