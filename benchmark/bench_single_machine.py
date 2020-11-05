@@ -255,6 +255,9 @@ class FunctionTest:
             if self._req_external[i]:
                 self._n_external_jobs += 1
 
+            if self._req_did_probing[i]:
+                self._n_probed_jobs += 1
+
         self._metric_pb = self._n_rejected_jobs / float(self.total_requests)
         self._metric_pa = self._n_accepted_jobs / float(self.total_requests)
         self._metric_pe = self._n_external_jobs / float(self.total_requests)
