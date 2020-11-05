@@ -172,15 +172,23 @@ class FunctionTest:
             # update timings
             self._timings[TIMING_TOTAL_TIME][arg] = total_time
 
-            if not net_error:
-                self._req_external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
-                self._req_output[arg] = res.status_code
-                self._req_did_probing[arg] = res.headers.get(RES_HEADER_PROBING_TIME) is not None
-                # parse headers if request is successful
-                if res.status_code == 200:
-                    self.parse_timings_headers(res.headers, arg)
-            else:
+            # check if net error
+            if net_error:
                 self._req_output[arg] = 999
+                return
+
+            self._req_external[arg] = res.headers.get(RES_HEADER_EXTERNALLY_EXECUTED) is not None
+            self._req_output[arg] = res.status_code
+
+            # get probed status
+            if self._req_external[arg]:
+                self._req_did_probing[arg] = res.headers.get(RES_HEADER_PROBING_TIME_LIST) is not None
+            else:
+                self._req_did_probing[arg] = res.headers.get(RES_HEADER_PROBING_TIME) is not None
+
+            # parse headers if request is successful
+            if res.status_code == 200:
+                self.parse_timings_headers(res.headers, arg)
 
             # print debug res line
             self.print_req_res_line(arg, res, net_error, total_time)
