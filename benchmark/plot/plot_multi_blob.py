@@ -49,7 +49,7 @@ def plot(x_arr, y_arr, x_label, y_label, filename):
 
 
 BASE_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data-rpi-cluster/"
-WORKING_DIR = f"{BASE_DIR}/6rpi-2000req-th-2-blobs-10-k-4-pigo/6rpi-2000req-th-2-blobs-10-k-4-pigo-run-3"
+WORKING_DIR = f"{BASE_DIR}/6rpi-2000req-th-2-blobs-10-k-4-pigo/6rpi-2000req-th-2-blobs-10-k-4-pigo-run-1"
 N_MACHINES = 6
 
 BLOB_SIZES = [50000]
