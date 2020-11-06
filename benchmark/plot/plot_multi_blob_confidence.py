@@ -50,7 +50,7 @@ if USE_TEX:
         + ""]
 
 WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data-rpi-cluster"
-DIR_PREFIX = "6rpi-2000req-th-10-blobs-k-4-pigo/6rpi-2000req-th-10-blobs-k-4-pigo-run"
+DIR_PREFIX = "6rpi-2000req-th-2-blobs-10-k-4-pigo/6rpi-2000req-th-2-blobs-10-k-4-pigo-run"
 
 BLOB_SIZES = [50000]
 for i in range(1, 9):
@@ -85,8 +85,11 @@ def plot_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, title=No
     # ax.plot(x_arr, y_arr[1], marker="x", markersize=3.0, markeredgewidth=1, linewidth=0.7, color='C0')
     # ax.fill_between(x_arr, y_arr[0], y_arr[1], where=y_arr[0] >= y_arr[1], facecolor="C0", alpha=0.2)
     # ax.fill_between(x_arr, y_arr[0], y_arr[2], where=y_arr[0] <= y_arr[2], facecolor="C0", alpha=0.2)
-    plt.errorbar(x_arr, y_arr[1], yerr=y_errors, marker="o", markersize=3.0, markeredgewidth=1, linewidth=0.7,
-                 color='C0', capsize=2.5)  # mfc='none'
+    plt.errorbar(x_arr, y_arr[1],
+                 yerr=y_errors, marker="o", markersize=3.0, markeredgewidth=1, linewidth=0.7, color='C0', capsize=2.5)
+
+    for a, b in zip(x_arr, y_arr[1]):
+        plt.text(a, b, f"{b:.3f}", verticalalignment='top', horizontalalignment='left', fontsize=8)
 
     if y_limits is not None:
         plt.ylim(y_limits)
@@ -111,6 +114,9 @@ def save_confidence(x_arr, y_arr, y_errors, x_label, y_label, filename, title=No
 
 pbs = [[] for _ in range(N_BLOBS)]
 delays = [[] for _ in range(N_BLOBS)]
+forwarding = [[] for _ in range(N_BLOBS)]
+scheduling = [[] for _ in range(N_BLOBS)]
+probing = [[] for _ in range(N_BLOBS)]
 accepted = [[] for _ in range(N_BLOBS)]
 rejected = [[] for _ in range(N_BLOBS)]
 
@@ -128,8 +134,11 @@ for i in range(0, N_TESTS):
         values = line.split(" ")
         pbs[line_n].append(float(values[1]))
         delays[line_n].append(float(values[2]))
-        accepted[line_n].append(float(values[5]))
-        rejected[line_n].append(float(values[6]))
+        probing[line_n].append(float(values[3]))
+        scheduling[line_n].append(float(values[4]))
+        forwarding[line_n].append(float(values[5]))
+        accepted[line_n].append(float(values[6]))
+        rejected[line_n].append(float(values[7]))
         line_n += 1
     values_file.close()
 
@@ -144,6 +153,18 @@ delays_vars = []
 delays_upper = []
 delays_lower = []
 delays_errors = []
+
+forwarding_avgs = []
+forwarding_vars = []
+forwarding_upper = []
+forwarding_lower = []
+forwarding_errors = []
+
+probing_avgs = []
+probing_vars = []
+probing_upper = []
+probing_lower = []
+probing_errors = []
 
 accepted_avgs = []
 accepted_vars = []
@@ -175,35 +196,53 @@ for i in range(N_BLOBS):
     computeValues(i, pbs, pbs_avgs, pbs_vars, pbs_upper, pbs_lower, pbs_errors)
     print("> Computing values for delays, T=%d" % i)
     computeValues(i, delays, delays_avgs, delays_vars, delays_upper, delays_lower, delays_errors)
+    print("> Computing values for forwarding, T=%d" % i)
+    computeValues(i, forwarding, forwarding_avgs, forwarding_vars, forwarding_upper, forwarding_lower, forwarding_errors)
+    print("> Computing values for probing, T=%d" % i)
+    computeValues(i, probing, probing_avgs, probing_vars, probing_upper, probing_lower, probing_errors)
     print("> Computing values for accepted, T=%d" % i)
     computeValues(i, accepted, accepted_avgs, accepted_vars, accepted_upper, accepted_lower, accepted_errors)
     print("> Computing values for rejected, T=%d" % i)
     computeValues(i, rejected, rejected_avgs, rejected_vars, rejected_upper, rejected_lower, rejected_errors)
 
 print("> Plotting pb")
-TITLE = "6rpi - T=6 - 2000reqs - K=4"
+TITLE = "6rpi - T=2 - 2000reqs - K=4"
 X_AXIS = [str(int(BLOB_SIZES[i] / 1000)) for i in range(N_BLOBS)]
 
-plot_confidence(X_AXIS, [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "Payload Size (kb)", "$P_B$", "pbs_confidence",
-                TITLE)
-save_confidence(X_AXIS, [pbs_lower, pbs_avgs, pbs_upper], pbs_errors, "Payload Size (kb)", "$P_B$", "pbs_confidence",
-                TITLE)
+plot_confidence(X_AXIS, [pbs_lower, pbs_avgs, pbs_upper], pbs_errors,
+                "Payload Size (kb)", "$P_B$", "pbs_confidence", TITLE)
+save_confidence(X_AXIS, [pbs_lower, pbs_avgs, pbs_upper], pbs_errors,
+                "Payload Size (kb)", "$P_B$", "pbs_confidence", TITLE)
+
 print("> Plotting delays")
-plot_confidence(X_AXIS, [delays_lower, delays_avgs, delays_upper], delays_errors, "Payload Size (kb)", "Delay (s)",
-                "delay_confidence", TITLE)
-save_confidence(X_AXIS, [delays_lower, delays_avgs, delays_upper], delays_errors, "Payload Size (kb)", "Delay (s)",
-                "delay_confidence", TITLE)
+plot_confidence(X_AXIS, [delays_lower, delays_avgs, delays_upper], delays_errors,
+                "Payload Size (kb)", "Delay (s)", "delay_confidence", TITLE)
+save_confidence(X_AXIS, [delays_lower, delays_avgs, delays_upper], delays_errors,
+                "Payload Size (kb)", "Delay (s)", "delay_confidence", TITLE)
+
+print("> Plotting forwarding")
+plot_confidence(X_AXIS, [forwarding_lower, forwarding_avgs, forwarding_upper], forwarding_errors,
+                "Payload Size (kb)", "Forwarding Delay (s)", "forwarding_confidence", TITLE)
+save_confidence(X_AXIS, [forwarding_lower, forwarding_avgs, forwarding_upper], forwarding_errors,
+                "Payload Size (kb)", "Forwarding Delay (s)", "forwarding_confidence", TITLE)
+
+print("> Plotting probing")
+plot_confidence(X_AXIS, [probing_lower, probing_avgs, probing_upper], probing_errors,
+                "Payload Size (kb)", "Probing Delay (s)", "probing_confidence", TITLE)
+save_confidence(X_AXIS, [probing_lower, probing_avgs, probing_upper], probing_errors,
+                "Payload Size (kb)", "Probing Delay (s)", "probing_confidence", TITLE)
 
 print("> Plotting accepted")
-plot_confidence(X_AXIS, [accepted_lower, accepted_avgs, accepted_upper],
-                accepted_errors, "Payload Size (kb)", "Accepted Requests", "accepted_confidence", TITLE)
-save_confidence(X_AXIS, [accepted_lower, accepted_avgs, accepted_upper],
-                accepted_errors, "Payload Size (kb)", "Accepted Requests", "accepted_confidence", TITLE)
+plot_confidence(X_AXIS, [accepted_lower, accepted_avgs, accepted_upper], accepted_errors,
+                "Payload Size (kb)", "Accepted Requests", "accepted_confidence", TITLE)
+save_confidence(X_AXIS, [accepted_lower, accepted_avgs, accepted_upper], accepted_errors,
+                "Payload Size (kb)", "Accepted Requests", "accepted_confidence", TITLE)
+
 print("> Plotting rejected")
-plot_confidence(X_AXIS, [rejected_lower, rejected_avgs, rejected_upper],
-                rejected_errors, "Payload Size (kb)", "Rejected Requests", "rejected_confidence", TITLE)
-save_confidence(X_AXIS, [rejected_lower, rejected_avgs, rejected_upper],
-                rejected_errors, "Payload Size (kb)", "Rejected Requests", "rejected_confidence", TITLE)
+plot_confidence(X_AXIS, [rejected_lower, rejected_avgs, rejected_upper], rejected_errors,
+                "Payload Size (kb)", "Rejected Requests", "rejected_confidence", TITLE)
+save_confidence(X_AXIS, [rejected_lower, rejected_avgs, rejected_upper], rejected_errors,
+                "Payload Size (kb)", "Rejected Requests", "rejected_confidence", TITLE)
 
 # print pb with model
 MODEL_DATA = ""  # "/home/gabrielepmattia/Coding/papers/paper-2020-unk-deadline/model-kolm/raw/20201028-154703-mswim_final_kolm_new_2_pb_log.txt"
