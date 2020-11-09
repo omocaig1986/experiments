@@ -261,13 +261,13 @@ class FunctionTest:
                 self._n_neterr_jobs += 1
 
             if self._req_external[i]:
+                timings_forwarding_sum += self._timings[TIMING_FORWARDING_TIME][i]
                 self._n_external_jobs += 1
 
             if self._req_did_probing[i]:
                 self._n_probed_jobs += 1
 
             if self._req_external[i] and self._req_output[i] == 200:
-                timings_forwarding_sum += self._timings[TIMING_FORWARDING_TIME][i]
                 self._n_external_jobs_accepted += 1
 
         self._metric_pb = self._n_rejected_jobs / float(self.total_requests)
@@ -282,7 +282,7 @@ class FunctionTest:
             self._metric_mean_scheduling_time = timings_scheduling_sum / float(self._n_accepted_jobs)
 
         if self._n_external_jobs_accepted > 0:
-            self._metric_mean_forwarding_time = timings_forwarding_sum / float(self._n_external_jobs_accepted)
+            self._metric_mean_forwarding_time = timings_forwarding_sum / float(self._n_external_jobs)
 
         if self._n_probed_jobs > 0:
             self._metric_mean_probing_time = timings_probing_sum / float(self._n_probed_jobs)
