@@ -58,23 +58,24 @@ def bench_rtt(host, function, payload, requests_num, save_times):
 
     times = []
 
-    if save_times:
-        file_times = open("times.txt", "w")
-
     for i in range(requests_num):
         res_time = get_request(i)
         times.append(res_time)
 
-        if save_times:
-            # noinspection PyUnboundLocalVariable
-            print("%.6f" % res_time, file=file_times)
-
+    # do stats
     if save_times:
-        file_times.close()
+        file_times = open("times.txt", "w")
 
     total_time = 0
     for n in times:
         total_time += n
+
+        if save_times:
+            # noinspection PyUnboundLocalVariable
+            print("%.6f" % n, file=file_times)
+
+    if save_times:
+        file_times.close()
 
     avg = total_time / requests_num
 
