@@ -30,7 +30,7 @@ import sys
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
 
-def bench_rtt(host, function, payload, requests_num):
+def bench_rtt(host, function, payload, requests_num, save_times):
     url = "http://{}/{}".format(host, function)
     print("> function url is %s" % url)
 
@@ -58,9 +58,19 @@ def bench_rtt(host, function, payload, requests_num):
 
     times = []
 
+    if save_times:
+        file_times = open("times.txt", "w")
+
     for i in range(requests_num):
         res_time = get_request(i)
         times.append(res_time)
+
+        if save_times:
+            # noinspection PyUnboundLocalVariable
+            print("%.6f" % res_time, file=file_times)
+
+    if save_times:
+        file_times.close()
 
     total_time = 0
     for n in times:
@@ -82,11 +92,12 @@ def main(argv):
     function = ""
     payload = ""
     requests = 200
+    save_times = False
 
     usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "h", ["host=", "function=", "payload=", "requests="])
+            argv, "h", ["host=", "function=", "payload=", "requests=", "save-times"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -103,12 +114,15 @@ def main(argv):
             payload = arg
         elif opt in "--requests":
             requests = int(arg)
+        elif opt in "--save-times":
+            save_times = True
 
     print("====== P2P-FOG Compute mean delay of function ======")
     print("> host %s" % host)
     print("> function %s" % function)
     print("> payload %s" % payload)
     print("> requests %d" % requests)
+    print("> save_times %s" % save_times)
     print("")
 
     if host == "" or function == "":
