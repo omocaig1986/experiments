@@ -130,7 +130,7 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    bench_rtt(host, function, payload, requests)
+    bench_rtt(host, function, payload, requests, save_times)
 
 
 if __name__ == "__main__":
