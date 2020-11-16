@@ -8,7 +8,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/data:/var/lib/grafana
+      - grafana:/var/lib/grafana
+      # - ./grafana/data:/var/lib/grafana
 
   influxdb:
     image: influxdb
@@ -29,6 +30,7 @@ services:
     image: telegraf
     container_name: telegraf
     restart: always
+    network_mode: host
     environment:
       HOST_PROC: /rootfs/proc
       HOST_SYS: /rootfs/sys
@@ -42,3 +44,6 @@ services:
 
 networks:
   monitoring:
+
+volumes: 
+  grafana:
