@@ -60,7 +60,7 @@ print(BLOB_SIZES)
 N_TESTS = 3
 N_BLOBS = len(BLOB_SIZES)
 
-ALFA_VALUE = 0.10
+ALFA_VALUE = 0.05
 
 
 def arr_average(arr):
