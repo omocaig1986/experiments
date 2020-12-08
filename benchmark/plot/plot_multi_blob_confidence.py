@@ -49,15 +49,15 @@ if USE_TEX:
         + r"\usepackage[T1]{fontenc}"
         + ""]
 
-WORKING_DIR = "/home/gabrielepmattia/Coding/p2p-faas/experiments-data-rpi-cluster"
-DIR_PREFIX = "6rpi-2000req-th-2-blobs-10-k-4-pigo/6rpi-2000req-th-2-blobs-10-k-4-pigo-run"
+WORKING_DIR = "/home/gpm/Coding/p2p-faas/experiments-data-rpi-cluster"
+DIR_PREFIX = "6rpi-2000req-th-2-blobs-10-k-4-pigo-l-5-50-no-scheduler/6rpi-2000req-th-2-blobs-10-k-4-pigo-l-5-50-no-scheduler-run"
 
 BLOB_SIZES = [50000]
 for i in range(1, 9):
     BLOB_SIZES.append(i * 100000)
 print(BLOB_SIZES)
 
-N_TESTS = 3
+N_TESTS = 2
 N_BLOBS = len(BLOB_SIZES)
 
 ALFA_VALUE = 0.05
