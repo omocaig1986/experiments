@@ -6,6 +6,7 @@ cd faas
 # update
 git checkout $(git rev-parse --abbrev-ref HEAD) --force
 git pull
+git checkout tags/0.20.5
 
 # undeploy
 docker stack rm func
