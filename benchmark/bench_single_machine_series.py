@@ -18,49 +18,63 @@
 # This module computes the average response time of a get, by sending requests in series.
 #
 
+import getopt
+import math
+import os
 import requests
+import sys
 import time
+
 from common import CC
 from common import read_binary
-import os
-import math
-import getopt
-import sys
 
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 
 
-def bench_rtt(host, function, payload, requests_num, save_times):
+def bench_rtt(host, function, payload, requests_num, save_times, parallel):
     url = "http://{}/{}".format(host, function)
     print("> function url is %s" % url)
 
-    def get_request(arg):
+    def get_request(i, j, times_parallel):
         start_time = time.time()
 
         payload_bin = None
         if payload != "":
             payload_bin = read_binary(payload)
 
-        print("==> [GET] Number #" + str(arg + 1))
+        print("==> [GET] Number #" + str(i + 1))
         res = requests.post(url, data=payload_bin)
 
         end_time = time.time()
         total_time = end_time - start_time
 
         if res.status_code == 200:
-            print(CC.OKGREEN + "==> [RES] Status to #" + str(arg) + " is " +
+            print(CC.OKGREEN + "==> [RES] Status to #" + str(i) + " is " +
                   str(res.status_code) + " Time " + str(total_time) + CC.ENDC)
         else:
             print(CC.FAIL + "==> [RES] Status " +
                   str(res.status_code) + " Time " + str(total_time) + CC.ENDC)
 
+        times_parallel[j] = total_time
         return total_time
 
     times = []
 
     for i in range(requests_num):
-        res_time = get_request(i)
-        times.append(res_time)
+        times_parallel = [0.0 for i in range(parallel)]
+        threads = [None for i in range(parallel)]
+
+        for j in range(parallel):
+            threads[j] = threading.Thread(target=get_request, args=(i, j, times_parallel))
+            # res_time = get_request(i, j)
+
+        for j in range(parallel):
+            threads[j].start()
+
+        for j in range(parallel):
+            threads[j].join()
+
+        times.append(sum(times_parallel) / len(times_parallel))
 
     # do stats
     if save_times:
@@ -94,11 +108,12 @@ def main(argv):
     payload = ""
     requests = 200
     save_times = False
+    parallel = 1
 
     usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "h", ["host=", "function=", "payload=", "requests=", "save-times"])
+            argv, "h", ["host=", "function=", "payload=", "requests=", "save-times", "parallel"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
@@ -115,6 +130,8 @@ def main(argv):
             payload = arg
         elif opt in "--requests":
             requests = int(arg)
+        elif opt in "--parallel":
+            parallel = int(arg)
         elif opt in "--save-times":
             save_times = True
 
@@ -124,6 +141,7 @@ def main(argv):
     print("> payload %s" % payload)
     print("> requests %d" % requests)
     print("> save_times %s" % save_times)
+    print("> parallel %s" % parallel)  # number of parallel series request
     print("")
 
     if host == "" or function == "":
@@ -131,7 +149,7 @@ def main(argv):
         print(usage)
         sys.exit()
 
-    bench_rtt(host, function, payload, requests, save_times)
+    bench_rtt(host, function, payload, requests, save_times, parallel)
 
 
 if __name__ == "__main__":
