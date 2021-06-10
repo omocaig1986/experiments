@@ -113,7 +113,7 @@ def main(argv):
     usage = "plot_times.py"
     try:
         opts, args = getopt.getopt(
-            argv, "h", ["host=", "function=", "payload=", "requests=", "save-times", "parallel"])
+            argv, "h", ["host=", "function=", "payload=", "requests=", "save-times", "parallel="])
     except getopt.GetoptError:
         print(usage)
         sys.exit(2)
