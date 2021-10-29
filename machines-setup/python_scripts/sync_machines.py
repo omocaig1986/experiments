@@ -44,7 +44,7 @@ commands = [
     # f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
     #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.armhf.sh\"",
     f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas_local.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
     #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
     f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
     #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.armhf.sh\"",
