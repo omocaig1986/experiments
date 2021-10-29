@@ -1,6 +1,7 @@
 #!/bin/bash
 # Update the openfaas distribution
 cd ../../../
+echo "***FAAS***"
 cd faas
 
 # update
