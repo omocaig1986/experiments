@@ -5,30 +5,28 @@ import threading
 import time
 import sys
 
-if(len(sys.argv) != 4):
-    print("usage: clone_stack.py host-username hosts.txt deploy_token_user:pass")
+if(len(sys.argv) != 3):
+    print("usage: clone_stack.py host-username hosts.txt:pass")
     exit(1)
 
 host_username = sys.argv[1]
 hosts_file_path = sys.argv[2]
-deploy_token = sys.argv[3]
 
 THREAD_POOL_N = 4
 SSH_USERNAME = host_username
 
 consumer_sem = threading.Semaphore(THREAD_POOL_N)
 
-DEPLOY_TOKEN = deploy_token
 HOME_PATH = f"/home/{host_username}"
 
 hosts = []
 commands = [
     f"rm -rfv {HOME_PATH}/code",
     f"mkdir -p {HOME_PATH}/code/p2p-faas",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/experiments.git {HOME_PATH}/code/p2p-faas/experiments",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack.git {HOME_PATH}/code/p2p-faas/stack",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-scheduler.git {HOME_PATH}/code/p2p-faas/stack-scheduler",
-    f"git clone https://{DEPLOY_TOKEN}@gitlab.com/p2p-faas/stack-discovery.git {HOME_PATH}/code/p2p-faas/stack-discovery",
+    f"git clone https://git@github.com:omocaig1986/experiments.git {HOME_PATH}/code/p2p-faas/experiments",
+    f"git clone https://git@github.com:omocaig1986/stack.git {HOME_PATH}/code/p2p-faas/stack",
+    f"git clone https://@git@github.com:omocaig1986/stack-scheduler.git {HOME_PATH}/code/p2p-faas/stack-scheduler",
+    f"git clone https://@git@github.com:omocaig1986/stack-discovery.git {HOME_PATH}/code/p2p-faas/stack-discovery",
     f"git clone https://github.com/openfaas/faas.git {HOME_PATH}/code/faas"
 ]
 
