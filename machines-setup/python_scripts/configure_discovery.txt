@@ -1,8 +1,4 @@
-proiettimattia-p2pfogc100n0 192.168.1.203
-proiettimattia-p2pfogc101n0 192.168.1.202
-proiettimattia-p2pfogc102n0 192.168.1.215
-proiettimattia-p2pfogc103n0 192.168.1.244
-proiettimattia-p2pfogc104n0 192.168.1.241
-proiettimattia-p2pfogc105n0 192.168.1.233
-proiettimattia-p2pfogc106n0 192.168.1.229
-proiettimattia-p2pfogc107n0 192.168.1.252
+docker@n1 192.168.99.118
+docker@n2 192.168.99.119
+docker@n3 192.168.99.120
+docker@n4 192.168.99.121
