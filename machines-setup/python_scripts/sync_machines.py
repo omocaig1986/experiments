@@ -37,16 +37,15 @@ commands = [
 
 commands = [
     # "docker system prune -f --volumes",
-    "docker swarm leave",
-    "docker swarm init --advertise-addr $(ip addr show eth1 | grep \"inet\b\" | awk '{print $2}' | cut -d/ -f1)",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
+    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./setup_swarm.sh\""
+    #--f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh\"",
+    #--f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.sh\"",
     # f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo_f.sh\"",
     #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_pigo.armhf.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
-    f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
+    #--f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./undeploy_stack.sh\"",
+    #--f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./update_faas.sh\"",
+    #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./pull_repositories.sh && ./deploy_stack_local.sh\"",
+    #--f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.sh\"",
     #f"\"cd {HOME_PATH}/code/p2p-faas/experiments/machines-setup ; bash -c ./deploy_pigo.armhf.sh\"",
     # "docker system prune -f --volumes",
     # "sudo reboot"
