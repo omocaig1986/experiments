@@ -2,7 +2,7 @@
 ./create_machines.sh
 
 ./setup_machines.sh
-./setup_hosts.txt.sh
+./setup_hosts_txt.sh
 
 cd python_scripts
 

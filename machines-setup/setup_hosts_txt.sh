@@ -7,7 +7,6 @@ rm ./python_scripts/hosts.txt
 } > ./python_scripts/hosts.txt
 
 rm ./python_scripts/configure_discovery.txt
-
 {
     echo docker@$n1 $(docker-machine ip n1)
     echo docker@$n2 $(docker-machine ip n2)
