@@ -1,4 +1,4 @@
-echo y | docker-machine rm p2pfogc0n0
-echo y | docker-machine rm p2pfogc1n0
-echo y | docker-machine rm p2pfogc2n0
-echo y | docker-machine rm p2pfogc3n0
+echo y | docker-machine rm n1
+echo y | docker-machine rm n2
+echo y | docker-machine rm n3
+echo y | docker-machine rm n4
