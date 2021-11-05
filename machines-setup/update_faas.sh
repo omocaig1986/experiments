@@ -31,9 +31,9 @@ mkdir ~/bin
 if [ $(uname -m | cut -b 1-3) == "arm" ]
 then
     echo "==> ARM architecture detected"
-    wget https://github.com/openfaas/faas-cli/releases/download/0.12.14/faas-cli-armhf -O ~/bin/faas-cli
+    wget https://github.com/openfaas/faas-cli/releases/download/0.13.15/faas-cli-armhf -O ~/bin/faas-cli
 else
-    wget https://github.com/openfaas/faas-cli/releases/download/0.12.14/faas-cli -O ~/bin/faas-cli
+    wget https://github.com/openfaas/faas-cli/releases/download/0.13.15/faas-cli -O ~/bin/faas-cli
 fi
 
 # make runnable
